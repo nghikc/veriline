@@ -40,7 +40,7 @@ let pass = 0, fail = 0, skip = 0;
 const PUBLIC = process.argv.includes('--public');
 // Ca được phép bỏ qua ở bản công khai (mã = đối số đầu của cần()). Thêm/bớt ca phụ thuộc skill Pro → sửa danh sách này.
 const BỎ_QUA_CÔNG_KHAI = [
-  '3p', '3q', '3r', '3v', '3w', '3x', '3z', '3aa', '3fs', '3uv', '3cv', '3af', '3ag', '3ai', '3ar', '3ce', '3hr', '3dc', '3av',
+  '3p', '3q', '3r', '3v', '3w', '3x', '3z', '3aa', '3fs', '3uv', '3cv', '3af', '3ag', '3ai', '3ar', '3ce', '3hr', '3dc', '3av', '3vr',
 ];
 const bỏQua = [];
 // Skill gói Pro/devonly theo registry — vắng ở bản công khai là hợp lệ (dùng khi lọc dữ liệu thật trỏ tới chúng, vd golden).
@@ -276,6 +276,21 @@ try {
     if (!linkOk) { skip++; console.log('  ⏭️  lint 40 README/VERSION — BỎ QUA: không tạo được symlink'); }
     else if (r.status !== 0 && !lỗi.length) { pass++; console.log(`  ✅ lint 40 bắt số skill chép tay ở README + VERSION thiếu mục CHANGELOG, im với file số máy điền (exit=${r.status})`); }
     else { fail++; console.log('  ❌ lint 40 README/VERSION — ' + (lỗi.join(' | ') || `exit=${r.status}`)); }
+  });
+
+  // 3vr. Bộ quét rò cho phép ĐÚNG URL repo công khai (manifest public.repo) — kể cả `.git`, đường con, dấu chấm cuối câu — và che nó
+  // trước khi dò tên chủ repo; `veriline-pro` và repo phát triển cùng chủ vẫn phải rò (url-noi-bo + ten-that). release/ là devOnly.
+  ca('3vr', () => {
+    if (!cần('3vr', 'release/export-public.js')) return;
+    const D = path.join(TMP, 'quet-repo'); fs.rmSync(D, { recursive: true, force: true }); fs.mkdirSync(D, { recursive: true });
+    const repo = JSON.parse(fs.readFileSync(path.join(ROOT, 'release', 'manifest.json'), 'utf8')).public.repo, chủ = repo.replace(/\/[^/]+$/, '');
+    fs.writeFileSync(path.join(D, 'README.md'), `git clone ${repo}.git ~/v\nIssue: ${repo}/issues.\nPro: ${repo}-pro\nDev: ${chủ}/repo-phat-trien\n`);
+    const r = run([path.join(ROOT, 'release', 'export-public.js'), '--scan', D]), o = r.stdout || '', lỗi = [];
+    if (!/repo-cong-khai 2\b/.test(o)) lỗi.push('không che đúng 2 URL repo công khai');
+    if (!/url-noi-bo 2\b/.test(o)) lỗi.push('URL -pro/repo phát triển cùng chủ phải là url-noi-bo (2)');
+    if (r.status !== 4) lỗi.push(`exit ${r.status} ≠ 4 (2 URL lạ × url-noi-bo + ten-that) — ngoại lệ nới quá tay hoặc không che`);
+    if (!lỗi.length) { pass++; console.log('  ✅ 3vr bộ quét rò: URL chính repo công khai được che (cả .git/đường con), -pro và repo phát triển cùng chủ vẫn rò'); }
+    else { fail++; console.log('  ❌ 3vr — ' + lỗi.join(' | ') + ' :: ' + o.split('\n').slice(0, 3).join(' / ')); }
   });
 
   // 3d-quater. status.js đếm CR: `|` trong code span không phải ranh giới cột, và `Đã nghiệm thu` là ĐÓNG

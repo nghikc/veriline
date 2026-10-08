@@ -27,7 +27,7 @@ Veriline là bộ skill cho [Claude Code](https://claude.com/claude-code) làm *
 ## Cài đặt
 
 ```bash
-git clone https://github.com/<org>/veriline.git ~/veriline
+git clone https://github.com/nghikc/veriline.git ~/veriline
 cd ~/du-an-cua-ban
 node ~/veriline/.claude/skills/ba-export/scripts/install.js --to .
 ```
