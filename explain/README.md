@@ -19,12 +19,11 @@ Toàn bộ skill chia làm **sáu nhóm**. Mỗi nhóm có một file giải th�
 
 | Nhóm | File | Nội dung |
 |---|---|---|
-| Luồng chính (pipeline) | `01-pipeline-core.md` | 9 skill: 7 làm nên dây chuyền chính (yêu cầu → chức năng → màn hình → đặc tả → kiểm thử → giao diện → kế hoạch build) + 2 tùy chọn (E2E, kiểm thử API); wireframe lo-fi là chế độ `lofi` của `ba-html-design` |
+| Luồng chính (pipeline) | `01-pipeline-core.md` | 10 skill: 7 làm nên dây chuyền chính (yêu cầu → chức năng → màn hình → đặc tả → kiểm thử → giao diện → kế hoạch build) + cổng khả thi `ba-feasible` trước build + 2 tùy chọn (E2E, kiểm thử API); wireframe lo-fi là chế độ `lofi` của `ba-html-design` |
 | Tài liệu cấp hệ thống | `02-tai-lieu-he-thong.md` | 8 skill tùy chọn cho tài liệu "cấp tổng": mô hình dữ liệu (kèm chế độ `dbml` — DB schema), API (kể cả **API đối tác ngoài**), design system, **kiến trúc kỹ thuật**, **mô hình đe doạ**, **lộ trình tách hệ cũ**, **kiến trúc tích hợp (nhiều hệ)**, đẩy màn đã chốt lên Figma |
-| Lệnh điều phối (orchestrator) | `03-orchestrator.md` | 10 skill chạy cả một chuỗi trong một lệnh, có "chốt chặn" dò lỗ hổng giữa các bước — gồm 4 orchestrator khép vòng đời: **`ba-discover`** (chế độ vision/stakeholder/persona/process/urd/brainstorm/meet/roadmap)→`ba-init`→`dev-run`→**`ba-accept`** (chế độ uat/release/userguide), và `ba-batch` đặc tả nhiều màn song song |
+| Lệnh điều phối (orchestrator) | `03-orchestrator.md` | 10 skill (+ `ba-userguide-video` đi sau `ba-accept userguide`) chạy cả một chuỗi trong một lệnh, có "chốt chặn" dò lỗ hổng giữa các bước — gồm 4 orchestrator khép vòng đời: **`ba-discover`** (chế độ vision/stakeholder/persona/process/urd/brainstorm/meet/roadmap)→`ba-init`→`dev-run`→**`ba-accept`** (chế độ uat/release/userguide), và `ba-batch` đặc tả nhiều màn song song |
 | Tiện ích | `04-tien-ich.md` | 21 skill hỗ trợ: **một cửa `ba-next` (đang ở đâu, chạy gì tiếp)**, dò gap, ma trận truy vết (per-màn + RTM), xuất cổng đọc, xuất bản online, cài toolkit (dòng lệnh `ba-export` hoặc **màn hình `ba-launcher`**), **trang luồng màn cho người dùng cuối (`ba-portal sitemap`)**, **prototype bấm-được (`ba-prototype`)**, tra cứu, vẽ sơ đồ, sổ work item |
 | Bộ dev | `05-dev.md` | 11 mục: `dev-run` + đội agent `ac-*` (10 skill kỷ luật `dev-*` còn lại gom trong một mục) để biến kế hoạch thành code thật |
-| Phân tích & kế hoạch | `06-phan-tich-va-ke-hoach.md` | 2 skill: clip hướng dẫn có giọng đọc, soát khả thi trước build (vision/quy trình/persona/URD/roadmap nay là chế độ của `ba-discover`; UAT/phát hành/cẩm nang là chế độ của `ba-accept` — cả hai ở `03-orchestrator.md`) |
 
 ---
 
@@ -57,6 +56,8 @@ Mặc định toolkit chạy **đầy đủ**: mỗi màn 9 tài liệu, cộng 
 | `ba-html-design` | Dựng bản thiết kế HTML trực quan cho một màn hình; chế độ `lofi` = wireframe đen trắng chốt bố cục trước khi bàn màu (trước là `ba-wireframe-lofi`) |
 | `ba-build` | Lập kế hoạch triển khai code (`plan.md`) cho từng màn hình |
 | `ba-test-e2e` | *(tùy chọn)* Sinh script Playwright `e2e/tests/<Mã>-<Tên>.spec.ts` (gốc dự án) từ `test.md` — mỗi TC giữ nguyên mã truy vết |
+| `ba-api-test` | Kiểm thử API: liệt kê kịch bản `ACL-..` để duyệt, rồi sinh tệp `.http` bắn được |
+| `ba-feasible` | tài liệu BA đã đủ theo ba-review nhưng CHƯA chắc viết code ra được |
 
 ### Nhóm tài liệu cấp hệ thống — `02-tai-lieu-he-thong.md`
 
@@ -69,6 +70,7 @@ Mặc định toolkit chạy **đầy đủ**: mỗi màn 9 tài liệu, cộng 
 | `ba-threat-model` ⚗️ *thử nghiệm* | Mô hình đe doạ bám `10-architecture`: ranh giới tin cậy, tài sản, kẻ tấn công theo vai, đường lạm dụng `TM-..` có biện pháp trace NFR/ADR |
 | `ba-migration` ⚗️ *thử nghiệm* | Lộ trình tách/đổi codebase cũ: bản đồ domain từ code, ghép nối mạnh·xa·hay đổi, bước `MG-..` đo được + quay lui, cửa một chiều → ADR |
 | `ba-integration` | Kiến trúc tích hợp khi nối **nhiều hệ thống**: landscape, hợp đồng tích hợp, MDM, luồng xuyên hệ |
+| `ba-figma-draw` | Đẩy màn **đã chốt** (bố cục wireframe đã chọn, bản html đã duyệt) lên Figma cho designer/khách xem; máy theo dõi bản Figma còn khớp không, ai sửa trên Figma thì kéo về. Dự án chưa có html thì vẫn vẽ được bản xem trước như cũ |
 
 ### Nhóm điều phối — `03-orchestrator.md`
 
@@ -81,6 +83,10 @@ Mặc định toolkit chạy **đầy đủ**: mỗi màn 9 tài liệu, cộng 
 | `ba-batch` | Đặc tả **nhiều màn song song** (mỗi màn một subagent) — nhanh hơn tuần tự nhiều lần |
 | `ba-change-request` | Quản trị trọn vòng đời một yêu cầu thay đổi (CR): mở sổ → phân tích ảnh hưởng → duyệt → đồng bộ tài liệu → đóng |
 | `ba-reverse` | Chiều ngược: sinh tài liệu BA từ một codebase có sẵn |
+| `ba-userguide-video` | Clip hướng dẫn từ trang how-to đã duyệt — quay app thật từng bước, giọng đọc TTS, phụ đề khớp lời |
+| `ba-remove` | cần CẮT BỚT phạm vi đã có |
+| `ba-proto-first` | muốn CHỐT NGHIỆP VỤ BẰNG PROTOTYPE BẤM ĐƯỢC trước rồi mới viết đặc tả; chế độ `flow` = luồng nghiệp vụ + màn sơ bộ (trước là `ba-flow`), `html` = prototype một file tự chứa gửi khách (trước là `ba-proto-html`) |
+| `ba-auto` | muốn chạy trọn chuỗi từ codebase có sẵn ra MVP trong một trigger |
 
 ### Nhóm tiện ích — `04-tien-ich.md`
 
@@ -101,6 +107,12 @@ Mặc định toolkit chạy **đầy đủ**: mỗi màn 9 tài liệu, cộng 
 | `ba-diagram` | Vẽ một sơ đồ Mermaid từ mô tả — tự chọn đúng loại, tô màu, soát coverage; `export` biên dịch sơ đồ thành .svg + HTML đem đi dùng |
 | `ba-reverse-doc` | Dựng tài liệu BA từ **tài liệu rời rạc** (Word/PDF/ảnh/email) — chiều ngược từ tài liệu |
 | `ba-task` | Sổ **Work Item** (WI): theo dõi việc dev không phải CR — tính năng mới/tech/bug/spike |
+| `ba-new-skill` | cần tạo một skill MỚI cho chính bộ BA toolkit này |
+| `ba-dashboard` | PM/Project Lead cần một BÁO CÁO ĐIỀU HÀNH một trang về tình trạng dự án |
+| `ba-index` | cần TRA CỨU tài liệu BA mà không muốn đọc cả file |
+| `ba-onepager` | cần MỘT tài liệu văn liền mạch về cả dự án, gói trong một trang HTML tự chứa để gửi cho lãnh đạo/khách/đối tác |
+| `ba-atlassian` ⚗️ *thử nghiệm* | sổ WI/CR ↔ Jira (push khoá, pull trạng thái) và đẩy `.md` lên Confluence qua Atlassian MCP |
+| `ba-start` | lần đầu dùng Veriline hay chưa biết bắt đầu từ đâu |
 
 ### Nhóm dev — `05-dev.md`
 
@@ -108,23 +120,6 @@ Mặc định toolkit chạy **đầy đủ**: mỗi màn 9 tài liệu, cộng 
 |---|---|
 | `dev-run` | Điều phối khâu dev: biến `plan.md` thành code thật (bước 8 của pipeline) |
 | 10 skill `dev-*` còn lại | Bộ kỷ luật lập trình/QA (viết plan, TDD, debug, review, verify...) mà `dev-run` sử dụng |
-
-### Nhóm phân tích & kế hoạch — `06-phan-tich-va-ke-hoach.md`
-
-| Skill | Làm gì (một dòng) |
-|---|---|
-| `ba-userguide-video` | Clip hướng dẫn từ trang how-to đã duyệt — quay app thật từng bước, giọng đọc TTS, phụ đề khớp lời |
-| `ba-new-skill` | cần tạo một skill MỚI cho chính bộ BA toolkit này |
-| `ba-dashboard` | PM/Project Lead cần một BÁO CÁO ĐIỀU HÀNH một trang về tình trạng dự án |
-| `ba-figma-draw` | Đẩy màn **đã chốt** (bố cục wireframe đã chọn, bản html đã duyệt) lên Figma cho designer/khách xem; máy theo dõi bản Figma còn khớp không, ai sửa trên Figma thì kéo về. Dự án chưa có html thì vẫn vẽ được bản xem trước như cũ |
-| `ba-remove` | cần CẮT BỚT phạm vi đã có |
-| `ba-proto-first` | muốn CHỐT NGHIỆP VỤ BẰNG PROTOTYPE BẤM ĐƯỢC trước rồi mới viết đặc tả; chế độ `flow` = luồng nghiệp vụ + màn sơ bộ (trước là `ba-flow`), `html` = prototype một file tự chứa gửi khách (trước là `ba-proto-html`) |
-| `ba-api-test` | Kiểm thử API: liệt kê kịch bản `ACL-..` để duyệt, rồi sinh tệp `.http` bắn được |
-| `ba-api-test` | cần biến checklist kiểm thử API thành FILE CHẠY ĐƯỢC |
-| `ba-feasible` | tài liệu BA đã đủ theo ba-review nhưng CHƯA chắc viết code ra được |
-| `ba-index` | cần TRA CỨU tài liệu BA mà không muốn đọc cả file |
-| `ba-auto` | muốn chạy trọn chuỗi từ codebase có sẵn ra MVP trong một trigger |
-| `ba-onepager` | cần MỘT tài liệu văn liền mạch về cả dự án, gói trong một trang HTML tự chứa để gửi cho lãnh đạo/khách/đối tác |
 | `ac-agent` | cần TẠO hoặc SỬA một agent (subagent) trong `.claude/agents/` của bộ toolkit |
 | `ac-verify` | một màn đã dev xong mọi task của plan.md và cần CHỨNG MINH độc lập trước khi đánh dev = ✅ |
 | `ac-team` | plan.md của một màn có nhiều task (>8) và muốn một ĐỘI agent dev thay vì một agent |
@@ -135,8 +130,6 @@ Mặc định toolkit chạy **đầy đủ**: mỗi màn 9 tài liệu, cộng 
 | `ac-po` | muốn đội agent TỰ CHẠY một phase: PO chọn việc, giao đội, nhận bằng bằng chứng, dừng ở chỗ thuộc quyền người |
 | `ac-audit-web` | soát giao diện người dùng thấy theo WCAG 2.1 AA · UX · Core Web Vitals, ra `AU-nn` có `file:line` |
 | `ac-ci` | PR đã mở mà CI đỏ: cắt log, đoán loại, lô sửa cho `ac-builder`, canh tới xanh |
-| `ba-atlassian` ⚗️ *thử nghiệm* | sổ WI/CR ↔ Jira (push khoá, pull trạng thái) và đẩy `.md` lên Confluence qua Atlassian MCP |
-| `ba-start` | lần đầu dùng Veriline hay chưa biết bắt đầu từ đâu |
 
 ---
 
@@ -157,7 +150,7 @@ Mặc định toolkit chạy **đầy đủ**: mỗi màn 9 tài liệu, cộng 
 | Chuẩn bị nghiệm thu / ký bàn giao cho khách | `ba-accept uat` | `03-orchestrator.md` |
 | Xuất gói phát hành một phase (kế hoạch + nghiệm thu) ra HTML/URL | `ba-accept release` | `03-orchestrator.md` |
 | Viết cẩm nang sử dụng cho admin/CSKH/người dùng cuối | `ba-accept userguide` | `03-orchestrator.md` |
-| Làm clip hướng dẫn có giọng đọc từ cẩm nang | `ba-userguide-video` | `06-phan-tich-va-ke-hoach.md` |
+| Làm clip hướng dẫn có giọng đọc từ cẩm nang | `ba-userguide-video` | `03-orchestrator.md` |
 | Cần vẽ một sơ đồ mà không biết chọn loại nào | `ba-diagram` | `04-tien-ich.md` |
 | Ý tưởng/tính năng còn mơ hồ, muốn làm rõ trước khi viết yêu cầu | `ba-discover brainstorm` | `03-orchestrator.md` |
 | Muốn viết bản yêu cầu có cấu trúc từ ý tưởng | `ba-requirements` | `01-pipeline-core.md` |

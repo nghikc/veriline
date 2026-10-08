@@ -46,7 +46,7 @@ Các ứng viên còn lại (U-02, U-04…U-10) chưa ai phản đối việc đ
 
 | Mã | Việc | Người | Hạn | Trạng thái | Liên quan |
 |---|---|---|---|---|---|
-| ACT-01 | Lập `docs/12-api-integration.md`: đánh giá build-vs-buy SendGrid vs Amazon SES + mapping field + checklist readiness | BA | 2026-07-28 | ✅ Xong (2026-07-27) | DEC-02 · `ba-api-integration` · `ADR-01`/`ADR-02` đã **Accepted** |
+| ACT-01 | Lập `docs/12-api-integration.md`: đánh giá build-vs-buy SendGrid vs Amazon SES + mapping field + checklist readiness | BA | 2026-07-28 | ✅ Xong (2026-07-27) | DEC-02 · `ba-api-spec partner` · `ADR-01`/`ADR-02` đã **Accepted** |
 | ACT-02 | Mở **CR-01** cho "xuất báo cáo tiến độ" vào `docs/00-cr.md` (trạng thái Đề xuất, chờ SH-05 duyệt) | BA | 2026-07-23 | ✅ Xong | DEC-03 → **CR-01** |
 | ACT-03 | Cấu hình SPF/DKIM cho domain gửi mail trên môi trường staging | SH-04 (IT/DevOps) | ~~2026-07-30~~ → **2026-08-07** | ⚠️ Quá hạn → chuyển **`WI-05`** | DEC-02 · điều kiện để thử nghiệm F09 · theo dõi tiếp ở `00-backlog.md` |
 | ACT-04 | Ghi U-02, U-04…U-10 vào mục Later của `08-roadmap.md` | SH-06 (BA) | 2026-08-04 | ✅ Xong | DEC-05 · `00-personas.md` §6 |
@@ -68,7 +68,7 @@ Các ứng viên còn lại (U-02, U-04…U-10) chưa ai phản đối việc đ
 > Rà `ACT` theo gate `ba-review all` ngày 2026-08-04 (gap `G35`):
 - **`ACT-03` quá hạn** (hạn 2026-07-30, vẫn `Mở` sau 5 ngày). Nguyên nhân: việc hạ tầng nằm trong biên bản họp thì không có ai "sở hữu vòng đời" — không xuất hiện ở bảng công việc nào. **Xử lý:** chuyển thành **`WI-05`** trong `docs/00-backlog.md` (Tech, Must, SH-04), giao lại hạn **2026-08-07**. Từ đây theo dõi ở sổ Work Item, biên bản chỉ giữ dấu vết nguồn.
 - **`ACT-06` đến hạn hôm nay** (2026-08-04), vẫn `Mở` — chưa quá hạn nên không xử lý, nhưng đây là điều kiện gỡ của **`WI-03`** (đang `Blocked`). Không xong trong hôm nay thì kỳ rà sau phải chuyển WI như `ACT-03`.
-- Bài học ghi nhận: `ACT` là **việc kỹ thuật/việc mới** thì nên mở `WI` **ngay tại buổi họp** (đúng luật nối luồng của `ba-meet`), đừng để hạn trôi rồi mới chuyển.
+- Bài học ghi nhận: `ACT` là **việc kỹ thuật/việc mới** thì nên mở `WI` **ngay tại buổi họp** (đúng luật nối luồng của `ba-discover meet`), đừng để hạn trôi rồi mới chuyển.
 
 ## Họp kế tiếp
 **2026-07-28** — Review đánh giá nhà cung cấp email (ADR đã Accepted — chuyển sang chốt lịch nộp đơn thoát sandbox `ACT-06`) + tiến độ dev Phase 1 + xác nhận ngân sách SES (`OQ-01`).

@@ -3,7 +3,7 @@
  * ba-toolkit/check-md.js — ba phép kiểm CƠ GIỚI trên MỘT file markdown vừa sửa (H1, H2, H3).
  *
  * Vì sao tồn tại: luật của toolkit là chữ trong SKILL.md, và người đọc chữ đó là một model —
- * model bỏ sót được. Đo thật trong một phiên `ba-add-feature` → `dev-run` (dự án desktop,
+ * model bỏ sót được. Đo thật trong một phiên `ba-add-screen feature` → `dev-run` (dự án desktop,
  * 09-10/09/2026): bảy lỗi lọt qua mọi gate và chỉ bị agent đọc lại bắt sau 3-4 vòng vá, trong
  * khi cả bảy đều kiểm được bằng máy trong vài chục mili-giây. Hai lỗi rẻ nhất trong đó ở đây:
  *

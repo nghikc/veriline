@@ -4,7 +4,7 @@ group: orchestrator
 updated: 2026-07-15
 ---
 
-# Nhóm điều phối (orchestrator) — 10 skill chạy cả chuỗi trong một lệnh
+# Nhóm điều phối (orchestrator) — 10 skill chạy cả chuỗi trong một lệnh (+ `ba-userguide-video` đi sau `ba-accept userguide`)
 
 > Skill nguyên tử (ở `01-pipeline-core.md`) làm **một việc**. Orchestrator **ghép nhiều việc** lại: gõ một lệnh, nó tự lần lượt gọi các skill nguyên tử theo đúng thứ tự, và chèn **"chốt chặn" (gate)** giữa các bước để dò lỗ hổng. Bạn đỡ phải nhớ gõ từng bước.
 
@@ -218,6 +218,18 @@ Ranh giới hay nhầm nhất — **thêm vs đổi**, và **thêm màn vs thêm
 **Ví dụ.** `/ba-accept userguide` → mục lục 12 trang (2 tổng quan, 1 bắt đầu nhanh, 6 how-to theo UC, 1 tra cứu, 1 xử lý sự cố từ TC Negative, 1 FAQ+thuật ngữ) → duyệt → 12 trang + 8 ảnh callout → `docs/Ho-so/userguide/userguide.html`.
 
 ---
+
+## ba-userguide-video — Clip hướng dẫn có giọng đọc (đi sau `ba-accept userguide`, không phải orchestrator)
+
+**Làm gì.** Từ các trang hướng dẫn thao tác (how-to) **đã duyệt** của cẩm nang, dựng **clip hướng dẫn** khổ ngang: máy mở app thật, thao tác lần lượt từng bước (có con trỏ và khung khoanh chỗ cần bấm), một giọng đọc tiếng Việt đọc lời giải thích, phụ đề chạy khớp từng chữ, mỗi trang một chương. Giọng đọc lấy từ công cụ TTS riêng.
+
+**Điểm hay.** Lời đọc bám đúng trang đã duyệt và ghi rõ trang đó đến từ use case/test case nào — clip không nói gì cẩm nang không nói. Máy đọc trước rồi mới quay, nên dù máy chạy nhanh hay chậm, tiếng vẫn khớp hình. Trang cẩm nang sửa sau khi đã dựng clip → máy báo "clip cũ", dựng lại thì chỉ đọc lại những câu đã đổi.
+
+**Khi nào dùng.** Cẩm nang đã xong và duyệt, app đã chạy được, muốn có video cho người dùng mới/CSKH tự học.
+
+**KHÔNG dùng khi.** Cẩm nang chưa duyệt (sửa nội dung ở `ba-accept userguide` trước); chưa có app chạy được; cần video dọc cho mạng xã hội (chưa hỗ trợ).
+
+**Đầu ra.** Kịch bản từng clip trong `docs/Ho-so/userguide/<bundle>/video/` (để đối soát); file video `.mp4` + phụ đề ở thư mục `.ba-video/` của dự án (không đưa lên git).
 
 ## ba-add-screen — Thêm một màn hình (hoặc, chế độ `feature`, một chức năng) vào dự án đã có
 

@@ -201,7 +201,7 @@ Tổng hợp các 🔶 ở trên để `ba-requirements` (dự án mới) hoặc
 > *Vì sao chưa xác nhận được:* Personas dựng từ vai trò trong tài liệu, **chưa có phỏng vấn/khảo sát/analytics người dùng thật** — dự án mẫu không có người dùng.
 > *Điều kiện rà lại:* MVP chạy được 1 tháng (có analytics), hoặc thực hiện được 2–3 buổi phỏng vấn mỗi nhóm — khi điều đó xảy ra, các dòng dưới quay lại `⚠️ chưa xác nhận` và phải rà theo vòng "Xác nhận giả định" (`conventions.md`).
 
-> Personas vẫn là **giả thuyết làm việc** — `ba-persona` là tài liệu sống, cập nhật lại bằng dữ liệu thật khi có.
+> Personas vẫn là **giả thuyết làm việc** — `ba-discover persona` là tài liệu sống, cập nhật lại bằng dữ liệu thật khi có.
 
 ---
 

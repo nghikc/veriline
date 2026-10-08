@@ -52,7 +52,7 @@ function tìmThưMục() {
   // Trước khi so số phiên: thư mục khớp ĐÚNG đường dẫn cwd thắng tuyệt đối. Đo trên dự án desktop
   // (11/09/2026): "nhiều phiên nhất" chọn nhầm một sandbox tạm (25 phiên, 337 dòng) thay vì
   // `-Users-x-dev-<dự-án>`, và báo cáo phản hồi ghi "0/76 skill từng gọi" cho một dự án
-  // đã chạy ba-add-feature/dev-run hàng chục lần. Tên thư mục transcript = đường dẫn cwd với
+  // đã chạy ba-add-screen feature/dev-run hàng chục lần. Tên thư mục transcript = đường dẫn cwd với
   // mọi ký tự không phải chữ/số thành `-`, nên so được chính xác.
   const tênCwd = process.cwd().replace(/[^A-Za-z0-9]/g, '-');
   const đúngCwd = khớp.filter((d) => path.basename(d) === tênCwd);

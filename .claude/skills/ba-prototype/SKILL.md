@@ -6,7 +6,7 @@ description: Use when các màn đã có html-design.html và cần prototype b�
 # ba-prototype — Scaffold prototype bấm-được (Vite + React) từ html-design + flow
 
 ## Mục tiêu
-Một **prototype tương tác**: end user bấm nút trên màn để đi qua các màn theo đúng flow. Ghép **`html-design.html` mọi màn** (giữ nguyên high-fi bằng `<iframe>`) vào một project **Vite + React + React Router** ở `prototype/`, nối chức năng theo `docs/Ho-so/sitemap-flows.md`. Khác `ba-sitemap` (trang tài liệu đọc, tĩnh): đây là **app bấm-được, dùng lại được** — hạt giống cho frontend thật.
+Một **prototype tương tác**: end user bấm nút trên màn để đi qua các màn theo đúng flow. Ghép **`html-design.html` mọi màn** (giữ nguyên high-fi bằng `<iframe>`) vào một project **Vite + React + React Router** ở `prototype/`, nối chức năng theo `docs/Ho-so/sitemap-flows.md`. Khác `ba-portal sitemap` (trang tài liệu đọc, tĩnh): đây là **app bấm-được, dùng lại được** — hạt giống cho frontend thật.
 
 Nút bấm → điều hướng nhờ: iframe **same-origin** nên parent bắt được click trong màn, đối chiếu `src/wiring.json` (nút → màn đích) rồi `navigate`. `wiring.json` được rút tự động từ các cạnh Mermaid `Sxx -->|nhãn| Syy` trong `sitemap-flows.md`.
 

@@ -1079,7 +1079,8 @@ const DỜI_FILE = [   // đường dẫn CŨ ở đích — chỉ đọc/xoá k
   ['ac-team/references/coding-guidelines.md', 'dev-run/references/coding-guidelines.md'],
   ['ac-eval/references/thang-diem.md', 'ac-verify/references/thang-diem.md'],
   ['ba-reverse/references/rules/inference-policy.md', 'ba-toolkit/references/rules/inference-policy.md'], // ba-toolkit luôn được cài (kể cả --scope docs) — ba-reverse và agent ba-inference-reviewer đều đọc
-].map(([a, b]) => [path.join('.claude', 'skills', ...a.split('/')), path.join('.claude', 'skills', ...b.split('/'))]);
+  ['explain/06-phan-tich-va-ke-hoach.md', 'explain/01-pipeline-core.md'], // M6 đợt 3: nhóm 06 còn 2 mục → ba-feasible sang 01, ba-userguide-video sang 03
+].map((cặp) => cặp.map((x) => x.startsWith('explain/') ? path.join(...x.split('/')) : path.join('.claude', 'skills', ...x.split('/'))));
 {
   let dọn = 0; const giữ = [];
   for (const [cũ, mới] of DỜI_FILE) {

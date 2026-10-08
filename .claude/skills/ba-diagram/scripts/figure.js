@@ -66,7 +66,7 @@ const slug = (s, i) => (s ? s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/
 /** Render một mảng sơ đồ trong MỘT lần mở Chrome. Mở Chrome mỗi hình là ~1,5s/hình lãng phí. */
 function renderNhiều(danhSách) {
   if (!CHROME) return null;
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'ba-figure-'));
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'ba-diagram-export-'));
   const js = fs.readFileSync(VENDOR, 'utf8');
   const html = `<!doctype html><html><head><meta charset="utf-8"></head><body>
 ${danhSách.map((_, i) => `<div id="o${i}"></div>`).join('\n')}

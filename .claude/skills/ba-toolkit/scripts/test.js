@@ -6750,6 +6750,25 @@ ca('3hi', () => {
     if (!lỗi.length) { pass++; console.log('  ✅ 3gop10: ba-html-design chế độ lofi giữ báo giá riêng + check-wireframe + data-chosen + ba-next, script dời chạy thật trên srs example (sạch/đỏ), status.js gợi lofi, registry/manifest đổi'); }
     else { fail++; for (const l of lỗi) console.log('  ❌ 3gop10 ' + l); }
   });
+  // 3gop11. explain/06 gộp vào 01/03 (08/10/2026): update phải dọn bản cũ ở đích khi nó còn đúng hash toolkit ghi, và GIỮ
+  // + cảnh báo khi người dùng đã sửa — không thì đích ôm một nhóm explain chết mà launcher/site không còn đọc.
+  ca('3gop11', () => {
+    const lỗi = []; const IN = S('ba-export', 'install.js'); const F = path.join('explain', '06-phan-tich-va-ke-hoach.md');
+    if (fs.existsSync(path.join(ROOT, F))) lỗi.push('nguồn còn ' + F);
+    for (const [tên, sửa] of [['sach', false], ['sua', true]]) {
+      const D = path.join(TMP, 'gop11-' + tên); run([IN, '--to', D, '--no-claude']);
+      const fm = path.join(D, '.claude', 'ba-toolkit.json'); const mf = JSON.parse(fs.readFileSync(fm, 'utf8'));
+      fs.writeFileSync(path.join(D, F), 'bản toolkit cũ\n');
+      mf.files[F.split(path.sep).join('/')] = require('crypto').createHash('sha256').update(fs.readFileSync(path.join(D, F))).digest('hex').slice(0, 16);
+      fs.writeFileSync(fm, JSON.stringify(mf));
+      if (sửa) fs.appendFileSync(path.join(D, F), 'ghi chú của đội\n');
+      const r = run([IN, '--to', D, '--no-claude']); const còn = fs.existsSync(path.join(D, F));
+      if (!sửa && còn) lỗi.push('bản cũ đúng hash mà update không dọn');
+      if (sửa && (!còn || !/GIỮ 1 bản cũ/.test(r.stdout || ''))) lỗi.push('bản đã sửa tay bị xoá hoặc không cảnh báo GIỮ');
+    }
+    if (!lỗi.length) { pass++; console.log('  ✅ 3gop11: explain/06 cũ ở đích — đúng hash thì dọn, sửa tay thì GIỮ + cảnh báo'); }
+    else { fail++; for (const l of lỗi) console.log('  ❌ 3gop11 ' + l); }
+  });
   // 3ax. Số ca tự khai trong CLAUDE.md (steal B44). Chỉ test.js biết tổng của chính nó, nên phép
   // soát nằm ở đây chứ không ở lint (lint soát số skill/script/check của nó — check 40).
   // Ca này TỰ TÍNH nó vào tổng: thêm một ca là con số khai phải +1, không có ngoại lệ ngầm.

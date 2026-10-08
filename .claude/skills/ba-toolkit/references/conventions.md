@@ -264,7 +264,7 @@ Thiếu bất kỳ vế nào → vẫn tính là `⚠️ chưa xác nhận` (gap
 ## Cổng phương án · Quy ước gate · Review agent độc lập · Cổng chốt kiến trúc · Ngưỡng "màn phức tạp" · Hồ sơ dự án
 **Nội dung đầy đủ sáu mục này ở `conv-gates.md`** (cùng thư mục) — tách ra để **25/55 skill không có cổng** khỏi phải nạp ~140 dòng. Tên mục giữ nguyên nên mọi tham chiếu `conv-gates.md` → "Cổng phương án" / "Quy ước gate" / "Ghi `00-gaps.md`" / "Cổng chốt kiến trúc" / "Review agent độc lập" / "Ngưỡng màn phức tạp" / "Hồ sơ dự án" vẫn đúng địa chỉ.
 
-> **"Xác nhận giả định" cố ý ở lại file này** (mục ngay trên), dù nó là một trong bốn cổng: 9 skill sinh giả định (`ba-discover vision`, `ba-discover persona`, `ba-discover urd`, `ba-discover process`, `ba-discover brainstorm`, `ba-discover roadmap`, `ba-accept uat`, `ba-integration`, `ba-api-spec partner`) **không** dùng cổng nào khác — bắt chúng nạp cả `conv-gates.md` chỉ vì 24 dòng này thì tách file mất ý nghĩa.
+> **"Xác nhận giả định" cố ý ở lại file này** (mục ngay trên), dù nó là một trong bốn cổng: 9 skill/chế độ sinh giả định (`ba-discover vision`, `ba-discover persona`, `ba-discover urd`, `ba-discover process`, `ba-discover brainstorm`, `ba-discover roadmap`, `ba-accept uat`, `ba-integration`, `ba-api-spec partner`) **không** dùng cổng nào khác — bắt chúng nạp cả `conv-gates.md` chỉ vì 24 dòng này thì tách file mất ý nghĩa.
 
 **Bốn thứ phải nhớ kể cả khi không mở file kia:**
 1. **Bốn cổng, không thay nhau:** cổng phương án (*trước* khi ghi file) · xác nhận giả định (sau khi doc có giả định) · gate `ba-review` (sau khi doc xong) · cổng chốt kiến trúc (chốt ADR trước build).
@@ -301,7 +301,7 @@ Tài liệu sinh bằng **suy luận** (không từ yêu cầu gốc do người
 
 ## Cưỡng chế bằng hook
 
-Luật của toolkit là **chữ trong `SKILL.md`**, và người đọc chữ đó là một model — model bỏ sót được. Đo thật trong một phiên `ba-add-feature` → `dev-run`: bảy lỗi lọt qua mọi gate và chỉ bị agent đọc lại bắt sau 3–4 vòng vá, trong khi **cả bảy đều kiểm được bằng máy trong vài chục mili-giây**. Từ 10/09/2026, những luật **đo được** được giao cho hook.
+Luật của toolkit là **chữ trong `SKILL.md`**, và người đọc chữ đó là một model — model bỏ sót được. Đo thật trong một phiên chế độ `ba-add-screen feature` → `dev-run`: bảy lỗi lọt qua mọi gate và chỉ bị agent đọc lại bắt sau 3–4 vòng vá, trong khi **cả bảy đều kiểm được bằng máy trong vài chục mili-giây**. Từ 10/09/2026, những luật **đo được** được giao cho hook.
 
 **Ranh giới — và đây là phần quan trọng hơn danh sách:**
 

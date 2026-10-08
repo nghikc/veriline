@@ -1,6 +1,6 @@
 # Phụ lục — Cổng & quản trị chất lượng (BA Toolkit)
 
-> Phụ lục của `conventions.md` (cùng thư mục). **Cùng một nguồn sự thật**, tách ra để skill KHÔNG có cổng khỏi phải nạp ~140 dòng luật cổng — 25/55 skill `ba-*` không dùng tới file này. **"Xác nhận giả định" ở lại `conventions.md`** (9 skill sinh giả định không dùng cổng nào khác).
+> Phụ lục của `conventions.md` (cùng thư mục). **Cùng một nguồn sự thật**, tách ra để skill KHÔNG có cổng khỏi phải nạp ~140 dòng luật cổng — 25/55 skill `ba-*` không dùng tới file này. **"Xác nhận giả định" ở lại `conventions.md`** (9 skill/chế độ sinh giả định không dùng cổng nào khác).
 > Tên mục giữ **nguyên văn**, nên mọi tham chiếu dạng `conventions.md` → "Cổng phương án" / "Quy ước gate" / "Xác nhận giả định" / "Cổng chốt kiến trúc" / "Review agent độc lập" / "Ngưỡng màn phức tạp" / "Hồ sơ dự án" vẫn đúng địa chỉ.
 
 **Bốn cổng, và chúng KHÔNG thay nhau:**

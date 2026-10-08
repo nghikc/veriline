@@ -408,6 +408,6 @@
 | FR / BR / StR | Yêu cầu chức năng / Yêu cầu nghiệp vụ / Yêu cầu bên liên quan |
 | NFR (Non-functional Requirement) | Yêu cầu phi chức năng — hiệu năng, bảo mật, khả dụng… |
 | Tenant | Một tổ chức (không gian dữ liệu riêng); "data bleed" = rò rỉ dữ liệu giữa các tổ chức |
-| Phase | Đợt phát hành (Phase 1 = MVP Must, Phase 2 = Should) — ghép với `08-roadmap.md` qua `ba-release` |
+| Phase | Đợt phát hành (Phase 1 = MVP Must, Phase 2 = Should) — ghép với `08-roadmap.md` qua `ba-accept release` |
 
 > Từ điển đầy đủ toàn dự án: `docs/00-glossary.md`.

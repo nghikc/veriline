@@ -4,7 +4,7 @@ group: pipeline-core
 updated: 2026-07-15
 ---
 
-# Nhóm luồng chính (pipeline) — 9 skill: 7 làm nên dây chuyền + 2 tùy chọn (`ba-test-e2e`, `ba-api-test`; checklist là chế độ của `ba-test`, wireframe lo-fi là chế độ `lofi` của `ba-html-design`, phỏng vấn làm rõ là `ba-discover brainstorm`)
+# Nhóm luồng chính (pipeline) — 10 skill: 7 làm nên dây chuyền + cổng khả thi `ba-feasible` trước `ba-build` + 2 tùy chọn (`ba-test-e2e`, `ba-api-test`; checklist là chế độ của `ba-test`, wireframe lo-fi là chế độ `lofi` của `ba-html-design`, phỏng vấn làm rõ là `ba-discover brainstorm`)
 
 > Đây là **xương sống** của BA Toolkit: bảy skill chạy nối tiếp nhau, mỗi skill nhận đầu ra của skill trước, thêm một lớp chi tiết, rồi chuyển tiếp. Chạy hết bảy bước là bạn đi từ một ý tưởng (đã làm rõ bằng `ba-discover brainstorm` nếu còn mơ hồ) tới kế hoạch code cho từng màn hình.
 
@@ -158,6 +158,18 @@ Một câu để nhớ ranh giới: **`ba-screens` là bước cuối cùng làm
 **Khi nào dùng.** Sau khi đã có bảng phần tử màn hình, trước khi dựng bản giao diện đầy đủ.
 
 **Khác skill gần kề.** `ascii-screen` là phác bằng ký tự cho BA tự dùng; `ba-html-design` không đối số là bản đầy đủ có màu cho designer và dev; `ba-proto-first html` là bản **bấm được** để chốt nghiệp vụ. Bản lo-fi này nằm giữa, và chỉ dùng một lần rồi thôi.
+
+## ba-feasible — Tài liệu này viết ra phần mềm được chưa?
+
+**Làm gì.** Đọc lại toàn bộ tài liệu bằng con mắt của người sắp ngồi xuống code, rồi chỉ ra những chỗ **đọc thì xuôi mà làm thì không làm được**. Ba ví dụ có thật:
+
+- Một quy tắc ghi *"sai quá ba lần khoá tạm liên tiếp thì khoá vĩnh viễn"* — nghe rất rõ ràng. Nhưng mô hình dữ liệu không có chỗ nào ghi *"đây là lần khoá thứ mấy"*. Quy tắc đó không lưu được, nên cũng không làm được, và cũng không ai kiểm được.
+- Tài liệu kiến trúc có mục "cấu trúc thư mục chuẩn", nhưng chỉ vẽ phần máy chủ. Phần giao diện thì không nói gì, dù đã chốt dùng React. Mỗi người làm một màn sẽ tự đặt chỗ để file, và cuối cùng dự án có vài kiểu sắp xếp khác nhau.
+- Bản thiết kế có câu thông báo *"Đổi mật khẩu sẽ đăng xuất bạn khỏi mọi thiết bị khác."* — nhưng không tài liệu nào nói hệ thống thật sự làm việc đó. Câu chữ đó không phải câu chữ: nó là một yêu cầu chưa ai viết ra.
+
+**Khi nào dùng.** Ngay sau khi `ba-review` báo tài liệu đã đủ, và **trước** khi `ba-build` sinh kế hoạch triển khai. Đây là chỗ rẻ nhất để phát hiện: sửa một dòng trong tài liệu lúc này tốn vài phút, còn phát hiện lúc đang code thì phải dừng lại, mở yêu cầu thay đổi, và chờ.
+
+**Khác skill gần kề.** `ba-review` hỏi *"có thiếu tài liệu nào không"*. `ba-conformance` hỏi *"code đã viết có đúng tài liệu không"* — nhưng phải có code rồi mới hỏi được. `ba-feasible` nằm giữa hai câu đó, và hỏi câu mà không ai hỏi: *"chưa có code, vậy tài liệu này đủ để viết ra code chưa?"*
 
 ## ba-build — Lập kế hoạch triển khai code
 

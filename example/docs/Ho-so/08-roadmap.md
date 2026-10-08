@@ -47,7 +47,7 @@
 ## 3. Lộ trình phát hành (Now / Next / Later)
 
 ### Now — Phase 1: MVP TeamTasks (tháng 1–3)
-- **Mục tiêu:** một tổ chức có thể tự đăng ký, đăng nhập, tạo & giao việc, theo dõi và cập nhật tiến độ, nhận thông báo — **chạy end-to-end** đúng ràng buộc MVP 3 tháng. Đây là **tập chức năng MVP Must**, sẽ được `ba-release phase-1` ghép với UAT Phase 1.
+- **Mục tiêu:** một tổ chức có thể tự đăng ký, đăng nhập, tạo & giao việc, theo dõi và cập nhật tiến độ, nhận thông báo — **chạy end-to-end** đúng ràng buộc MVP 3 tháng. Đây là **tập chức năng MVP Must**, sẽ được `ba-accept release phase-1` ghép với UAT Phase 1.
 - **Chức năng (9, tất cả Must):** F01 Đăng nhập, F02 Đăng xuất, F12 Đăng ký & tạo tổ chức, F03 Dashboard tổng quan, F04 Tạo công việc, F05 Chi tiết công việc, F06 Cập nhật trạng thái, F08 Thông báo in-app, F13 Quản trị thành viên.
 - **Màn liên quan (trace `03-overview.md`):** S01 Đăng nhập, S06 Đăng ký, S02 Dashboard, S03 Chi tiết công việc, S05 Tổ chức (phần quản trị thành viên — F13).
 - **Tiêu chí ra mắt:**
@@ -67,7 +67,7 @@
   - Đã có test cho các màn mới; gate `ba-review` sạch.
 
 ### Later — Phase 3: Tầm nhìn mở rộng (sau tháng 5)
-- **Mục tiêu:** mở rộng ngoài phạm vi giai đoạn 1 khi MVP đã ổn định và có phản hồi thực tế. **Chưa cấp mã `F` chính thức** — sẽ được đưa qua `ba-add-feature`/CR khi chốt phạm vi từng increment.
+- **Mục tiêu:** mở rộng ngoài phạm vi giai đoạn 1 khi MVP đã ổn định và có phản hồi thực tế. **Chưa cấp mã `F` chính thức** — sẽ được đưa qua `ba-add-screen feature`/CR khi chốt phạm vi từng increment.
 - **Ứng viên (ngoài phạm vi giai đoạn 1 theo `01-requirements.md` §7):**
   - Đăng nhập SSO/OAuth (Google/Microsoft) — bỏ ràng buộc "không OAuth ở GĐ1".
   - Ứng dụng mobile (hiện chỉ web).
@@ -199,7 +199,7 @@ flowchart LR
 | Gantt | Sơ đồ thanh ngang theo thời gian; mỗi phase một section, thanh chồng nhau = chạy song song |
 | Đường-găng (critical path) | Chuỗi task quyết định tổng thời gian; chậm một task ở đây là chậm cả lộ trình |
 | Now / Next / Later | Ba chân trời của lộ trình thay cho ngày cứng; ở đây ánh xạ Phase 1 / Phase 2 / Phase 3 |
-| Phase (P1/P2/P3) | Đợt phát hành có tên rõ; `ba-release` ghép roadmap(phase) + UAT(phase) thành gói phát hành |
+| Phase (P1/P2/P3) | Đợt phát hành có tên rõ; `ba-accept release` ghép roadmap(phase) + UAT(phase) thành gói phát hành |
 | PO (Product Owner) | Người sở hữu sản phẩm, quyết ưu tiên backlog |
 | pw (person-week) | Đơn vị công sức: số tuần-người ước tính cho một chức năng |
 | MVP (Minimum Viable Product) | Sản phẩm khả dụng tối thiểu — tập chức năng cốt lõi ra mắt trước |
