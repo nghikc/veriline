@@ -6,6 +6,10 @@ Bản `0.x`/`1.0.0-beta` còn đổi được hợp đồng (tên lệnh, cột 
 
 ## [Unreleased]
 
+## [1.0.0-beta.2] — 2026-10-08
+
+Bản beta thứ hai: cài gọn mặc định, cửa vào `ba-start` cho người mới, và gộp skill cùng họ (69 → 49 skill công khai). **Có đổi tên lệnh** — xem mục *Đổi*.
+
 ### Thêm
 - **`ba-start` — cửa vào cho người mới.** Skill nhận diện dự án (chỉ có ý tưởng, có tài liệu rời Word/PDF/ảnh, hay đã có code) rồi cho xem demo 10 phút trên app mẫu TeamTasks: một cổng tài liệu thật, sau đó AI đặc tả một màn ngay trước mắt. Tiếp theo nó hỏi mức tài liệu (`lite`/`mini`/`full`) và gọi đúng skill bắt đầu. Demo nằm riêng trong `veriline-demo/` (tự thêm vào `.gitignore`).
 - `report.js` thêm mục `vàoCửa`: số phút từ lúc cài tới portal demo và tới portal dự án thật.
@@ -23,6 +27,14 @@ Bản `0.x`/`1.0.0-beta` còn đổi được hợp đồng (tên lệnh, cột 
   - Ba công cụ dành cho người phát triển bộ skill không còn phát hành.
   - Change request và cảnh báo sửa tài liệu đã chốt vẫn ở bản miễn phí.
 - `check-agents.js` dời sang `ba-toolkit`, vì bộ kiểm cấu trúc dùng nó.
+
+### Sửa
+- Chạy nhiều lệnh `claude -p` nối nhau (cả `ac-po run`) không còn bị cảnh báo giả "phiên Claude khác đang mở": phiên đóng thì tự xoá khỏi sổ phiên (hook `SessionEnd`). Dự án đã cài: chạy `ba-export update` để thêm hook.
+- `node .claude/skills/ba-toolkit/scripts/profile.js docs` in hồ sơ và phạm vi dự án trên một dòng; các skill giờ ghi lệnh đầy đủ thay vì đường dẫn tắt không chạy được.
+- Mô tả `ba-discover` khớp với bảng chế độ: `brainstorm` là bước đầu của chuỗi, và vẫn chạy lẻ được.
+- Agent chỉ ghi `cost.js record` khi có số token đo được; không có số đo thì bỏ qua, không ước.
+- `cost.js estimate` nhận tên skill cũ (đã gộp) và báo tên mới; `ba-wireframe-lofi` dùng đúng giá của chế độ lofi.
+- `ba-review` chỉ gọi script của `ba-api-test` khi skill đó đã được cài (bản `--scope docs` không có).
 
 ## [1.0.0-beta.1] — 2026-10-08
 

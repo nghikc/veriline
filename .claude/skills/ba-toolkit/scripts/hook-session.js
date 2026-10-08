@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * ba-toolkit/hook-session.js — hook `SessionStart` + `UserPromptSubmit`: KHOÁ MỀM GIỮA CÁC PHIÊN (W7, 06/10/2026).
+ * ba-toolkit/hook-session.js — hook `SessionStart` + `UserPromptSubmit` (+ `SessionEnd` dọn sổ): KHOÁ MỀM GIỮA CÁC PHIÊN (W7, 06/10/2026).
  *
  * Ca thật (một dự án desktop, 06/10/2026): phiên A tạo nhánh `try/figma-s34`, để dở thay đổi chưa commit; phiên B (cửa
  * sổ Claude khác, CÙNG thư mục) chuyển `try/figma-s34` → `docs/ds-4b` → `main`. Thay đổi chưa commit của A lặng lẽ
@@ -18,6 +18,8 @@
  * S9b — PHIÊN KHÁC CÒN SỐNG CÙNG REPO. Mục khác id, `lastSeenAt` trong 30 phút → nhắc MỘT lần cho mỗi phiên kia
  *   (một "đợt" = một lần phiên kia có mặt), kèm nhánh của nó + gợi ý `git worktree add`.
  * Mục cũ hơn 2 giờ bị xoá khỏi sổ (phiên đã đóng mà không báo — Claude Code không có hook "đóng phiên" chắc chắn).
+ * `SessionEnd` (08/10/2026): phiên đóng có báo → xoá mục của nó ngay — chuỗi `claude -p` nối nhau không còn thấy phiên
+ *   vừa xong là "phiên khác còn sống". Phiên bị giết (không kịp SessionEnd) vẫn chờ hết hạn như cũ.
  *
  * Vì sao hai sự kiện này (không Stop, không PreToolUse):
  *   · `SessionStart` — đăng ký phiên, và bắt cả ca `--resume`/compact sau khi nhánh đã dời trong lúc phiên ngủ.
@@ -35,7 +37,7 @@
  * `.claude/ba-hooks.json`.
  *
  * gioiHan: "phiên tự checkout" là đoán theo transcript — lệnh đổi nhánh qua script/alias/`git -C` sẽ bị coi là phiên
- * khác đổi (nhắc thừa một lần). Phiên đóng không báo thì còn "sống" tới 30 phút sau lượt cuối. Đọc-sửa-ghi sổ không
+ * khác đổi (nhắc thừa một lần). Phiên đóng KHÔNG kịp SessionEnd (bị giết) thì còn "sống" tới 30 phút sau lượt cuối. Đọc-sửa-ghi sổ không
  * khoá: hai phiên ghi cùng lúc có thể mất một lần cập nhật `lastSeenAt` (lượt sau tự sửa). Không đọc `git status` —
  * chỉ báo đất dời, không biết có thay đổi dở thật hay không. Chỉ ghi khi `<gốc repo>/.claude/` đã có.
  *
@@ -119,6 +121,17 @@ function chạy(vào, nay = Date.now()) {
   const tuổi = (e) => nay - Date.parse((e && e.lastSeenAt) || 0);
   for (const [k, e] of Object.entries(ps)) if (!(tuổi(e) <= HẾT_MS)) delete ps[k];   // NaN/cũ → xoá
 
+  // SessionEnd (chạy thử thật 08/10/2026): phiên đóng có báo → xoá mục của nó NGAY. Thiếu bước này, chuỗi `claude -p` nối
+  // nhau (cả `ac-po/scripts/run.js`) thấy phiên vừa xong là "phiên khác còn sống" tới 30 phút → S9b nhắc giả mỗi bước.
+  // Không cảnh báo gì (SessionEnd không đưa stdout vào ngữ cảnh nào); hết hạn 2 giờ vẫn giữ cho phiên chết không báo.
+  if (vào.hook_event_name === 'SessionEnd') {
+    if (!ps[id]) return { cảnhBáo: [], luật, gốc: git.gốc };
+    delete ps[id];
+    for (const e of Object.values(ps)) if (e && e.daCanhBao && typeof e.daCanhBao === 'object') delete e.daCanhBao[id];
+    ghiSổ(SỔ, sổ);
+    return { cảnhBáo: [], luật, gốc: git.gốc };
+  }
+
   const isoNay = new Date(nay).toISOString();
   const cfg = cấuHình(git.gốc);
   const cảnhBáo = [];
@@ -178,6 +191,11 @@ function chạy(vào, nay = Date.now()) {
   if (typeof vào.cwd === 'string') tôi.cwd = vào.cwd;
   ps[id] = tôi;
 
+  ghiSổ(SỔ, sổ);
+  return { cảnhBáo, luật, gốc: git.gốc };
+}
+
+function ghiSổ(SỔ, sổ) {
   sổ._ = 'Sổ phiên của hook-session.js (runtime, không commit) — phiên nào đang mở trên nhánh nào.';
   let tạm = null;
   try {
@@ -187,7 +205,6 @@ function chạy(vào, nay = Date.now()) {
     tạm = null;
   } catch { /* ghi hỏng → lượt sau thử lại */ }
   finally { if (tạm) { try { fs.rmSync(tạm, { force: true }); } catch { /* thôi */ } } }
-  return { cảnhBáo, luật, gốc: git.gốc };
 }
 
 module.exports = { chạy, đọcGit, phiênTựĐổi };
@@ -199,7 +216,7 @@ if (require.main === module) {
     let kq = { cảnhBáo: [], luật: {} };
     try { kq = chạy(JSON.parse(raw)); } catch { process.exit(0); }   // stdin hỏng / lỗi bất kỳ → im
     if (kq.gốc) { try { require('./hook-gate.js').ghiThốngKê('hook-session', kq.cảnhBáo.length > 0, kq.luật, path.join(kq.gốc, '.claude', 'ba-hook-stats.json')); } catch { /* phụ */ } }
-    if (kq.cảnhBáo.length) process.stdout.write(kq.cảnhBáo.join('\n') + '\n');  // SessionStart/UserPromptSubmit: stdout exit 0 → vào ngữ cảnh
+    if (kq.cảnhBáo.length) process.stdout.write(kq.cảnhBáo.join('\n') + '\n');  // SessionStart/UserPromptSubmit (SessionEnd không bao giờ in): stdout exit 0 → vào ngữ cảnh
     process.exit(0);
   });
 }

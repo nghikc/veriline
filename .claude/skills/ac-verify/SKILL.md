@@ -13,7 +13,7 @@ Trước 15/09/2026, "xong" của `dev-run` là tác giả tự kiểm (`dev-ver
 - Người gọi phải là **orchestrator** (phiên chính đang cầm cả màn). Subagent builder không được gọi skill này — nó sẽ phái verifier với *phạm vi của lô cuối* thay vì cả màn.
 
 ## Quy trình
-1. **Đọc hồ sơ dự án** (`ba-toolkit/profile.js`, `conv-gates.md` → "Hồ sơ dự án"): hồ sơ `mini` → không có `usecase.md`, luồng ở `srs.md`; nói ra khi bỏ qua. Phạm vi `docs` → skill này không có việc (không plan) — báo và dừng.
+1. **Đọc hồ sơ dự án** (`node .claude/skills/ba-toolkit/scripts/profile.js docs`, `conv-gates.md` → "Hồ sơ dự án"): hồ sơ `mini` → không có `usecase.md`, luồng ở `srs.md`; nói ra khi bỏ qua. Phạm vi `docs` → skill này không có việc (không plan) — báo và dừng.
 2. **Soát hình plan trước khi tốn agent:**
    ```bash
    node .claude/skills/ac-verify/scripts/check-plan.js docs --screen <Mã> --plain

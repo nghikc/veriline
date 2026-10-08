@@ -51,6 +51,16 @@
           }
         ]
       }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/skills/ba-toolkit/scripts/hook-session.js\""
+          }
+        ]
+      }
     ]
   },
   "permissions": {

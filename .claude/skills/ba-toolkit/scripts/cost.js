@@ -65,9 +65,22 @@ function báoGiá(skill, n, bảng) {
   return { skill, nguồn: 'mặc định', mẫu: mẫu.length, n: đơn, đơnVị: d.donVi, đo: d.do, mộtLầnĐo: một,
     tokens: ((a + b) / 2) * đơn, thấp: (một ? a * 0.7 : a) * đơn, cao: (một ? a * 1.3 : b) * đơn, phút: ((pa + pb) / 2) * đơn };
 }
+// Tên skill CŨ (đã gộp — chạy thử thật 08/10/2026: `estimate ba-wireframe-lofi` ra "không ước được"). Chế độ có KHOÁ GIÁ RIÊNG
+// trong cost-defaults.json đi bảng nhỏ này trước (lofi rẻ hơn high-fi nhiều — quy về `ba-html-design` là báo giá sai);
+// còn lại tra canon `deprecated.skills` (`cũ:mới`) trong conv-registry.md.
+const CHẾ_ĐỘ_GIÁ_RIÊNG = { 'ba-wireframe-lofi': 'ba-html-design-lofi' };
+function tênMới(skill) {
+  if (CHẾ_ĐỘ_GIÁ_RIÊNG[skill]) return CHẾ_ĐỘ_GIÁ_RIÊNG[skill];
+  let reg = ''; try { reg = fs.readFileSync(path.join(__dirname, '..', 'references', 'conv-registry.md'), 'utf8'); } catch { return null; }
+  const dòng = (reg.match(/^deprecated\.skills\s*=\s*(.+)$/m) || [])[1] || '';
+  const cặp = dòng.trim().split(/\s+/).map((x) => x.split(':')).find(([cũ, mới]) => cũ === skill && mới);
+  return cặp ? cặp[1] : null;
+}
 if (CMD === 'estimate') {
-  const skill = skillArg();
+  let skill = skillArg();
   if (!skill) { console.error('cost estimate cần <skill> — vd: cost.js estimate ba-html-design --man 3'); process.exit(2); }
+  const cũ = tênMới(skill) ? skill : null;
+  if (cũ) { skill = tênMới(cũ); if (!JSON_MODE) console.log(`${cũ} là tên cũ → dùng ${skill}`); }
   const n = +(opt('--man') || opt('--trang') || opt('--frame') || opt('--units') || 1) || 1;
   const BẢNG = path.join(__dirname, '..', 'references', 'cost-defaults.json');
   let bảng = { skills: {}, ganNhat: {} }; try { bảng = JSON.parse(fs.readFileSync(BẢNG, 'utf8')); } catch { /* thiếu bảng → chỉ còn lịch sử */ }
@@ -75,7 +88,7 @@ if (CMD === 'estimate') {
   if (!r.nguồn && (bảng.ganNhat || {})[skill]) { mượn = bảng.ganNhat[skill]; r = { ...báoGiá(mượn, n, bảng), mẫu: r.mẫu }; }
   const lịchSử = `${path.relative(ROOT, BA_FILE)} + ${path.relative(ROOT, FILE)}`;
   if (!r.nguồn) {
-    if (JSON_MODE) { console.log(JSON.stringify({ skill, ướcĐược: false, mẫu: r.mẫu })); process.exit(0); }
+    if (JSON_MODE) { console.log(JSON.stringify({ skill, ...(cũ ? { tênCũ: cũ } : {}), ướcĐược: false, mẫu: r.mẫu })); process.exit(0); }
     console.log(`Ước tính: không ước được — ${skill} chưa có số (lịch sử ${r.mẫu} lần, cần ≥3; không có trong bảng mặc định, không có skill gần nhất). Chạy xong thì \`cost.js record ${skill} --tokens N --minutes M\` để lần sau có số.`);
     process.exit(0);
   }
@@ -84,7 +97,7 @@ if (CMD === 'estimate') {
     : `nguồn: bảng mặc định (cost-defaults.json — ${r.đo})${r.mộtLầnĐo ? ', một lần đo nên khoảng ±30 %' : ''}${r.mẫu ? ` · lịch sử mới ${r.mẫu} lần (<3)` : ''}`;
   const đơn = `${r.n} ${ĐƠN_VỊ[r.đơnVị] || 'đơn vị'}`;
   const ph = r.phút == null ? '? phút (lịch sử không có thời gian)' : `${phút(r.phút)} phút`;
-  if (JSON_MODE) { console.log(JSON.stringify({ skill, ướcĐược: true, mượn, ...r })); process.exit(0); }
+  if (JSON_MODE) { console.log(JSON.stringify({ skill, ...(cũ ? { tênCũ: cũ } : {}), ướcĐược: true, mượn, ...r })); process.exit(0); }
   console.log(`Ước tính: ~${tk(r.tokens)} token (khoảng ${tk(r.thấp)}–${tk(r.cao)}) · ~${ph} — ${skill} × ${đơn}`);
   console.log(`  ${mượn ? `chưa có số — ước theo skill gần nhất ${mượn} · ` : ''}${nguồnTxt}`);
   process.exit(0);

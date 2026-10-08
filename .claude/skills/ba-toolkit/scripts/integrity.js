@@ -16,7 +16,7 @@
  *       khác, commit mất) → so với manifest ở `git show HEAD:.claude/ba-toolkit.json` của đích (bản ĐÃ COMMIT — agent
  *       sửa manifest trong cây làm việc cho "khớp" không qua được). Không có cả hai → `none`, exit 2.
  *   (2) khối hooks: đủ 4 hook (`hook-guard` PreToolUse matcher có Read|Grep|Glob|Bash|Edit|Write|NotebookEdit · `hook-lint`
- *       PostToolUse Edit|Write · `hook-gate` Stop · `hook-session` SessionStart + UserPromptSubmit) trong
+ *       PostToolUse Edit|Write · `hook-gate` Stop · `hook-session` SessionStart + UserPromptSubmit + SessionEnd) trong
  *       `.claude/settings.json`/`settings.local.json`, lệnh trỏ đúng script và script có mặt (loai `hook`);
  *       `disableAllHooks: true` ở `.claude/settings*.json` (loai `settings`).
  *   Duyệt cục bộ: `.claude/ba-toolkit-local.json` = { duyet: [{ file, sha256, lyDo, nguoiDuyet, hetHan }] } — mục chỉ tính
@@ -61,6 +61,7 @@ const HOOK_CHUẨN = [
   { ev: 'Stop', file: 'hook-gate.js' },
   { ev: 'SessionStart', file: 'hook-session.js' },
   { ev: 'UserPromptSubmit', file: 'hook-session.js' },
+  { ev: 'SessionEnd', file: 'hook-session.js' },
 ];
 // `$CLAUDE_PROJECT_DIR` (hook-review 07/10/2026): lệnh tương đối `node .claude/…` chết lặng khi phiên đã `cd` vào thư mục con —
 // hook chạy theo cwd của phiên. Fallback `:-.` cho shell không có biến (chạy tay, bản Claude Code cũ).

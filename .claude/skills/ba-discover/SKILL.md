@@ -1,6 +1,6 @@
 ---
 name: ba-discover
-description: Use when khởi động DISCOVERY trước ba-init — chuỗi vision → stakeholder → persona → quy trình AS-IS/TO-BE → URD có gate; chế độ lẻ `brainstorm` phỏng vấn sâu ý tưởng, `meet` biên bản họp, `roadmap` ưu tiên lộ trình.
+description: Use when khởi động DISCOVERY trước ba-init — chuỗi brainstorm → vision → stakeholder → persona → AS-IS/TO-BE → URD có gate; `brainstorm` cũng chạy lẻ; chế độ lẻ `meet` biên bản họp, `roadmap` ưu tiên lộ trình.
 ---
 
 # ba-discover — Orchestrator giai đoạn Discovery

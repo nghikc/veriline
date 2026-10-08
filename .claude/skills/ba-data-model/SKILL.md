@@ -58,7 +58,7 @@ Cardinality mặc định của FK là **1-n** (`||--o{`); chỉ đổi khi có 
 
 ## Chế độ `dbml` — Schema vật lý từ mô hình nghiệp vụ
 **Đọc `references/dbml.md` trước khi chạy** — đủ quy trình 7 bước, bảng ánh xạ kiểu, điểm dừng. Tóm tắt:
-- **Phạm vi dự án** (đọc qua `ba-toolkit/profile.js` `readScope`, `conv-gates.md` → "Hồ sơ dự án" → "Phạm vi"): **`Phạm vi: docs` → TỪ CHỐI chế độ dbml** — schema vật lý là bàn giao cho dev trong repo này, dự án chỉ tài liệu không có migration để nó đỡ. Báo và dừng, gợi `ba-data-model` (mô hình nghiệp vụ — đội build tự dựng schema từ đó) · `ba-architecture` (chốt hệ CSDL cho đội build).
+- **Phạm vi dự án** (đọc bằng `node .claude/skills/ba-toolkit/scripts/profile.js docs`, `conv-gates.md` → "Hồ sơ dự án" → "Phạm vi"): **`Phạm vi: docs` → TỪ CHỐI chế độ dbml** — schema vật lý là bàn giao cho dev trong repo này, dự án chỉ tài liệu không có migration để nó đỡ. Báo và dừng, gợi `ba-data-model` (mô hình nghiệp vụ — đội build tự dựng schema từ đó) · `ba-architecture` (chốt hệ CSDL cho đội build).
 - **Điều kiện (CHẶN):** `docs/05-data-model.md` phải có mục "Từ điển dữ liệu" với ≥1 `### Thực thể:`. Thiếu → DỪNG, chạy `ba-data-model` (không đối số) trước. Không suy schema từ mỗi ERD.
 - Hệ quản trị CSDL lấy từ ADR trong `docs/10-architecture.md`; chưa chốt → hỏi, đừng mặc định Postgres.
 - Kiểm kê cơ giới (0 token): `node .claude/skills/ba-data-model/scripts/scan-model.js docs --plain` — xử hết 4 cảnh báo (thiếu PK · FK trỏ thực thể lạ · enum không liệt kê giá trị · thuộc tính không rõ ràng buộc) **trước** khi sinh; enum/độ dài không rõ → hỏi, không bịa (`text` + ghi chú thay vì `varchar(255)`).

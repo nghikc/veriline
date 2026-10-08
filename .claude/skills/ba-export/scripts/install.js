@@ -779,6 +779,7 @@ const HOOK_BẢNG = (() => {
       { ev: 'Stop', file: 'hook-gate.js' },
       { ev: 'SessionStart', file: 'hook-session.js' },
       { ev: 'UserPromptSubmit', file: 'hook-session.js' },
+      { ev: 'SessionEnd', file: 'hook-session.js' },
     ],
     lệnhHook: (f) => `node "\${CLAUDE_PROJECT_DIR:-.}/.claude/skills/ba-toolkit/scripts/${f}"`,
   };

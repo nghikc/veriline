@@ -5013,7 +5013,7 @@ ca('3hr', () => {
     if (c1.status !== 0) lỗi.push('cài thất bại ' + (c1.stderr || '').slice(0, 100));
     if (lệnh.some((c) => /^node \.claude\//.test(c))) lỗi.push('còn lệnh hook tương đối: ' + lệnh.filter((c) => /^node \.claude\//.test(c)).join(' | '));
     if (!lệnh.includes('prettier --write')) lỗi.push('xoá mất hook riêng của người dùng');
-    if (lệnh.filter((c) => /hook-session\.js/.test(c)).length !== 2 || lệnh.filter((c) => /hook-lint\.js/.test(c)).length !== 1) lỗi.push('hook-session phải 2 (SessionStart+UserPromptSubmit), hook-lint 1');
+    if (lệnh.filter((c) => /hook-session\.js/.test(c)).length !== 3 || lệnh.filter((c) => /hook-lint\.js/.test(c)).length !== 1) lỗi.push('hook-session phải 3 (SessionStart+UserPromptSubmit+SessionEnd), hook-lint 1');
     const g = st.hooks.PreToolUse.find((e) => /hook-guard/.test(JSON.stringify(e)));
     if (!g || !/Edit/.test(g.matcher) || !/NotebookEdit/.test(g.matcher)) lỗi.push('matcher hook-guard thiếu Edit|Write|NotebookEdit: ' + (g && g.matcher));
     const deny = st.permissions.deny;
@@ -6619,11 +6619,11 @@ ca('3hi', () => {
   });
   // 3gop6. Nhóm 6 (decision 33): ba-uat/ba-release/ba-userguide gộp vào ba-accept. ba-accept RỜI scope.dev.skills vì chế độ
   // uat/release/userguide là bàn giao tài liệu — nên `--scope docs` phải cài nó, và chế độ nghiệm thu trọn (cần code) phải TỰ
-  // từ chối khi `Phạm vi: docs` (đọc readScope). Mất câu từ chối = dự án chỉ-tài-liệu bị dắt vào nghiệm thu một bản code không có.
+  // từ chối khi `Phạm vi: docs` (đọc bằng `profile.js docs`). Mất câu từ chối = dự án chỉ-tài-liệu bị dắt vào nghiệm thu một bản code không có.
   ca('3gop6', () => {
     const lỗi = []; const SK = path.join(ROOT, '.claude', 'skills');
     const md = fs.readFileSync(path.join(SK, 'ba-accept', 'SKILL.md'), 'utf8');
-    if (!/readScope/.test(md) || !/Phạm vi: docs`?\s*→\s*TỪ CHỐI chế độ nghiệm thu trọn/.test(md)) lỗi.push('ba-accept/SKILL.md mất câu "Phạm vi: docs → TỪ CHỐI chế độ nghiệm thu trọn" (đọc qua readScope)');
+    if (!/scripts\/profile\.js docs/.test(md) || !/Phạm vi: docs`?\s*→\s*TỪ CHỐI chế độ nghiệm thu trọn/.test(md)) lỗi.push('ba-accept/SKILL.md mất câu "Phạm vi: docs → TỪ CHỐI chế độ nghiệm thu trọn" (đọc bằng profile.js docs)');
     if (!/`ba-accept uat`/.test(md) || !/`ba-accept release/.test(md)) lỗi.push('ba-accept/SKILL.md từ chối mà không gợi chế độ bàn giao uat/release');
     const REGT = fs.readFileSync(path.join(SK, 'ba-toolkit', 'references', 'conv-registry.md'), 'utf8');
     const dev = ((REGT.match(/^scope\.dev\.skills = (.*)$/m) || [])[1] || '').split(/\s+/);
@@ -6661,14 +6661,14 @@ ca('3hi', () => {
   });
   // 3gop8. Nhóm 8 (decision 33): ba-dbschema gộp vào ba-data-model chế độ `dbml`. ba-dbschema từng nằm trong scope.dev.skills
   // còn ba-data-model (tài liệu kỹ thuật là sản phẩm BA) thì không — gộp xong `--scope docs` PHẢI cài ba-data-model (kèm
-  // check-dbml.js/scan-model.js), nên chế độ dbml phải TỰ từ chối khi `Phạm vi: docs` (đọc readScope). Mất câu từ chối =
+  // check-dbml.js/scan-model.js), nên chế độ dbml phải TỰ từ chối khi `Phạm vi: docs` (đọc bằng `profile.js docs`). Mất câu từ chối =
   // dự án chỉ-tài-liệu được dắt vào sinh schema vật lý cho một đội dev không có trong repo.
   ca('3gop8', () => {
     const lỗi = []; const SK = path.join(ROOT, '.claude', 'skills');
     const md = fs.readFileSync(path.join(SK, 'ba-data-model', 'SKILL.md'), 'utf8');
     const dbml = (md.split(/^## /m).find((x) => x.startsWith('Chế độ `dbml`')) || '');
     if (!dbml) lỗi.push('ba-data-model/SKILL.md thiếu mục "Chế độ `dbml`"');
-    if (!/readScope/.test(dbml) || !/Phạm vi: docs`?\s*→\s*TỪ CHỐI chế độ dbml/.test(dbml)) lỗi.push('mục "Chế độ `dbml`" mất câu "Phạm vi: docs → TỪ CHỐI chế độ dbml" (đọc qua readScope)');
+    if (!/scripts\/profile\.js docs/.test(dbml) || !/Phạm vi: docs`?\s*→\s*TỪ CHỐI chế độ dbml/.test(dbml)) lỗi.push('mục "Chế độ `dbml`" mất câu "Phạm vi: docs → TỪ CHỐI chế độ dbml" (đọc bằng profile.js docs)');
     if (!/scripts\/check-dbml\.js/.test(dbml) || !fs.existsSync(path.join(SK, 'ba-data-model', 'references', 'dbml.md'))) lỗi.push('chế độ dbml mất lệnh check-dbml.js hoặc references/dbml.md');
     const REGT = fs.readFileSync(path.join(SK, 'ba-toolkit', 'references', 'conv-registry.md'), 'utf8');
     const dev = ((REGT.match(/^scope\.dev\.skills = (.*)$/m) || [])[1] || '').split(/\s+/);
@@ -6768,6 +6768,90 @@ ca('3hi', () => {
     }
     if (!lỗi.length) { pass++; console.log('  ✅ 3gop11: explain/06 cũ ở đích — đúng hash thì dọn, sửa tay thì GIỮ + cảnh báo'); }
     else { fail++; for (const l of lỗi) console.log('  ❌ 3gop11 ' + l); }
+  });
+  // 3thu1–3thu4. Chạy thử thật (claude -p headless) các chế độ vừa gộp, 08/10/2026 — sáu lỗi, bốn ca.
+  // 3thu1: hook-session `SessionEnd` xoá mục phiên vừa đóng — trước: chuỗi `claude -p` nối nhau (ac-po run.js) thấy phiên
+  // vừa xong là "phiên khác còn sống" tới 30 phút → S9b nhắc giả mỗi bước. Cả repo nguồn lẫn bảng hook chuẩn phải đăng ký.
+  ca('3thu1', () => {
+    const lỗi = []; const HS = S('ba-toolkit', 'hook-session.js');
+    const R = path.join(fs.realpathSync(TMP), 'thu1-phien'); fs.mkdirSync(path.join(R, '.claude'), { recursive: true });
+    const g = (...a) => spawnSync('git', ['-C', R, ...a], { encoding: 'utf8' });
+    g('init', '-q', '-b', 'main'); g('-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '-q', '--allow-empty', '-m', 'i');
+    const hook = (id, ev) => spawnSync(process.execPath, [HS], { cwd: R, input: JSON.stringify({ session_id: id, cwd: R, hook_event_name: ev }), encoding: 'utf8', env: { ...process.env, BA_HOOK_STATS: '0' } });
+    hook('buoc-1', 'SessionStart'); hook('buoc-1', 'UserPromptSubmit');
+    const kết = hook('buoc-1', 'SessionEnd');
+    if (kết.status !== 0 || kết.stdout.trim()) lỗi.push(`SessionEnd phải im exit 0: exit ${kết.status} «${kết.stdout.slice(0, 80)}»`);
+    let sổ = {}; try { sổ = JSON.parse(fs.readFileSync(path.join(R, '.claude', 'ba-session.json'), 'utf8')); } catch { /* báo dưới */ }
+    if ((sổ.sessions || {})['buoc-1']) lỗi.push('SessionEnd không xoá mục của phiên vừa đóng khỏi .claude/ba-session.json');
+    const r2 = hook('buoc-2', 'SessionStart');
+    if (/S9b/.test(r2.stdout)) lỗi.push(`bước kế của chuỗi claude -p vẫn bị S9b nhắc về phiên đã đóng: «${r2.stdout.slice(0, 120)}»`);
+    const lạ = hook('khong-co', 'SessionEnd');
+    if (lạ.status !== 0 || lạ.stdout.trim() || !((JSON.parse(fs.readFileSync(path.join(R, '.claude', 'ba-session.json'), 'utf8')).sessions || {})['buoc-2'])) lỗi.push('SessionEnd của phiên lạ phải im và không đụng mục phiên khác');
+    let chuẩn = []; try { chuẩn = require(S('ba-toolkit', 'integrity.js')).HOOK_CHUẨN; } catch { /* báo dưới */ }
+    if (!chuẩn.some((h) => h.ev === 'SessionEnd' && h.file === 'hook-session.js')) lỗi.push('integrity.js HOOK_CHUẨN thiếu SessionEnd → hook-session.js (install.js ghi theo bảng này)');
+    const reg = fs.readFileSync(S('ba-toolkit', 'references', 'conv-registry.md'), 'utf8');
+    if (!/^gate\.hook\.events\s*=.*\bSessionEnd:hook-session\.js\b/m.test(reg)) lỗi.push('canon gate.hook.events thiếu SessionEnd:hook-session.js');
+    const SET = path.join(ROOT, '.claude', 'settings.json');
+    if (fs.existsSync(SET)) {
+      let st = {}; try { st = JSON.parse(fs.readFileSync(SET, 'utf8')); } catch { /* báo dưới */ }
+      if (!JSON.stringify(((st.hooks || {}).SessionEnd) || []).includes('hook-session.js')) lỗi.push('.claude/settings.json của repo chưa đăng ký SessionEnd → hook-session.js');
+    }
+    if (!lỗi.length) { pass++; console.log('  ✅ 3thu1 hook-session SessionEnd: xoá mục phiên vừa đóng, bước claude -p kế không bị S9b giả; phiên lạ im; HOOK_CHUẨN + gate.hook.events + settings.json đăng ký'); }
+    else { fail++; for (const l of lỗi) console.log('  ❌ 3thu1 ' + l); }
+  });
+  // 3thu2: profile.js chạy được như LỆNH (SKILL.md dặn "đọc qua profile.js readScope" mà không có CLI nào chạy được),
+  // và không SKILL.md nào còn viết đường dẫn tắt `ba-toolkit/profile.js` / `readScope`.
+  ca('3thu2', () => {
+    const lỗi = []; const PJ = S('ba-toolkit', 'profile.js');
+    const D = path.join(TMP, 'thu2-docs'); fs.mkdirSync(D, { recursive: true });
+    fs.writeFileSync(path.join(D, '00-tracking.md'), '# Tracking\n\n> Hồ sơ dự án: `mini` · Phạm vi: `docs` · chốt 2026-10-08\n');
+    const r1 = run([PJ, D]), r2 = run([PJ, path.join(TMP, 'thu2-khong-co')]);
+    if (r1.status !== 0 || r1.stdout.trim() !== 'hồ sơ: mini · phạm vi: docs') lỗi.push(`profile.js <docs> phải in «hồ sơ: mini · phạm vi: docs» exit 0, được exit ${r1.status} «${(r1.stdout + r1.stderr).trim().slice(0, 100)}»`);
+    if (r2.status !== 0 || r2.stdout.trim() !== 'hồ sơ: full · phạm vi: full') lỗi.push(`thiếu docs phải in mặc định «hồ sơ: full · phạm vi: full» exit 0, được exit ${r2.status} «${(r2.stdout + r2.stderr).trim().slice(0, 100)}»`);
+    const SK = path.join(ROOT, '.claude', 'skills');
+    for (const sk of fs.readdirSync(SK)) {
+      const f = path.join(SK, sk, 'SKILL.md'); if (!fs.existsSync(f)) continue;
+      const t = fs.readFileSync(f, 'utf8');
+      if (/(^|[^/])ba-toolkit\/profile\.js|readScope/.test(t)) lỗi.push(`${sk}/SKILL.md còn đường dẫn tắt ba-toolkit/profile.js hay readScope — dùng \`node .claude/skills/ba-toolkit/scripts/profile.js docs\``);
+    }
+    if (!lỗi.length) { pass++; console.log('  ✅ 3thu2 profile.js CLI: in «hồ sơ · phạm vi» (thiếu docs → mặc định), không SKILL.md nào còn đường dẫn tắt'); }
+    else { fail++; for (const l of lỗi) console.log('  ❌ 3thu2 ' + l); }
+  });
+  // 3thu3: cost.js estimate nhận tên skill CŨ — `ba-wireframe-lofi` quy về khoá giá riêng `ba-html-design-lofi` (không phải
+  // ba-html-design), tên cũ khác tra `deprecated.skills`. Trước: "không ước được".
+  ca('3thu3', () => {
+    const lỗi = []; const CJ = S('ba-toolkit', 'cost.js'); const R = path.join(TMP, 'thu3-root'); fs.mkdirSync(R, { recursive: true });
+    const lo = run([CJ, 'estimate', 'ba-wireframe-lofi', '--man', '2', '--root', R]);
+    if (lo.status !== 0 || !/ba-wireframe-lofi là tên cũ → dùng ba-html-design-lofi/.test(lo.stdout) || !/Ước tính: ~\d+k token[^\n]*ba-html-design-lofi × 2/.test(lo.stdout)) lỗi.push(`ba-wireframe-lofi phải quy về ba-html-design-lofi và ra số: «${lo.stdout.slice(0, 200)}»`);
+    const fd = run([CJ, 'estimate', 'ba-figma-design', '--root', R]);
+    if (!/ba-figma-design là tên cũ → dùng ba-figma-draw/.test(fd.stdout) || /không ước được/.test(fd.stdout)) lỗi.push(`ba-figma-design (deprecated.skills) phải quy về ba-figma-draw: «${fd.stdout.slice(0, 160)}»`);
+    const j = run([CJ, 'estimate', 'ba-wireframe-lofi', '--json', '--root', R]);
+    let o = {}; try { o = JSON.parse(j.stdout); } catch { lỗi.push('--json không ra JSON khi tên cũ (dòng "tên cũ" lọt vào stdout?)'); }
+    if (o.skill && (o.skill !== 'ba-html-design-lofi' || o.tênCũ !== 'ba-wireframe-lofi')) lỗi.push(`--json phải có skill mới + tênCũ: ${j.stdout.slice(0, 120)}`);
+    const mới = run([CJ, 'estimate', 'ba-html-design', '--root', R]);
+    if (/tên cũ/.test(mới.stdout)) lỗi.push('tên hiện hành bị báo là tên cũ');
+    if (!lỗi.length) { pass++; console.log('  ✅ 3thu3 cost.js estimate tên cũ: ba-wireframe-lofi → khoá giá ba-html-design-lofi, ba-figma-design → ba-figma-draw (deprecated.skills), --json sạch'); }
+    else { fail++; for (const l of lỗi) console.log('  ❌ 3thu3 ' + l); }
+  });
+  // 3thu4: ba câu chữ đo được bằng máy — (a) mô tả ba-discover đặt brainstorm TRONG chuỗi (khớp bảng `## Chế độ` + ba-next),
+  // (b) mọi chỗ dặn `cost.js record` dặn kèm "chỉ khi có số ĐO được" (agent từng bịa số token), (c) ba-review chỉ gọi
+  // script ba-api-test khi đã cài nó (bản --scope docs không có).
+  ca('3thu4', () => {
+    const lỗi = []; const SK = path.join(ROOT, '.claude', 'skills');
+    const đọc = (sk) => { try { return fs.readFileSync(path.join(SK, sk, 'SKILL.md'), 'utf8'); } catch { return null; } };
+    const dis = đọc('ba-discover');
+    if (dis) {
+      const mt = (dis.match(/^description:\s*(.+)$/m) || [])[1] || '';
+      if (/chế độ lẻ `brainstorm`/.test(mt) || !/brainstorm → vision/.test(mt)) lỗi.push(`description ba-discover phải đặt brainstorm trong chuỗi (brainstorm → vision …), được «${mt.slice(0, 120)}»`);
+    }
+    for (const sk of fs.readdirSync(SK)) {
+      const t = đọc(sk); if (!t) continue;
+      for (const l of t.split('\n')) if (/cost\.js record/.test(l) && !/ĐO được/.test(l)) lỗi.push(`${sk}/SKILL.md dặn cost.js record mà không kèm "chỉ khi có số token ĐO được": «${l.slice(0, 80)}»`);
+    }
+    const rv = đọc('ba-review');
+    if (rv) for (const l of rv.split('\n')) if (/ba-api-test\/scripts\//.test(l) && !/đã cài `ba-api-test`/.test(l)) lỗi.push('ba-review/SKILL.md gọi script ba-api-test mà không kèm điều kiện "đã cài `ba-api-test`"');
+    if (!lỗi.length) { pass++; console.log('  ✅ 3thu4 câu chữ: ba-discover brainstorm trong chuỗi · cost.js record chỉ với số đo · ba-review gọi ba-api-test khi đã cài'); }
+    else { fail++; for (const l of lỗi) console.log('  ❌ 3thu4 ' + l); }
   });
   // 3ax. Số ca tự khai trong CLAUDE.md (steal B44). Chỉ test.js biết tổng của chính nó, nên phép
   // soát nằm ở đây chứ không ở lint (lint soát số skill/script/check của nó — check 40).

@@ -9,7 +9,7 @@ description: Use when diff của một màn, khoảng base..HEAD hay PR cần RE
 `dev-run` bước 6 review code bằng `dev-requesting-code-review` (superpowers): một agent đọc diff rồi viết văn xuôi — không ngưỡng bằng chứng, không trần nhiễu, không cổng máy, và finding thường rải qua nhiều vòng. `ac-judge` thay bước đó bằng cơ chế của the-judge: **máy chạy trước** (lint/typecheck/test + `scan-bypasses.js`), agent chỉ phán thứ máy không phán được, **mỗi finding có `file:line` đã mở đọc**, mức quyết verdict theo bảng cố định, và `review-gate.js` từ chối bản review nào thiếu bằng chứng hay dùng từ mơ hồ. Vòng 1 là **cả** review; vòng 2+ chỉ kiểm giải quyết. Luật đội agent: `conv-gates.md` → "Đội agent".
 
 ## Điều kiện
-- Có code để so: diff của màn (commit từ task đầu tới HEAD), hoặc khoảng `<base>..<HEAD>` người dùng đưa, hoặc PR (`gh pr diff <n>`, khi repo có `gh` đăng nhập). Phạm vi `docs` (đọc qua `ba-toolkit/profile.js` `readScope`) → không có việc, báo và dừng.
+- Có code để so: diff của màn (commit từ task đầu tới HEAD), hoặc khoảng `<base>..<HEAD>` người dùng đưa, hoặc PR (`gh pr diff <n>`, khi repo có `gh` đăng nhập). Phạm vi `docs` (đọc bằng `node .claude/skills/ba-toolkit/scripts/profile.js docs`) → không có việc, báo và dừng.
 - Với review theo màn: `srs.md` · `test.md` · `plan.md` của màn tồn tại — judge đối chiếu BRule/Error/TC với code. Hồ sơ dự án `mini` → không có `usecase.md`, luồng ở `srs.md`; nói ra khi bỏ qua.
 - Người gọi là **orchestrator** (`dev-run`, `ac-team` sau `ac-verify`, hoặc người dùng gọi tay). Builder/subagent viết code không gọi skill này — kẻ vừa viết lô cuối viết brief thì judge thừa hưởng phạm vi của nó.
 

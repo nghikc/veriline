@@ -22,7 +22,7 @@ description: Use when đã dev xong một phase và cần NGHIỆM THU & PHÁT H
 `ba-accept <phase>` (vd `ba-accept phase-1`) · `ba-accept` (tự nhận phase đang tới lượt từ `08-roadmap.md` + trạng thái `dev` trong tracking).
 
 ## Tiền đề
-- **Phạm vi dự án** (đọc qua `ba-toolkit/profile.js` `readScope`, `conv-gates.md` → "Hồ sơ dự án" → "Phạm vi"): **`Phạm vi: docs` → TỪ CHỐI chế độ nghiệm thu trọn** — dự án chỉ tài liệu không có code để nghiệm thu, không có `ba-conformance`/`ba-test-e2e`/cột `dev`. Báo và dừng, gợi phần bàn giao tài liệu: `ba-accept uat` (kịch bản nghiệm thu cho đội build/khách) · `ba-accept release <phase>` (gói phát hành) · `ba-accept userguide` (cẩm nang, ảnh mockup tới khi có app) · `ba-review all` (gate bàn giao).
+- **Phạm vi dự án** (đọc bằng `node .claude/skills/ba-toolkit/scripts/profile.js docs`, `conv-gates.md` → "Hồ sơ dự án" → "Phạm vi"): **`Phạm vi: docs` → TỪ CHỐI chế độ nghiệm thu trọn** — dự án chỉ tài liệu không có code để nghiệm thu, không có `ba-conformance`/`ba-test-e2e`/cột `dev`. Báo và dừng, gợi phần bàn giao tài liệu: `ba-accept uat` (kịch bản nghiệm thu cho đội build/khách) · `ba-accept release <phase>` (gói phát hành) · `ba-accept userguide` (cẩm nang, ảnh mockup tới khi có app) · `ba-review all` (gate bàn giao).
 - Các màn thuộc phase có **`dev = ✅`** trong `docs/00-tracking.md` (`dev-run` đã chạy xong). Còn màn `dev = ⬜/⚠️` → cảnh báo, hỏi người dùng có nghiệm thu **phần đã xong** không.
 - Cần `docs/Ho-so/08-roadmap.md` (chia phase) cho bước đóng gói. Thiếu → route `ba-discover roadmap` trước.
 

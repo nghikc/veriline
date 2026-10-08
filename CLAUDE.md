@@ -50,7 +50,7 @@ Pipeline order and every skill's role: `.claude/skills/ba-toolkit/SKILL.md`. Bus
 ~88 zero-dependency Node scripts plus shared modules (`docpath.js`, `e2epath.js`, `profile.js`, `testcode.js`, `ledger.js`). Each script states its limits (`gioiHan`) and **counts, never judges** — judgment belongs to the skill and the human.
 
 ```bash
-node .claude/skills/ba-toolkit/scripts/test.js --public # the toolkit's own suite — 197 checks (self-lint · scripts on example/ · ADVERSARIAL). Exit = failures.
+node .claude/skills/ba-toolkit/scripts/test.js --public # the toolkit's own suite — 201 checks (self-lint · scripts on example/ · ADVERSARIAL). Exit = failures.
 node .claude/skills/ba-toolkit/scripts/lint.js          # structural/content-drift checks against the registry. Exit = error count.
 node .claude/skills/ba-next/scripts/status.js example/docs   # where a project is in the pipeline, what next
 node .claude/skills/ba-portal/scripts/build.js example/docs example/docs/Ho-so/portal.html   # offline docs portal

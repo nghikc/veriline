@@ -1,5 +1,10 @@
 /*
- * ba-toolkit/profile.js — đọc HỒ SƠ DỰ ÁN (project profile). Module, KHÔNG phải CLI.
+ * ba-toolkit/profile.js — đọc HỒ SƠ DỰ ÁN (project profile). Module + CLI một dòng:
+ *
+ *     node .claude/skills/ba-toolkit/scripts/profile.js [docs]   → `hồ sơ: <full|lite|mini> · phạm vi: <full|docs>` (exit 0)
+ *
+ * (CLI thêm 08/10/2026: SKILL.md dặn "đọc qua profile.js readScope" mà agent không có lệnh nào chạy được — chạy thử thật lộ ra.)
+ * Thiếu docs/ hay 00-tracking.md → in mặc định `full · full`, không lỗi.
  *
  * Toolkit có 4 cổng · 6 review agent · 3 sổ · 3 trục soát · 9 file mỗi màn. Dự án 8 màn hai
  * người không cần ngần ấy; ép dùng hết thì người ta bỏ qua cả những thứ đáng giữ. Hồ sơ dự án
@@ -123,3 +128,9 @@ function off(docsDir) {
 }
 
 module.exports = { readProfile, readScope, readAutonomy, isLite, isMini, isDocsOnly, off, screenFiles, VALUES, SCOPES, AUTONOMY, FILES_FULL, FILES_MINI };
+
+if (require.main === module) {
+  const docs = path.resolve(process.argv.slice(2).find((a) => !a.startsWith('--')) || 'docs');
+  console.log(`hồ sơ: ${readProfile(docs)} · phạm vi: ${readScope(docs)}`);
+  process.exitCode = 0;
+}

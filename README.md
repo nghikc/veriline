@@ -3,7 +3,7 @@
 > **Kiểm chứng từ ý tưởng tới code** — *Verified from idea to code.*
 
 <!-- so-sinh: mọi con số trong file này do release/export-public.js điền từ bản xuất — lint 40 bỏ qua file có dấu này -->
-Phiên bản **1.0.0-beta.1** (beta) · thay đổi theo bản: [`CHANGELOG.md`](CHANGELOG.md)
+Phiên bản **1.0.0-beta.2** (beta) · thay đổi theo bản: [`CHANGELOG.md`](CHANGELOG.md)
 
 Veriline là bộ skill cho [Claude Code](https://claude.com/claude-code) làm **tầng phân tích nghiệp vụ (BA) có truy vết**: từ một ý tưởng thô tới yêu cầu, chức năng, màn hình, đặc tả, test case, kế hoạch build rồi tới code thật. Mỗi bước sinh mã định danh nối thành chuỗi `BR → StR → FR/NFR → F → S → R-S → UC/US → TC`, và script đếm được chỗ nào đứt. Phần code đi qua **cổng chống PASS giả**: một agent kiểm chứng độc lập (không phải agent viết code) chạy lại từng bằng chứng, gieo lỗi vào code xem test có bắt không, rồi mới cho đánh "xong". Toàn bộ hồ sơ viết **tiếng Việt**, đủ chuẩn để giao khách: SRS, use case, test case, ma trận truy vết, kế hoạch nghiệm thu, cổng tài liệu HTML mở offline.
 

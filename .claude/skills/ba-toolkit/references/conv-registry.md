@@ -222,10 +222,10 @@ gate.hook.checks = H1:check-md.js:bang-markdown-toan-ven H2:check-md.js:rollup-k
 # checker thì hook chạy nó SỚM HƠN, không viết lại. Viết lại là nhân đôi nơi giữ luật.
 # Hook đăng ký ở `.claude/settings.json` của dự án; `ba-export` merge tự động, GỠ TRÙNG theo tên
 # file (đăng ký hai lần thì hook chạy hai lượt mỗi lần ghi — đã xảy ra thật ở chính repo nguồn).
-gate.hook.events = PreToolUse:hook-guard.js PostToolUse:hook-lint.js Stop:hook-gate.js SessionStart:hook-session.js UserPromptSubmit:hook-session.js
+gate.hook.events = PreToolUse:hook-guard.js PostToolUse:hook-lint.js Stop:hook-gate.js SessionStart:hook-session.js UserPromptSubmit:hook-session.js SessionEnd:hook-session.js
 # S9a/S9b (W7, 06/10/2026): sổ phiên `.claude/ba-session.json` — nhánh đổi dưới chân phiên / phiên khác còn sống cùng
 # thư mục repo → nhắc một lần, gợi ý `git worktree`. Chạy ở SessionStart + UserPromptSubmit (stdout exit 0 vào ngữ cảnh,
-# trước khi agent đụng file), không ở Stop (sau khi hỏng) hay PreToolUse (nổ mỗi tool). → docs/decisions/w7-khoa-giua-cac-phien.md
+# trước khi agent đụng file) + SessionEnd (xoá mục phiên vừa đóng — chuỗi `claude -p` không nhắc giả), không ở Stop (sau khi hỏng) hay PreToolUse (nổ mỗi tool). → docs/decisions/w7-khoa-giua-cac-phien.md
 # `FG` là phép kiểm DUY NHẤT chặn cứng (ở PreToolUse, `exit 2` = từ chối lệnh gọi). Ngoại lệ
 # có lý do: cảnh báo sai mất vài giây, bí mật đã vào context thì KHÔNG rút lại được. Hai phía
 # cán cân không đối xứng nên ngưỡng cũng không đối xứng. `S3` mặc định TẮT (đắt — chạy bộ test

@@ -23,7 +23,7 @@ Mỗi màn định dựng phải có **`ascii-screen.md`** và **`srs.md` có m�
 
 ## Quy trình
 
-> 💰 **Báo giá trước khi chạy** (`conv-gates.md` → "Cổng phương án" → Báo giá): in dòng `Ước tính: …` từ `node .claude/skills/ba-toolkit/scripts/cost.js estimate ba-html-design-lofi --man N` trước khi bắt tay (gọi từ orchestrator → dòng đó nằm trong phương án của cha); chạy xong ghi số thật `cost.js record ba-html-design-lofi --tokens N --minutes M --units N`.
+> 💰 **Báo giá trước khi chạy** (`conv-gates.md` → "Cổng phương án" → Báo giá): in dòng `Ước tính: …` từ `node .claude/skills/ba-toolkit/scripts/cost.js estimate ba-html-design-lofi --man N` trước khi bắt tay (gọi từ orchestrator → dòng đó nằm trong phương án của cha); chạy xong ghi số thật `cost.js record ba-html-design-lofi --tokens N --minutes M --units N` — **chỉ khi có số token ĐO được** (từ `cost.js` đọc transcript hay output harness); không có số đo thì bỏ qua, không ước, không bịa.
 
 1. Đọc `conventions.md`; với mỗi màn: `ascii-screen.md` + bảng phần tử trong `srs.md`.
 2. Sinh `docs/Ho-so/wireframe.html` — **một file gom mọi màn**, tự chứa:

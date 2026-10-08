@@ -17,7 +17,7 @@ Sinh `docs/07-design-system.md` — nguồn **style chuẩn duy nhất** (single
 
 ## Quy trình (hybrid — tự chọn nguồn theo hiện trạng)
 
-> 💰 **Báo giá trước khi chạy** (`conv-gates.md` → "Cổng phương án" → Báo giá): in dòng `Ước tính: …` từ `node .claude/skills/ba-toolkit/scripts/cost.js estimate ba-design-system` trước khi bắt tay (gọi từ orchestrator → dòng đó nằm trong phương án của cha); chạy xong ghi số thật `cost.js record ba-design-system --tokens N --minutes M`.
+> 💰 **Báo giá trước khi chạy** (`conv-gates.md` → "Cổng phương án" → Báo giá): in dòng `Ước tính: …` từ `node .claude/skills/ba-toolkit/scripts/cost.js estimate ba-design-system` trước khi bắt tay (gọi từ orchestrator → dòng đó nằm trong phương án của cha); chạy xong ghi số thật `cost.js record ba-design-system --tokens N --minutes M` — **chỉ khi có số token ĐO được** (từ `cost.js` đọc transcript hay output harness); không có số đo thì bỏ qua, không ước, không bịa.
 
 1. Đọc `conventions.md` của `ba-toolkit`. Xác định nguồn:
    - **Đã có màn** (`html-design.html` / `design-spec.md` ở vài folder) → **reverse**: quét chúng, gom màu/typography/spacing/component **lặp lại** thành token nhất quán; đánh dấu chỗ mâu thuẫn (vd 3 sắc xanh khác nhau) và **chuẩn hoá về 1**.
