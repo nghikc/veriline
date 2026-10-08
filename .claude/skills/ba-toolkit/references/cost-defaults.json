@@ -3,10 +3,10 @@
   "skills": {
     "ba-html-design": { "donVi": "man", "tokens": [190000, 240000], "phut": [9, 12], "do": "1 màn, 2–3 vòng check" },
     "ba-figma-draw": { "donVi": "frame", "tokens": [55000, 90000], "phut": [2.5, 5.5], "do": "push hi-fi 3–4 frame = 210–270k, 9–16 phút" },
-    "ba-userguide": { "donVi": "lan", "tokens": [275000], "phut": [15], "do": "GĐ1 mục lục 100k/3 phút + GĐ2 viết trang 175k/12 phút" },
+    "ba-accept": { "donVi": "lan", "tokens": [275000], "phut": [15], "do": "chế độ userguide — GĐ1 mục lục 100k/3 phút + GĐ2 viết trang 175k/12 phút" },
     "ba-userguide-video": { "donVi": "trang", "tokens": [70000], "phut": [6.5], "do": "2 clip = 140k, 13 phút (một clip một trang how-to)" },
     "ba-batch": { "donVi": "man", "tokens": [317000], "phut": [26], "do": "16/09/2026: spec + test + html một màn mỗi subagent (ba-batch/SKILL.md)" },
-    "ba-wireframe-lofi": { "donVi": "man", "tokens": [80000], "phut": [2], "do": "1 màn, 3 phương án" },
+    "ba-html-design-lofi": { "donVi": "man", "tokens": [80000], "phut": [2], "do": "chế độ lofi của ba-html-design (trước là ba-wireframe-lofi) — 1 màn, 3 phương án" },
     "ba-design-system": { "donVi": "lan", "tokens": [137000], "phut": [5], "do": "cập nhật 07-design-system.md" },
     "agent-checker": { "donVi": "lan", "tokens": [110000, 270000], "phut": [5, 15], "do": "agent nhỏ dựng một checker + test" }
   },

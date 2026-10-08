@@ -111,7 +111,7 @@ Trace: F0x → FR-0x → BR-0x.
 
 ## Ma trận lỗi
 > Gom **mọi cách màn này hỏng**, không chỉ lỗi nhập liệu: hết hạn/đã dùng, không đủ quyền, hệ ngoài chết, mất mạng, vượt hạn mức, xung đột dữ liệu. Bảng validation ở trên chỉ lo lỗi *field*; bảng này lo lỗi *luồng và hệ thống*.
-> Mỗi dòng là nguồn trực tiếp cho một `TC` Negative (`ba-test`) và một mục "Xử lý sự cố" trong cẩm nang (`ba-userguide`).
+> Mỗi dòng là nguồn trực tiếp cho một `TC` Negative (`ba-test`) và một mục "Xử lý sự cố" trong cẩm nang (`ba-accept userguide`).
 
 | Mã | Lỗi | Xảy ra khi | Mức | Trace | Người dùng thấy gì | Lối thoát |
 |----|-----|-----------|-----|-------|--------------------|-----------|

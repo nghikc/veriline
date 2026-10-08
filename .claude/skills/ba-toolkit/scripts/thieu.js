@@ -46,12 +46,12 @@ const { readProfile, readScope } = require('./profile.js');
 
 /** Mỗi khoá: checker/tính năng nó tắt + lệnh bổ sung (`<màn>` thay bằng mã màn). Thứ tự = thứ tự in. */
 const KHOÁ = {
-  'bang-phan-tu': { tat: ['ba-html-design/check-el', 'ba-wireframe-lofi/check-wireframe', 'ba-figma-draw/figma-sync', 'data-el của ba-html-design'], cach: 'ba-screen-spec <màn> --bo-sung bang-phan-tu' },
+  'bang-phan-tu': { tat: ['ba-html-design/check-el', 'ba-html-design/check-wireframe', 'ba-figma-draw/figma-sync', 'data-el của ba-html-design'], cach: 'ba-screen-spec <màn> --bo-sung bang-phan-tu' },
   'ma-tran-loi': { tat: ['ba-feasible/scan-feasible luật 2', 'ba-html-design/check-shell data-trace', 'scan-microcopy', 'ba-trace UE→E-S'], cach: 'ba-screen-spec <màn> --bo-sung ma-tran-loi' },
   'cach-chay': { tat: ['ba-conformance/check-tc-layer', 'ba-accept/accept cổng 4', 'hook S5', 'check-eval 4b'], cach: 'ba-screen-spec <màn> --bo-sung cach-chay' },
   '4b': { tat: ['ba-html-design/check-design (trần mặc định thay §4b)'], cach: 'ba-design-system --reverse-4b' },
   '07': { tat: ['ba-html-design/check-design DS-HEX', 'ba-html-design/check-design ngân sách §4b'], cach: 'ba-design-system' },
-  'data-chosen': { tat: ['ba-figma-draw/figma-sync push-lofi', 'gợi ý của ba-next/status', 'nguồn dựng ba-html-design'], cach: 'ba-wireframe-lofi <màn> (chốt phương án)' },
+  'data-chosen': { tat: ['ba-figma-draw/figma-sync push-lofi', 'gợi ý của ba-next/status', 'nguồn dựng ba-html-design'], cach: 'ba-html-design lofi <màn> (chốt phương án)' },
   'plan-trace': { tat: ['ac-verify/validate-done V9c', 'ac-eval/scan-eval cột Task/Proof'], cach: 'ba-build <màn> (bổ sung Trace/Proof)' },
   'verification-cu': { tat: ['ac-verify/validate-done V7b/c', 'V8a/V9*/V11'], cach: 'ac-verify <màn>' },
 };

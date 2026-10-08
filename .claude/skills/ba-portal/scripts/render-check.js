@@ -55,7 +55,7 @@ for (let i = 0; i < argv.length; i++) {
 }
 if (!vào.length) vào.push('docs');
 
-// ── Chrome: cùng cách tìm của ba-figure/scripts/build.js ─────────────────
+// ── Chrome: cùng cách tìm của ba-diagram/scripts/figure.js ─────────────────
 function tìmChrome() {
   if (chromeArg !== null) return chromeArg && fs.existsSync(chromeArg) ? chromeArg : null;
   return ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',

@@ -1,9 +1,17 @@
 ---
 name: ba-data-model
-description: Use when cần thiết kế MÔ HÌNH DỮ LIỆU nghiệp vụ cho hệ thống — ERD, từ điển dữ liệu, quan hệ; tài liệu cấp tổng từ chức năng và màn hình, sinh docs/05-data-model.md.
+description: Use when cần thiết kế MÔ HÌNH DỮ LIỆU nghiệp vụ — ERD, từ điển dữ liệu, quan hệ → docs/05-data-model.md; chế độ `dbml` chuyển mô hình thành SCHEMA VẬT LÝ cho dev (schema.dbml — kiểu DB, khoá, enum, index).
 ---
 
 # ba-data-model — Mô hình dữ liệu hệ thống
+
+## Chế độ
+| Gọi | Làm gì |
+|---|---|
+| `ba-data-model` | **Mô hình dữ liệu nghiệp vụ** (không đối số) — thực thể, ERD, từ điển dữ liệu → `docs/05-data-model.md`. Chạy ở mọi phạm vi |
+| `ba-data-model dbml` | **Schema vật lý cho dev** — kiểu DB thật, khoá, enum, index → `docs/Ho-so/dbschema/schema.dbml` (trước là `ba-dbschema`). Cần dev: phạm vi `docs` → từ chối |
+
+Đối số đầu là `dbml` → nhảy thẳng tới mục "Chế độ `dbml`" ở cuối file, **không** chạy Quy trình mô hình nghiệp vụ.
 
 ## Mục tiêu
 Sinh `docs/05-data-model.md`: danh sách thực thể, sơ đồ quan hệ (ERD), từ điển dữ liệu.
@@ -44,4 +52,18 @@ Cardinality mặc định của FK là **1-n** (`||--o{`); chỉ đổi khi có 
 
 ## Ranh giới
 
-- Schema vật lý (DBML, kiểu DB, index) → `ba-dbschema`; skill này chỉ mô hình nghiệp vụ.
+- Không đối số chỉ mô hình **nghiệp vụ** (kiểu tổng quát); schema vật lý (DBML, kiểu DB, index) là chế độ `dbml` bên dưới.
+- Chọn hệ quản trị CSDL, một DB hay nhiều → `ba-architecture` (ADR); chế độ `dbml` chỉ đọc quyết định đó.
+- Migration, model, repository (code) → `ba-build` / `dev-run`.
+
+## Chế độ `dbml` — Schema vật lý từ mô hình nghiệp vụ
+**Đọc `references/dbml.md` trước khi chạy** — đủ quy trình 7 bước, bảng ánh xạ kiểu, điểm dừng. Tóm tắt:
+- **Phạm vi dự án** (đọc qua `ba-toolkit/profile.js` `readScope`, `conv-gates.md` → "Hồ sơ dự án" → "Phạm vi"): **`Phạm vi: docs` → TỪ CHỐI chế độ dbml** — schema vật lý là bàn giao cho dev trong repo này, dự án chỉ tài liệu không có migration để nó đỡ. Báo và dừng, gợi `ba-data-model` (mô hình nghiệp vụ — đội build tự dựng schema từ đó) · `ba-architecture` (chốt hệ CSDL cho đội build).
+- **Điều kiện (CHẶN):** `docs/05-data-model.md` phải có mục "Từ điển dữ liệu" với ≥1 `### Thực thể:`. Thiếu → DỪNG, chạy `ba-data-model` (không đối số) trước. Không suy schema từ mỗi ERD.
+- Hệ quản trị CSDL lấy từ ADR trong `docs/10-architecture.md`; chưa chốt → hỏi, đừng mặc định Postgres.
+- Kiểm kê cơ giới (0 token): `node .claude/skills/ba-data-model/scripts/scan-model.js docs --plain` — xử hết 4 cảnh báo (thiếu PK · FK trỏ thực thể lạ · enum không liệt kê giá trị · thuộc tính không rõ ràng buộc) **trước** khi sinh; enum/độ dài không rõ → hỏi, không bịa (`text` + ghi chú thay vì `varchar(255)`).
+- Ghi **bảng ánh xạ kiểu** ở đầu file schema (tiền → `numeric(p,s)`, không float); **mỗi index có lý do** (bộ lọc ở `srs.md`, FK, cột duy nhất) — không nêu được truy vấn nào dùng → đừng thêm.
+- Sinh `docs/Ho-so/dbschema/schema.dbml` (mỗi thực thể một `Table` + `Note` nghiệp vụ, `Ref` cho mọi FK, `Enum` cho mọi enum); tên bảng/cột giữ nguyên như `05-data-model.md`. Thiếu bảng nối n-n → sửa `05-data-model.md` trước, đừng thêm lặng lẽ ở schema.
+- Chạy `node .claude/skills/ba-data-model/scripts/check-dbml.js docs` → sửa hết lỗi rồi mới báo xong (`ba-review` cũng gọi checker này khi có `schema.dbml`). Báo cáo: số bảng/cột · index kèm lý do · danh sách chỗ đã phải quyết thay.
+- Đổi mô hình sau khi schema đã chốt → `ba-change-request`, rồi chạy lại `ba-data-model dbml`. Chạy ở cả hồ sơ `full`/`lite`/`mini`.
+- **Xong → chạy `ba-next`.**

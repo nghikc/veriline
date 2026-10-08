@@ -353,11 +353,15 @@ if (REG) {
       for (const s of ba.concat(dev, ac)) {
         if (s === oldS || s === newS) continue;                  // hai skill đó tự nói về nhau, bỏ qua
         const txt = read(path.join(SKILLS, s, 'SKILL.md'));
-        if (!txt.includes(oldS)) continue;
-        if (!txt.includes(newS)) {
+        // Vị trí TÊN skill trọn token, không phải chuỗi con: `ba-userguide` là tiền tố của skill SỐNG `ba-userguide-video`
+        // (nhóm 6 M6 đợt 3) — đếm chuỗi con thì chính tên skill kia bị coi là "nhắc skill đã khai tử".
+        const chỗ = (n) => { const m = new RegExp(`(^|[^\\w-])${n.replace(/[-]/g, '\\-')}(?![\\w-])`).exec(txt); return m ? m.index + m[1].length : -1; };
+        const iCũ = chỗ(oldS), iMới = chỗ(newS);
+        if (iCũ < 0) continue;
+        if (iMới < 0) {
           fail(`${s}/SKILL.md chỉ nhắc "${oldS}" (đã ngừng dùng) mà không nhắc "${newS}" — người đọc đi vào lối cụt`);
           depDrift++;
-        } else if (txt.indexOf(newS) > txt.indexOf(oldS)) {
+        } else if (iMới > iCũ) {
           // Nêu đủ hai skill vẫn chưa đủ: skill đã khai tử mà đứng TRƯỚC thì nó là lựa chọn
           // mặc định trong mắt người đọc (và của agent đọc lướt). ba-init/ba-add-screen từng
           // liệt kê đúng kiểu đó sau khi ba-figma-design bị khai tử, mà check cũ vẫn cho qua.
@@ -478,7 +482,7 @@ if (REG) {
   // Vì sao cần: 52/55 skill được bảo "đọc conventions.md", nên một dòng conventions chấm 🟡 cho
   // chủ đề mà ba-review chấm 🟠 sẽ làm gate DỪNG vì thứ đáng lẽ chỉ là nợ tới hạn — đúng cái bệnh
   // mức 🟠 sinh ra để chữa. Đó là chuyện thật: tới 17/08/2026 conventions.md vẫn chấm 🟡 cho ADR
-  // Draft, giả định chưa xác nhận và thiếu Animation, ba-uat/ba-screen-spec template cũng vậy.
+  // Draft, giả định chưa xác nhận và thiếu Animation, ba-accept uat/ba-screen-spec template cũng vậy.
   // Không check nào cũ bắt được — 16 chỉ soát "mốc có cổng thu nợ", 8 soát TÊN doc; đây soát MỨC.
   // Hai nửa: (a) registry ↔ bảng canon của ba-review khớp hai chiều; (b) không nơi nào chấm ngược.
   console.log('\n=== 18. Phân loại 🟠 nhất quán (canon = ba-review) ===');
@@ -833,12 +837,12 @@ if (REG) {
 
 // ── 30. Đội agent khớp roster ──────────────────────────────────────────────────────────
 // Agent là file có hợp đồng (ai phái · nhận gì · trả về đâu · quyền). Canon: agents.roster. Checker
-// có sẵn thì GỌI, không viết lại: ac-agent/scripts/check-agents.js. Ở đây chỉ chuyển exit code thành lỗi lint.
+// có sẵn thì GỌI, không viết lại: ba-toolkit/scripts/check-agents.js (dời từ ac-agent ở đợt 2 M6 — lint lõi không được phụ thuộc skill giữ riêng). Ở đây chỉ chuyển exit code thành lỗi lint.
 {
   console.log('\n=== 30. Đội agent khớp roster (agents.roster) ===');
-  const ck = path.join(SKILLS, 'ac-agent', 'scripts', 'check-agents.js');
+  const ck = path.join(SKILLS, 'ba-toolkit', 'scripts', 'check-agents.js');
   if (!REG['agents.roster']) warn('registry thiếu agents.roster — bỏ qua check 30');
-  else if (!fs.existsSync(ck)) fail('registry khai agents.roster nhưng thiếu ac-agent/scripts/check-agents.js');
+  else if (!fs.existsSync(ck)) fail('registry khai agents.roster nhưng thiếu ba-toolkit/scripts/check-agents.js');
   else {
     const r = require('child_process').spawnSync(process.execPath, [ck, '--root', ROOT, '--json'], { encoding: 'utf8' });
     let j = null; try { j = JSON.parse(r.stdout); } catch { /* rơi xuống dưới */ }
@@ -914,7 +918,7 @@ if (REG) {
   if (!roles.length) warn('registry thiếu agents.sonnet.roles — bỏ qua');
   else {
     const a = read(path.join(SKILLS, 'ac-agent', 'SKILL.md')), b = read(path.join(SKILLS, 'ac-po', 'assets', 'run-step.md')); let drift = 0;
-    for (const r of roles) { if (!a.includes(r)) { fail(`ac-agent/SKILL.md thiếu vai sonnet "${r}"`); drift++; } if (!vắngHợpLệ('ac-po') && !b.includes(r)) { fail(`ac-po/assets/run-step.md thiếu vai sonnet "${r}"`); drift++; } }
+    for (const r of roles) { if (!vắngHợpLệ('ac-agent') && !a.includes(r)) { fail(`ac-agent/SKILL.md thiếu vai sonnet "${r}"`); drift++; } if (!vắngHợpLệ('ac-po') && !b.includes(r)) { fail(`ac-po/assets/run-step.md thiếu vai sonnet "${r}"`); drift++; } }
     if (!drift) ok(`${roles.length} vai sonnet có mặt ở ${vắngHợpLệ('ac-po') ? 'ac-agent/SKILL.md (ac-po vắng — skills.pro)' : 'cả hai nơi'}`);
   }
 }
@@ -1208,6 +1212,40 @@ if (REG) {
       for (const [k, v] of [['pro', pro], ['devOnly', dvo]]) if (M && [...nhóm(k)].sort().join(' ') !== [...v].sort().join(' ')) { fail(`release/manifest.json skills.${k}.list ≠ registry skills.${k.toLowerCase()} (${nhóm(k).join(' ')} ↔ ${v.join(' ')})`); drift++; }
     }
     if (!drift) ok(`ranh giới gói: ${nFile} file công khai không phụ thuộc cứng ${pro.length} skill Pro + ${dvo.length} devonly${fs.existsSync(mf) ? ' · registry khớp release/manifest.json' : ''}`);
+  }
+}
+
+// 44 (tiếp) — BỘ CÀI (M6, 08/10/2026 — docs/decisions/32): install.js chọn skill theo `profile.core.skills` (mặc định), `profile.dev.skills`
+// (+ mọi dev-*, cờ --dev), `profile.mini.skills`; agent đi theo `agents.owner`. Bộ cài lệch là người mới nhận bộ skill gãy (skill lõi gọi
+// skill không được cài) hay phình lại (mỗi mô tả nạp mọi phiên). Soát: mini ⊆ core · core ∩ dev = ∅ · không Pro/devonly trong core/dev ·
+// mô tả core ≤ 8000 ký tự · mọi agent của roster có chủ · (repo phát triển) core = manifest core.list − bộ dev − dev-*, dev ⊆ công khai.
+{
+  const core = REG['profile.core.skills'] || [], dev = REG['profile.dev.skills'] || [], mini = REG['profile.mini.skills'] || [];
+  if (!core.length) warn('registry thiếu profile.core.skills — install.js không có bộ cài mặc định (bỏ qua soát bộ cài)');
+  else {
+    let lệch = 0; const lỗi = (m) => { fail('bộ cài: ' + m); lệch++; };
+    const sCore = new Set(core), sDev = new Set(dev);
+    const ngoàiCore = mini.filter((x) => x !== 'ba-toolkit' && !sCore.has(x)); if (ngoàiCore.length) lỗi(`profile.mini.skills có skill ngoài profile.core.skills: ${ngoàiCore.join(', ')} (mini phải ⊆ core)`);
+    const chung = core.filter((x) => sDev.has(x) || x.startsWith('dev-')); if (chung.length) lỗi(`skill vừa ở core vừa thuộc bộ dev: ${chung.join(', ')}`);
+    const góiKín = new Set([...(REG['skills.pro'] || []), ...(REG['skills.devonly'] || [])]);
+    const kín = [...core, ...dev].filter((x) => góiKín.has(x)); if (kín.length) lỗi(`bộ cài core/dev chứa skill Pro/devonly: ${kín.join(', ')}`);
+    const vắng = [...core, ...dev].filter((x) => !fs.existsSync(path.join(SKILLS, x, 'SKILL.md'))); if (vắng.length) lỗi(`bộ cài trỏ tới skill không tồn tại: ${vắng.join(', ')}`);
+    const mô = core.reduce((n, x) => { const t = fs.existsSync(path.join(SKILLS, x, 'SKILL.md')) ? read(path.join(SKILLS, x, 'SKILL.md')) : ''; return n + ((t.match(/^description:\s*(.*)$/m) || [, ''])[1].trim().length); }, 0);
+    if (mô > 8000) lỗi(`mô tả bộ core ${mô} ký tự > 8000 (M6: cài mặc định phải gọn)`);
+    const chủ = new Set((REG['agents.owner'] || []).map((p2) => p2.split(':')[0]));
+    const vôChủ = (REG['agents.roster'] || []).map((p2) => p2.split(':')[0]).filter((a) => !chủ.has(a)); if (vôChủ.length) lỗi(`agent trong agents.roster chưa có dòng agents.owner: ${vôChủ.join(', ')}`);
+    const mf2 = path.join(ROOT, 'release', 'manifest.json');
+    if (fs.existsSync(mf2)) {
+      let M2 = null; try { M2 = JSON.parse(read(mf2)); } catch { lỗi('release/manifest.json hỏng JSON'); }
+      if (M2) {
+        const kỳVọng = new Set(M2.skills.core.list.filter((x) => !sDev.has(x) && !x.startsWith('dev-')));
+        const thiếu = [...kỳVọng].filter((x) => !sCore.has(x)), thừa = core.filter((x) => !kỳVọng.has(x));
+        if (thiếu.length || thừa.length) lỗi(`profile.core.skills ≠ manifest core.list − bộ dev (thiếu: ${thiếu.join(', ') || '—'} · thừa: ${thừa.join(', ') || '—'})`);
+        const công = new Set([...M2.skills.core.list, ...M2.skills.community.list]);
+        const devKín = dev.filter((x) => !công.has(x)); if (devKín.length) lỗi(`profile.dev.skills có skill không công khai: ${devKín.join(', ')}`);
+      }
+    }
+    if (!lệch) ok(`bộ cài: core ${core.length} skill (mô tả ${mô} ký tự ≤ 8000) · dev ${dev.length} + dev-* · mini ⊆ core · agent có chủ${fs.existsSync(mf2) ? ' · khớp release/manifest.json' : ''}`);
   }
 }
 

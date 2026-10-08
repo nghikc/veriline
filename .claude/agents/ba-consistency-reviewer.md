@@ -49,7 +49,7 @@ model: opus
 - Có nên thêm chức năng/màn hay không — quyết định người dùng.
 
 ## Đầu ra
-Trả **findings có cấu trúc**, mỗi finding: **Mức (🔴/🟡/🟢) · Mâu thuẫn (nêu HAI chỗ: "A ở doc X" vs "B ở doc Y") · Cách sửa (1 hành động + skill: `ba-requirements`/`ba-functions`/`ba-roadmap`/`ba-screen-spec`/`ba-test`/`ba-change-request`)**. Kết bằng **verdict**: `đạt` / `cần sửa` (🟡) / `chặn` (🔴). Kèm checklist máy-đọc:
+Trả **findings có cấu trúc**, mỗi finding: **Mức (🔴/🟡/🟢) · Mâu thuẫn (nêu HAI chỗ: "A ở doc X" vs "B ở doc Y") · Cách sửa (1 hành động + skill: `ba-requirements`/`ba-functions`/`ba-discover roadmap`/`ba-screen-spec`/`ba-test`/`ba-change-request`)**. Kết bằng **verdict**: `đạt` / `cần sửa` (🟡) / `chặn` (🔴). Kèm checklist máy-đọc:
 
 ```
 ### Consistency checklist (mode: project|screen)

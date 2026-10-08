@@ -1,9 +1,15 @@
 ---
 name: ba-api-spec
-description: Use when cần đặc tả API của chính hệ thống — danh sách endpoint, request/response, mã trạng thái; tài liệu cấp tổng từ chức năng, màn hình, mô hình dữ liệu; sinh docs/06-api-spec.md.
+description: Use when cần đặc tả API của chính hệ thống — endpoint, request/response, mã trạng thái, sinh docs/06-api-spec.md; `partner` khi tiêu thụ API đối tác (build-vs-buy, mapping field 3 tầng, readiness) → docs/12-api-integration.md.
 ---
 
 # ba-api-spec — Đặc tả API hệ thống
+
+## Chế độ
+| Gọi | Làm gì |
+|---|---|
+| `/ba-api-spec` (mặc định) | API **của mình** tự phát → `docs/06-api-spec.md` — quy trình bên dưới |
+| `/ba-api-spec partner [đối tác]` | tiêu thụ API **đối tác/hệ ngoài** (payment, SSO, e-invoice…) — build-vs-buy, digest, mapping field 3 tầng, readiness → `docs/12-api-integration.md` — mục **"Chế độ `partner`"** cuối file (trước 08/10/2026 là skill `ba-api-integration`) |
 
 ## Mục tiêu
 Sinh `docs/06-api-spec.md`: bảng tổng endpoint + chi tiết request/response từng endpoint.
@@ -28,4 +34,25 @@ Sinh `docs/06-api-spec.md`: bảng tổng endpoint + chi tiết request/response
 
 ## Ranh giới
 
-- API của đối tác/hệ ngoài mà hệ thống tiêu thụ → `ba-api-integration`; kiểm thử API → `ba-api-test`.
+- API của đối tác/hệ ngoài mà hệ thống tiêu thụ → chế độ `partner` (dưới); kiểm thử API → `ba-api-test`.
+- KHÁC `ba-integration` (11) = **kiến trúc tích hợp** cả cụm hệ (landscape + hợp đồng tổng + MDM). 11 quyết định "ta sẽ nối đối tác X"; `partner` (12) đặc tả *tiêu thụ X thế nào* và có thể trỏ 11 cho bức tranh tổng.
+
+## Chế độ `partner` — đánh giá & mapping API đối tác ngoài
+Sinh `docs/12-api-integration.md` theo `assets/partner-template.md` — với mỗi API đối tác/hệ ngoài hệ thống tiêu thụ: **tự xây hay mua**, **doc của họ nói gì** (digest), **field của họ khớp dữ liệu/màn của mình ra sao** (mapping 3 tầng), **đủ điều kiện lên production chưa** (readiness). Kết thúc bằng cổng CHỐT như một quyết định kiến trúc. Không tiêu thụ API ngoài nào → không cần chế độ này.
+
+**Điều kiện.** Cần `02-functions.md` (chức năng gọi ra ngoài) + `01-requirements.md` (§NFR/§Ràng buộc: SLA, bảo mật, chi phí). Nên có `05-data-model.md` (đích mapping), `03-overview.md`, `11-integration.md`. Đầu vào ngoài: tài liệu API đối tác (link/PDF/OpenAPI) — không có thì phần đoán đánh `GĐ ⚠️ chưa xác nhận`.
+
+**Quy trình.**
+1. Đọc `conventions.md`; `02`/`01`; `05`/`03`/`11` nếu có. Nạp tài liệu API đối tác (Read cho PDF/OpenAPI; dán nếu là trang web).
+2. **Kiểm kê hệ ngoài:** mỗi đối tác một `EXT-01` — vai trò · nhà cung cấp · mô hình giá · tài liệu ở đâu · có sandbox không.
+3. **Build-vs-buy — mỗi `EXT` một ADR:** so tự xây vs mua trên chi phí (dev + phí/giao dịch), thời gian, rủi ro tuân thủ (PCI-DSS, hoá đơn điện tử…), năng lực đội, lock-in, độ chín. Kết luận = `ADR-01` trace `NFR`/ràng buộc, `Draft` tới khi qua cổng chốt.
+4. **Digest:** chỉ phần DÙNG — base URL + môi trường, **auth** (OAuth2/API-key/HMAC/mTLS + cách lấy token), **endpoint dùng**, **webhook/callback** (sự kiện + chữ ký), **rate limit & quota**, **mã lỗi** hay gặp, **idempotency**, **versioning/deprecation**. Trích mục doc gốc; chỗ doc không rõ → `OQ`.
+5. **Mapping field 3 tầng (cốt lõi):** mỗi trường một dòng **API đối tác** (field + kiểu + đơn vị) ↔ **`05` thực thể.thuộc tính** ↔ **màn `S..` + nhãn**; ghi **phép biến đổi** (đơn vị/định dạng/enum, VND↔cent, ISO-8601↔epoch), bắt buộc/tuỳ chọn, mặc định, **chiều** (gửi/nhận/cả hai). Trường không map được → nêu ra, không bỏ lặng.
+6. **Readiness gate:** sandbox đã test · credential prod · secrets ở vault · **retry + timeout + idempotency** · **circuit breaker/fallback** · webhook verify chữ ký · tôn trọng rate-limit · log có correlation id · map mã lỗi đối tác sang lỗi mình · điều khoản/PII/tuân thủ · **kế hoạch khi đối tác đổi API**. Mỗi mục `✅/⚠️/❌ + ghi chú`.
+7. **Rủi ro & Xác nhận giả định (BẮT BUỘC):** đối tác sập/đổi contract/tăng giá → phương án. Tự đoán (SLA, giá, volume, nghĩa field) → `GĐ-..` + vòng "Xác nhận giả định" (`conventions.md`); batch → `⚠️ chưa xác nhận`.
+8. Viết `docs/12-api-integration.md` theo `assets/partner-template.md`.
+9. **Cổng CHỐT (BẮT BUỘC):** trình **các ADR build-vs-buy** + **bảng mapping** + **readiness** → AskUserQuestion **Chốt / Sửa / Hoãn**, nhấn cam kết chi phí & tuân thủ. Chỉ **Chốt** → ADR `Accepted` + ngày; `dev-run` mới được scaffold client/adapter. **Hoãn** → giữ `Draft`, chưa cho code. *(Batch → `Draft` + `⚠️ chưa chốt`; `ba-review` báo 🟡.)*
+
+**Tiêu chí (BẮT BUỘC).** Mỗi `EXT` có một ADR build-vs-buy **có kết luận**, trace `NFR`. Mọi trường trao đổi có dòng mapping đủ (kiểu + đơn vị + biến đổi + chiều). Readiness không bỏ trống retry/idempotency/xử-lý-lỗi/fallback. Không bịa auth/rate-limit/mã lỗi → `OQ`/`GĐ ⚠️`. Digest chỉ giữ phần dùng thật.
+
+**Lưu ý.** Đối tác đổi API/giá → `ba-change-request` (ADR "supersedes"). Sơ đồ luồng gọi đối tác → `sequenceDiagram` (participant = hệ mình + đối tác), rõ sync/async + timeout. Footer `## Thuật ngữ` + `00-glossary.md` (OAuth2, HMAC, idempotency, webhook, lock-in, PCI-DSS…). Tên field/endpoint/đối tác giữ nguyên. **Xong → chạy `ba-next`.**

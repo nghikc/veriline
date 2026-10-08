@@ -1,9 +1,17 @@
 ---
 name: ba-portal
-description: Use when cần xuất cả docs/ thành cổng HTML nhiều trang có sidebar để tra cứu/chia sẻ stakeholder, mở offline; sinh Ho-so/portal.html, cờ --client cho bản gọn gửi khách.
+description: Use when cần xuất cả docs/ thành cổng HTML nhiều trang có sidebar, mở offline — Ho-so/portal.html, cờ --client gọn gửi khách; chế độ `sitemap` trang luồng màn + wireframe cho người dùng cuối (Ho-so/sitemap.html).
 ---
 
 # ba-portal — Cổng tài liệu HTML
+
+## Chế độ
+| Gọi | Làm gì |
+|---|---|
+| `ba-portal` | **Cổng tài liệu** (không đối số) — gom cả `docs/` thành `docs/Ho-so/portal.html` nhiều trang có sidebar; `--client` bản gọn gửi khách, `--single` một file `.md` → HTML. Chỉ dựng lại bản đọc, không cần duyệt |
+| `ba-portal sitemap` | **Trang luồng màn cho người dùng cuối** — bản đồ điều hướng + hành trình từ usecase + wireframe ASCII mọi màn → `docs/Ho-so/sitemap.html` (trước là `ba-sitemap`). Orchestrator có gate + Cổng phương án |
+
+Đối số đầu là `sitemap` → nhảy thẳng tới mục "Chế độ `sitemap`" ở cuối file, **không** dựng `portal.html`.
 
 ## Mục tiêu
 Gom các `.md` **do BA toolkit sinh** trong `docs/` thành một file `docs/Ho-so/portal.html` **tự chứa** (offline, không phụ thuộc internet hay package): sidebar điều hướng theo cây docs + nội dung render + scrollspy. **Responsive:** trên màn hình nhỏ (≤768px) sidebar tự ẩn thành drawer, có nút hamburger ở header để mở/đóng menu.
@@ -68,4 +76,16 @@ node .claude/skills/ba-portal/scripts/render-check.js docs/01-requirements.md "d
 
 ## Ranh giới
 
-- Khác `ba-onepager` (một bài đọc liền mạch, ID dồn về phụ lục) và `ba-sitemap` (trang luồng màn cho người dùng cuối).
+- Khác `ba-onepager` (một bài đọc liền mạch, ID dồn về phụ lục). Chế độ `sitemap` là trang luồng màn cho **người dùng cuối**, tách khỏi `portal.html` (đối tượng đọc khác).
+- `sitemap` tĩnh, để đọc; muốn bấm qua các màn thì dùng `ba-prototype`. Cẩm nang thao tác chi tiết → `ba-accept userguide`.
+
+## Chế độ `sitemap` — Trang luồng màn hình cho người dùng cuối
+**Đọc `references/sitemap.md` trước khi chạy** — đủ quy trình 6 bước, biến thể Mermaid, đầu vào/ra. Tóm tắt:
+- **Bước 0 — Đọc bối cảnh:** `conventions.md` + `conv-gates.md` của `ba-toolkit`.
+- **Bước 0b — Cổng phương án (BẮT BUỘC — `conv-gates.md` → "Cổng phương án"):** chạy `--check` ở bước 1 xong → trình phương án đủ 6 phần: gom bao nhiêu màn, viết bao nhiêu hành trình, `docs/Ho-so/sitemap-flows.md` + `docs/Ho-so/sitemap.html` sẽ TẠO hay **GHI ĐÈ bản cũ**, màn thiếu ascii bị bỏ qua (nêu đích danh) → `AskUserQuestion` **Chạy / Sửa phương án / Thu hẹp phạm vi / Hủy**. Đã có `sitemap.html` → luôn chờ duyệt (ghi đè).
+- **Bước 1 — GATE readiness:** `node .claude/skills/ba-portal/scripts/sitemap.js --check [docsDir=docs]` (chỉ dò, exit = số gap **CHẶN**). Thiếu "Sơ đồ điều hướng" trong `03-overview.md` → **CHẶN**, chạy `ba-screens` trước. Màn thiếu `ascii-screen.md` (gap **mềm**) → hỏi: REQUIRED SUB-SKILL `ba-screen-spec` cho màn thiếu, hay build với ô "chưa có wireframe". KHÔNG bịa wireframe.
+- **Bước 2 — Viết hành trình** (phán đoán): từ `03-overview.md` + `usecase.md` các màn → `docs/Ho-so/sitemap-flows.md` theo `assets/sitemap-template.md`: 2–4 hành trình, mỗi bước neo mã `S..` **có thật**, văn người dùng cuối, không bịa bước. Mermaid được (một vai `flowchart`, đa vai `swimlane-beta`), giữ mã `S..` trong nhãn.
+- **Bước 3 — GATE tham chiếu:** chạy lại `sitemap.js --check` → phải PASS; "Mã màn lạ trong hành trình" → **CHẶN**, sửa `sitemap-flows.md` tới khi PASS.
+- **Bước 4 — Build:** `node .claude/skills/ba-portal/scripts/sitemap.js [docsDir=docs] [out=docs/Ho-so/sitemap.html]` — assemble `docs/Ho-so/sitemap.md` rồi render qua `build.js --single`.
+- **Bước 5 — Bàn giao:** mở `docs/Ho-so/sitemap.html`; còn màn ô trống → nhắc `ba-screen-spec`; chia sẻ online → `ba-doc-public`. Chỉ ghi `sitemap*`, không sửa tài liệu nguồn; `sitemap.html` **không** vào `portal.html`.
+- **Xong bước này → chạy `ba-next`** — nó quét lại `docs/` để tính vị trí pipeline và đề xuất bước kế. Đừng tự đoán bước tiếp theo, cũng đừng nhảy cóc.

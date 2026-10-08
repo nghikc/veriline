@@ -19,7 +19,7 @@ Dùng khi sổ chưa tồn tại. Mã `WI-01` là bộ đếm **toàn cục**; m
 - **Nguồn:** người dùng nêu · họp <ngày> · `ACT-..` · roadmap `08-roadmap.md` · phát hiện khi test · nợ kỹ thuật…
 - **Mô tả & mục tiêu:** … (làm gì, để đạt điều gì)
 - **Trace:** FR-.. → F.. → S.. (Feature) · hoặc R-S..-.. / TC.. (Bug) · hoặc NFR-.. / ràng buộc (Tech). Ghi "—" nếu thuần kỹ thuật không gắn yêu cầu.
-- **Phạm vi dự kiến:** file/màn sẽ chạm; skill sẽ dùng (`ba-add-feature`/`ba-add-screen`/`dev-run`…).
+- **Phạm vi dự kiến:** file/màn sẽ chạm; skill sẽ dùng (`ba-add-screen [feature]`/`dev-run`…).
 - **Phụ trách:** (một người). **Ưu tiên:** Must/Should/Could (MoSCoW).
 - **Phạm vi thực tế:** — (điền khi Xong: docs + file code đã đổi)
 - **Commit/nhánh:** —

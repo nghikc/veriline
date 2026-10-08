@@ -67,7 +67,7 @@ SOFTWARE.
 - **Nguồn:** https://github.com/mermaid-js/mermaid, tag `mermaid@11.16.0` (bản IIFE `mermaid.min.js`; phiên bản đọc từ chính file: `version:"11.16.0"`).
 - **Giấy phép:** MIT. Văn bản lấy từ `LICENSE` ở tag `mermaid@11.16.0`. Bản sao đặt cạnh file: `.claude/skills/ba-portal/assets/vendor/LICENSE`.
 - **Nơi dùng:** `.claude/skills/ba-portal/assets/vendor/mermaid.min.js` (đọc bởi `ba-portal/scripts/build.js`, `render-check.js`,
-  `ba-figure/scripts/build.js`). Các HTML sinh ra nhúng nguyên file này, gồm cả bản mẫu trong repo:
+  `ba-diagram/scripts/figure.js`). Các HTML sinh ra nhúng nguyên file này, gồm cả bản mẫu trong repo:
   `example/docs/Ho-so/portal.html`, `example/docs/Ho-so/sitemap.html`, `example/docs/Ho-so/releases/phase-1.html`,
   `example/docs/Ho-so/00-onepager.html`, `Slide-tao-skill-ai/01-training-tao-skill-ai.html`.
 

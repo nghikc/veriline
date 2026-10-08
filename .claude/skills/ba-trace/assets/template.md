@@ -50,7 +50,7 @@
 
 | Mức | Loại | ID | Mô tả | Đề xuất |
 |-----|------|----|-------|---------|
-| 🔴 | Yêu cầu mồ côi | FR.. | Không có chức năng/màn nào cài đặt | `ba-functions`/`ba-add-feature` |
+| 🔴 | Yêu cầu mồ côi | FR.. | Không có chức năng/màn nào cài đặt | `ba-functions`/`ba-add-screen feature` |
 | 🔴 | Ref gãy | R-S..-.. → F99 | Trace tới ID không tồn tại | Sửa `srs.md` |
 | 🔴 | Màn ✅ thiếu srs | S.. | **Đã build** nhưng chưa có yêu cầu màn | `ba-screen-spec` |
 | 🟡 | Màn ✅ thiếu test | S.. | Đã build, có srs nhưng chưa TC | `ba-test` |

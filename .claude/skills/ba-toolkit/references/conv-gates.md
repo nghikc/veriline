@@ -15,7 +15,7 @@
 ## Cổng phương án (BẮT BUỘC — trình phương án TRƯỚC khi ghi)
 Ba cổng còn lại của toolkit (`Quy ước gate`, `Cổng chốt kiến trúc`, `Xác nhận giả định`) đều là **hậu kiểm** — soát sau khi file đã ghi. Cổng này là **tiền kiểm**: skill phải **đọc xong nguồn, trình cách nó hiểu + việc nó định làm, và CHỜ DUYỆT** rồi mới được tạo/sửa file. Bắt hiểu-sai lộ ra **trước khi** tốn công, và cho người dùng thấy đúng phạm vi sắp bị ghi đè.
 
-**Áp cho** (danh sách canon = khóa `gate.plan.skills` trong khối registry — `lint.js` soát): mọi **orchestrator** + các **skill nguyên tử ghi nhiều file một lần** (`ba-screen-spec`, `ba-requirements`, `ba-screens`, `ba-architecture`, `ba-userguide`).
+**Áp cho** (danh sách canon = khóa `gate.plan.skills` trong khối registry — `lint.js` soát): mọi **orchestrator** + các **skill nguyên tử ghi nhiều file một lần** (`ba-screen-spec`, `ba-requirements`, `ba-screens`, `ba-architecture`, chế độ `ba-accept userguide`).
 
 **Bốn bước:**
 1. **Đọc nguồn trước** — đọc hết tài liệu đầu vào skill cần (đúng danh sách trong mục "Điều kiện"/"Quy trình" của skill). Chưa đọc mà đã trình phương án là vi phạm.
@@ -30,7 +30,7 @@ Ba cổng còn lại của toolkit (`Quy ước gate`, `Cổng chốt kiến tr�
    | **Câu hỏi chặn** | thiếu thông tin nào thì KHÔNG chạy được |
    | **Ngoài phạm vi** | thứ người dùng có thể tưởng là sẽ làm nhưng skill sẽ KHÔNG đụng |
 
-   **Báo giá (skill nặng — canon `gate.cost.skills`):** phương án có thêm **một dòng** `Ước tính: ~X token (khoảng A–B) · ~Y phút` lấy từ `node .claude/skills/ba-toolkit/scripts/cost.js estimate <skill> [--man N|--trang N|--frame N]` — chép nguyên dòng kèm nguồn (lịch sử dự án ≥3 lần hay bảng mặc định `cost-defaults.json`, hay mượn skill gần nhất). Script nói "không ước được" thì ghi đúng thế — **không tự bịa số**. Skill nặng **không** có cổng sáu phần (`ba-html-design`, `ba-figma-draw`, `ba-design-system`, `ba-wireframe-lofi`) vẫn in dòng này trước khi bắt tay. Chạy xong, orchestrator/agent ghi số thật: `cost.js record <skill> --tokens N --minutes M [--units N]` (token/phút lấy từ thông báo hoàn thành của Agent) — để báo giá lần sau là số của chính dự án. `lint.js` mục 11 soát mỗi skill trong `gate.cost.skills` có nhắc `cost.js estimate`.
+   **Báo giá (skill nặng — canon `gate.cost.skills`):** phương án có thêm **một dòng** `Ước tính: ~X token (khoảng A–B) · ~Y phút` lấy từ `node .claude/skills/ba-toolkit/scripts/cost.js estimate <skill> [--man N|--trang N|--frame N]` — chép nguyên dòng kèm nguồn (lịch sử dự án ≥3 lần hay bảng mặc định `cost-defaults.json`, hay mượn skill gần nhất). Script nói "không ước được" thì ghi đúng thế — **không tự bịa số**. Skill nặng **không** có cổng sáu phần (`ba-html-design` — cả chế độ `lofi` với khoá giá riêng `ba-html-design-lofi` —, `ba-figma-draw`, `ba-design-system`) vẫn in dòng này trước khi bắt tay. Chạy xong, orchestrator/agent ghi số thật: `cost.js record <skill> --tokens N --minutes M [--units N]` (token/phút lấy từ thông báo hoàn thành của Agent) — để báo giá lần sau là số của chính dự án. `lint.js` mục 11 soát mỗi skill trong `gate.cost.skills` có nhắc `cost.js estimate`.
 3. **Chờ duyệt** — `AskUserQuestion`: **Chạy / Sửa phương án / Thu hẹp phạm vi / Hủy**. **Chỉ "Chạy" mới được ghi file.** "Sửa"/"Thu hẹp" → chỉnh rồi trình lại (tối đa 2 vòng, sau đó hỏi thẳng người dùng muốn gì).
 4. **Chạy đúng phương án đã duyệt.** Giữa chừng phát hiện phải làm thứ **ngoài phương án** (thêm file, đụng màn khác, đổi thứ tự) → **dừng, xin duyệt phần chênh**, không tự mở rộng.
 
@@ -38,7 +38,7 @@ Ba cổng còn lại của toolkit (`Quy ước gate`, `Cổng chốt kiến tr�
 - **Cổng cha bao phủ cổng con (LUẬT CHUNG — áp cho mọi skill trong `gate.plan.subskills`).** Skill được **một orchestrator đã qua cổng** gọi xuống thì **KHÔNG hỏi duyệt lại**: in phương án rút gọn (chỉ phần "Sẽ làm" + "Câu hỏi chặn" nếu có) rồi chạy tiếp. Lý do: phương án của cha đã liệt kê chính những file này, hỏi lại là bắt người dùng duyệt hai lần cùng một việc — và người bị hỏi nhiều lần sẽ bấm "Chạy" theo phản xạ, tức là cổng mất tác dụng ở **cả hai** tầng. Ngoại lệ **không** áp dụng trong 3 trường hợp, và mỗi skill dính ngoại lệ phải **nói rõ trong SKILL.md của mình** (im lặng thì không phân biệt được "cố ý" với "quên"):
   - (a) skill con phát hiện phải đụng file **ngoài** phương án cha → dừng, xin duyệt phần chênh theo bước 4;
   - (b) skill con là **cửa vào thay đổi baseline** (`ba-change-request`, `ba-task`) → luôn giữ cổng riêng dù ai gọi;
-  - (c) thứ cần duyệt là **cái cha chưa nhìn thấy** nên không duyệt thay được — `ba-screens` (bảng màn + mã `S..`: sai là mọi tài liệu sau bám theo) và `ba-userguide` (mục lục cẩm nang). Hai skill này vẫn hỏi, nhưng **gộp vào một lượt**, không hỏi rời rạc.
+  - (c) thứ cần duyệt là **cái cha chưa nhìn thấy** nên không duyệt thay được — `ba-screens` (bảng màn + mã `S..`: sai là mọi tài liệu sau bám theo) và `ba-accept userguide` (mục lục cẩm nang). Hai chỗ này vẫn hỏi, nhưng **gộp vào một lượt**, không hỏi rời rạc.
 - **Ngưỡng nhỏ:** phương án gọi **≤1 skill con** VÀ tạo/sửa **≤2 file**. *(Ghi chú thẳng: mọi skill trong `gate.plan.skills` đều vượt ngưỡng này theo thiết kế — kể cả `ba-add-screen` một màn cũng 6+ file. Nhánh này tồn tại cho skill sẽ được thêm sau, đừng cố lách vào nó.)*
 - **Người dùng nói trước** "chạy thẳng" / "không cần hỏi" / "cứ làm đi" trong chính lượt gọi đó. Lời này chỉ có giá trị cho **lần chạy đó**, không kéo sang lệnh sau.
 - **Chế độ batch/không tương tác** (subagent, CI): in phương án + đánh dấu `⚠️ chưa duyệt phương án` trong báo cáo cuối để vòng tương tác sau rà.
@@ -92,12 +92,12 @@ Gate `ba-review` phần lớn chạy **inline** (kiểm tồn tại/trace — c�
 | `ba-inference-reviewer` | **suy luận reverse vs code thật** | `ba-reverse` sau khi sinh doc 🔶 |
 | `ba-consistency-reviewer` | **mâu thuẫn giữa doc** (project: requirements↔functions↔roadmap · screen: 5 doc một màn ✅) | `ba-review functions\|all\|<màn>` |
 | `ba-srs-quality-reviewer` | **chất lượng từng yêu cầu** trong một `srs.md` theo ISO/IEC/IEEE 29148 | `ba-review <màn>` khi màn phức tạp |
-| `ba-manual-reviewer` | **cấu trúc mục lục cẩm nang** theo Diátaxis | `ba-userguide` GĐ1, trước HARD STOP |
+| `ba-manual-reviewer` | **cấu trúc mục lục cẩm nang** theo Diátaxis | `ba-accept userguide` GĐ1, trước HARD STOP |
 | `ba-change-observer` | **ý nghĩa nghiệp vụ của MỘT LÔ thay đổi** vừa xảy ra trên tài liệu đã chốt | `ba-changelog` sau khi gom hàng đợi |
 
 **Gói ngữ cảnh (BẮT BUỘC với mọi skill spawn agent).** Subagent **không thấy gì** từ phiên gọi nó — không lịch sử hội thoại, không file vừa đọc, không kết quả kiểm cơ học vừa chạy. Nên prompt spawn phải tự đóng gói: **scope** · **đường dẫn thật phải đọc** (không mô tả chung "các tài liệu liên quan") · **mã ID liên quan** · **phần đã kiểm cơ học rồi** (để agent không báo lại) · **khuôn findings phải trả về**. Thiếu khuôn thì mỗi agent trả một kiểu, skill gọi phải diễn giải lại, và **findings hai lần chạy không so sánh được** — hỏng đúng thứ `00-gaps.md` cần: mã `G..` ổn định. Mẫu đầy đủ: `ba-review` → "Gói ngữ cảnh gửi agent"; `ba-batch` → "context pack".
 
-**Agent CHỈ ĐỌC — khoá bằng cấu hình, không bằng câu văn.** Mọi `.claude/agents/ba-*.md` phải khai `tools` và **không được** liệt `Write`/`Edit`/`Bash`/`Agent`. Không khai `tools` = mặc định được dùng mọi tool, kể cả ghi đè tài liệu giữa lúc fan-out 8 agent song song. `lint.js` check 30 chặn (gọi `ac-agent/scripts/check-agents.js`: roster khai `review:ro`, bắt thiếu `tools`/`model`).
+**Agent CHỈ ĐỌC — khoá bằng cấu hình, không bằng câu văn.** Mọi `.claude/agents/ba-*.md` phải khai `tools` và **không được** liệt `Write`/`Edit`/`Bash`/`Agent`. Không khai `tools` = mặc định được dùng mọi tool, kể cả ghi đè tài liệu giữa lúc fan-out 8 agent song song. `lint.js` check 30 chặn (gọi `ba-toolkit/scripts/check-agents.js`: roster khai `review:ro`, bắt thiếu `tools`/`model`).
 
 **Không cái nào chồng cái nào** — đó là điều kiện để tách agent. Dễ nhầm nhất là cặp cuối: `ba-consistency-reviewer` quét **trạng thái tĩnh** (hiện giờ các doc có chọi nhau không), `ba-change-observer` diễn giải **sự kiện** (vừa đổi gì, tác động ra sao, có cần CR không) — quét toàn cục vs quan sát một lô. `ba-review` cơ học vẫn lo *thiếu artifact/trace gãy*. **Đừng tăng số agent nếu việc soát chỉ là kiểm cơ học** — cơ học thì viết script (`scan.js`/`refresh.js`/`ledger.js`), rẻ hơn và không thiên vị.
 
@@ -107,7 +107,7 @@ Kiến trúc kỹ thuật (`ba-architecture` → `10-architecture.md`) và kiế
 1. **Chạy** skill sinh doc.
 2. **Gate độ phủ:** `ba-review architecture` (+ `integration`) — còn 🔴/🟡 → dừng, sửa.
 3. **Cổng CHỐT (quyết định):** trình người dùng bảng **quyết định lớn + ADR** (stack/kiểu KT/lưu trữ/auth/tích hợp/MDM) → hỏi **Chốt / Sửa / Hoãn** (AskUserQuestion). **Chỉ khi Chốt** → ADR/hợp đồng trạng thái **Accepted** + ngày; đây là mốc `ba-build`/`dev-run` được phép bám.
-4. **Trạng thái ADR:** `Draft` (đang soạn) → `Accepted` (đã chốt, **có ngày**) → `Superseded bởi ADR-..` (bị ADR mới thay, khi đổi qua CR) · `Deprecated` (không còn khuyến nghị, chưa có gì thay). **ADR bất biến** — không sửa ADR cũ. Hình của từng ADR soát bằng `ba-architecture/scripts/check-adr.js`. **`ba-build`/`dev-run` CHỈ dùng bản Accepted**; ADR còn `Draft`/`⚠️ chưa chốt` → `ba-review` gắn **🟠 Nợ có hạn** (`Mốc = ba-build`): không chặn gate đặc tả đang chạy, nhưng chặn cứng ở `ba-build`. Phân loại canon: `ba-review` → "Phân loại 🟠".
+4. **Trạng thái ADR:** `Draft` (đang soạn) → `Accepted` (đã chốt, **có ngày**) → `Superseded bởi ADR-..` (bị ADR mới thay, khi đổi qua CR) · `Deprecated` (không còn khuyến nghị, chưa có gì thay). **ADR bất biến** — không sửa ADR cũ. Hình của từng ADR soát bằng `ba-architecture/scripts/check-adr.js` (skill đó chưa cài — bộ cài lõi — thì `ba-review` ghi 🟢 "chưa soát" thay vì chạy). **`ba-build`/`dev-run` CHỈ dùng bản Accepted**; ADR còn `Draft`/`⚠️ chưa chốt` → `ba-review` gắn **🟠 Nợ có hạn** (`Mốc = ba-build`): không chặn gate đặc tả đang chạy, nhưng chặn cứng ở `ba-build`. Phân loại canon: `ba-review` → "Phân loại 🟠".
 5. Chế độ batch không hỏi được → giữ `Draft` + `⚠️ chưa chốt` (fallback), vòng sau chốt.
 
 Đổi kiến trúc sau khi đã Accepted → qua `ba-change-request` (thêm ADR mới "supersedes" ADR cũ, không sửa lịch sử).
@@ -143,7 +143,7 @@ Ba mức là **bậc thang lồng nhau** — `mini` tắt mọi thứ `lite` t�
 | File bỏ | Nội dung chuyển vào |
 |---|---|
 | `usecase.md` | luồng chính + **luồng ngoại lệ** mô tả ngay trong `srs.md` (mục "Luồng"); `E-S..` vẫn bắt buộc |
-| `userstory.md` | tiêu chí chấp nhận **Given-When-Then** thành một mục của `srs.md` — `ba-test`/`ba-uat` đọc ở đó |
+| `userstory.md` | tiêu chí chấp nhận **Given-When-Then** thành một mục của `srs.md` — `ba-test`/`ba-accept uat` đọc ở đó |
 | `design-spec.md` | UI state · CTA · microcopy · **Animation chuyển cảnh** thành mục của `srs.md`; `ba-html-design` đọc `srs` + `ascii-screen` |
 | `brainstorm.md` | bỏ hẳn — artifact *quá trình*, không skill nào tiêu thụ bắt buộc |
 
@@ -165,20 +165,20 @@ Hồ sơ trả lời *"đầu tư bao nhiêu vào tài liệu"*; nó **không** 
 
 | | `full` (mặc định) | `docs` |
 |---|---|---|
-| Bộ skill cài (`ba-export --scope`) | 76 | **56** — bỏ canon `scope.dev.skills` (`ba-build` `ba-feasible` `ba-dbschema` `ba-api-test` `ba-test-e2e` `ba-prototype` `ba-conformance` `ba-auto` `ba-accept`) + toàn bộ `dev-*`. Phạm vi được **ghi nhớ trong manifest**, `update` giữ nguyên |
+| Bộ skill cài (`ba-export --scope`, `--profile full`) | 67 | **40** — bỏ canon `scope.dev.skills` (`ba-build` `ba-feasible` `ba-api-test` `ba-test-e2e` `ba-prototype` `ba-conformance` `ba-auto`) + toàn bộ `dev-*`/`ac-*`. Phạm vi được **ghi nhớ trong manifest**, `update` giữ nguyên |
 | `plan.md` trong bộ file màn | ✅ | ❌ **không tồn tại theo thiết kế** — `screenFiles()` bỏ; "Hoàn thành" = đủ tài liệu |
 | Cột `dev` trong tracking | `⬜/🔨/✅` do `dev-run` quản | `—` |
-| Vòng đời | GĐ1 → GĐ2 → **GĐ3 dev** → **GĐ4 nghiệm thu** | GĐ1 → GĐ2 → **GĐ3 bàn giao tài liệu**: `ba-review all` → `ba-trace` → (`ba-uat`) → `ba-portal`/`ba-onepager` |
-| `ba-next` | gợi `ba-build`/`dev-run`/`ba-accept`/`ba-conformance` | **không bao giờ** gợi chúng; in `⚙️ phạm vi docs` |
+| Vòng đời | GĐ1 → GĐ2 → **GĐ3 dev** → **GĐ4 nghiệm thu** | GĐ1 → GĐ2 → **GĐ3 bàn giao tài liệu**: `ba-review all` → `ba-trace` → (`ba-accept uat`) → `ba-portal`/`ba-onepager` |
+| `ba-next` | gợi `ba-build`/`dev-run`/`ba-accept`/`ba-conformance` | **không bao giờ** gợi chúng (chỉ gợi chế độ bàn giao `ba-accept uat`); in `⚙️ phạm vi docs` |
 | Nợ 🟠 mốc `ba-build`/`dev-run`/`ba-accept` | thu ở mốc đó | thu ở **`ba-review all` trước bàn giao** (mốc gần nhất còn tồn tại) |
 | Hook `S3` (gate dev thật) | theo `.claude/ba-hooks.json` | luôn tắt |
 
-Giữ ở BA dù nghe "kỹ thuật": `ba-reverse` (tiếp quản codebase để viết tài liệu vẫn là việc BA), `ba-userguide`, `ba-architecture`/`ba-api-spec`/`ba-data-model`/`ba-uat` (tài liệu kỹ thuật là **sản phẩm bàn giao**), `ba-proto-html` (prototype một file để chốt nghiệp vụ, không phải code dự án). Luật 1–6 ở trên áp nguyên cho phạm vi: không khai = `full`; đọc qua `profile.js` (`readScope`/`isDocsOnly`/`off().dev`); đổi giữa chừng được (`docs → full`: chạy `ba-export update --scope full`, `refresh.js` hiện lại cột `plan` ⬜); script phải nói ra (`⚙️ phạm vi docs: …`).
+Giữ ở BA dù nghe "kỹ thuật": `ba-reverse` (tiếp quản codebase để viết tài liệu vẫn là việc BA), `ba-architecture`/`ba-api-spec`/`ba-data-model` (tài liệu kỹ thuật là **sản phẩm bàn giao**), `ba-accept` (chế độ `uat`/`release`/`userguide` là bàn giao tài liệu; chế độ nghiệm thu trọn đọc `readScope` và **từ chối** ở `docs`), `ba-proto-first html` (prototype một file để chốt nghiệp vụ, không phải code dự án). Luật 1–6 ở trên áp nguyên cho phạm vi: không khai = `full`; đọc qua `profile.js` (`readScope`/`isDocsOnly`/`off().dev`); đổi giữa chừng được (`docs → full`: chạy `ba-export update --scope full`, `refresh.js` hiện lại cột `plan` ⬜); script phải nói ra (`⚙️ phạm vi docs: …`).
 
 
 ## Đội agent (họ `ac-*` — agentcode, từ 15/09/2026)
 
-`dev-*` là kỷ luật của **một** agent; đội agent là cách **nhiều** agent chia vai mà không ai tự chấm bài của mình. Bốn luật, và mọi luật đều có máy soát (`ac-agent/scripts/check-agents.js`, lint check 30; `ac-verify/scripts/check-plan.js` + `validate-done.js`):
+`dev-*` là kỷ luật của **một** agent; đội agent là cách **nhiều** agent chia vai mà không ai tự chấm bài của mình. Bốn luật, và mọi luật đều có máy soát (`ba-toolkit/scripts/check-agents.js`, lint check 30; `ac-verify/scripts/check-plan.js` + `validate-done.js`):
 
 1. **Agent là file có hợp đồng, có trong sổ đội.** `.claude/agents/<tên>.md` phải có frontmatter `name/description/tools/model`, mục **"Ai phái · trả về đâu"**, câu **"không spawn agent con"**, và một dòng `<tên>:<loại>:<quyền>` trong `agents.roster` (`conv-registry.md`). Không có trong sổ = không được phái. Loại (`agents.kinds`): `review` (soát tài liệu — chỉ đọc, **không Bash**) · `verify` (chứng minh code — chạy proof, **bắt buộc Bash**, không sửa) · `build` (viết code, GĐ2). Quyền `ro` = không `Write/Edit/NotebookEdit/Agent`.
 2. **Tác giả không phải người chấm.** "Xong" của một màn là verdict của agent `verify` **mới** (ngữ cảnh trống), do **orchestrator** phái **sau lô cuối** — không bao giờ do builder/subagent viết code phái, vì kẻ vừa đóng lô cuối viết brief thì verifier thừa hưởng *phạm vi* của nó. Verdict trả về orchestrator, không về builder. Tự kiểm (`dev-verification-before-completion`) vẫn làm — nó là kỷ luật trước khi đưa ra chấm, không phải bằng chứng.

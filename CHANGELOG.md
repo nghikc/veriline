@@ -10,6 +10,19 @@ Bản `0.x`/`1.0.0-beta` còn đổi được hợp đồng (tên lệnh, cột 
 - **`ba-start` — cửa vào cho người mới.** Skill nhận diện dự án (chỉ có ý tưởng, có tài liệu rời Word/PDF/ảnh, hay đã có code) rồi cho xem demo 10 phút trên app mẫu TeamTasks: một cổng tài liệu thật, sau đó AI đặc tả một màn ngay trước mắt. Tiếp theo nó hỏi mức tài liệu (`lite`/`mini`/`full`) và gọi đúng skill bắt đầu. Demo nằm riêng trong `veriline-demo/` (tự thêm vào `.gitignore`).
 - `report.js` thêm mục `vàoCửa`: số phút từ lúc cài tới portal demo và tới portal dự án thật.
 - `ba-next` gợi `/ba-start` khi dự án chưa có `docs/`.
+- **Bộ cài gọn (M6).** Lần cài đầu mặc định chỉ chép **lõi BA**: từ ý tưởng tới yêu cầu, màn hình, đặc tả, test case, thiết kế HTML và cổng tài liệu. `--dev` thêm bộ viết code: lập kế hoạch build, TDD, kiểm chứng độc lập. `--profile full` cài mọi skill; `--profile mini` cho dự án nhỏ. Lựa chọn được ghi nhớ khi cập nhật. `ba-next` gợi skill chưa cài kèm lệnh cài.
+
+### Đổi
+- **Gộp skill cùng họ (M6 đợt 3): bản công khai 69 → 49 skill.** Skill cũ thành **chế độ** của skill cùng họ, gọi bằng đối số đầu; gọi không đối số giữ hành vi cũ. Cách chuyển — đổi lệnh:
+  `ba-figure` → `/ba-diagram export` · `ba-checklist` → `/ba-test checklist` · `ba-add-feature` → `/ba-add-screen feature` · `ba-api-integration` → `/ba-api-spec partner` · `ba-flow`/`ba-proto-html` → `/ba-proto-first flow|html` · `ba-uat`/`ba-release`/`ba-userguide` → `/ba-accept uat|release [phase]|userguide` · `ba-vision`/`ba-stakeholder`/`ba-persona`/`ba-process`/`ba-urd`/`ba-brainstorm`/`ba-meet`/`ba-roadmap` → `/ba-discover <chế độ>` · `ba-dbschema` → `/ba-data-model dbml` · `ba-sitemap` → `/ba-portal sitemap` · `ba-wireframe-lofi` → `/ba-html-design lofi`.
+  Tài liệu sinh ra giữ nguyên tên và chỗ. `install.js` tự gỡ thư mục skill cũ ở dự án khi chưa sửa tay; có sửa tay thì GIỮ kèm cảnh báo — chuyển phần sửa sang skill mới rồi chạy lại với `--force`. Dự án `Phạm vi: docs` giờ được cài `ba-accept` (chế độ `uat`/`release`/`userguide`); `ba-accept` trọn và `ba-data-model dbml` tự từ chối khi phạm vi là docs.
+- `scan-html.js` dời từ `ac-audit-web` sang `ba-toolkit`, vì thiết kế HTML của gói lõi luôn chạy nó. Lệnh cập nhật tự dọn bản cũ.
+- Dự án đã cài trước bản này giữ nguyên **đủ bộ** khi cập nhật. Muốn gọn lại thì chạy `--profile core --prune`.
+- **Bản công khai gọn lại: 78 → 69 skill.**
+  - Chuyển sang gói Pro: kiến trúc tích hợp, mô hình đe doạ, lộ trình tách hệ thống cũ, báo cáo điều hành, bài tổng quan một trang, nhật ký thay đổi tài liệu đã chốt.
+  - Ba công cụ dành cho người phát triển bộ skill không còn phát hành.
+  - Change request và cảnh báo sửa tài liệu đã chốt vẫn ở bản miễn phí.
+- `check-agents.js` dời sang `ba-toolkit`, vì bộ kiểm cấu trúc dùng nó.
 
 ## [1.0.0-beta.1] — 2026-10-08
 

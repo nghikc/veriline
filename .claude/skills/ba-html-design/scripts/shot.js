@@ -35,7 +35,7 @@ const { spawnSync } = require('child_process');
 const plist = require(path.join(__dirname, '..', '..', 'ba-toolkit', 'scripts', 'plist.js'));
 
 const gioiHan = [
-  'Chỉ đo HÌNH HỌC (tràn ngang, tràn mép, chữ bị cắt, vùng bấm) — không phán thẩm mỹ, thứ bậc thị giác, màu, tương phản (đó là ac-audit-web/scan-html và mắt người qua ảnh --out).',
+  'Chỉ đo HÌNH HỌC (tràn ngang, tràn mép, chữ bị cắt, vùng bấm) — không phán thẩm mỹ, thứ bậc thị giác, màu, tương phản (đó là ba-toolkit/scan-html, ac-audit-web và mắt người qua ảnh --out).',
   'Đo trong iframe rộng đúng W px (innerWidth kiểm lại, lệch → lỗi-đo) — không giả lập thiết bị cảm ứng, DPR, thanh địa chỉ di động; media query (pointer/hover) theo máy chạy.',
   'Bấm nút statebar của cả bốn nhóm data-group="ui"/"error"/"role"/"biz" (theo nhóm hoặc theo nút). Trước mỗi trạng thái bấm lại nút active ban đầu của TỪNG nhóm — trạng thái cộng dồn kiểu khác (modal mở bằng JS riêng không gắn nút mặc định) không gỡ được. Thanh trạng thái kiểu cũ không có data-group không bấm.',
   'Đo sau ~600 ms từ load và ~250 ms sau mỗi lần bấm (giờ ảo Chrome) — trạng thái do setTimeout dài hơn bật ra không thấy.',

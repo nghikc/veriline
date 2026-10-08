@@ -22,7 +22,7 @@ const DOCS = path.resolve(argv[0] || 'docs');
 const own = readDoc(DOCS, '06-api-spec.md');
 const partner = readDoc(DOCS, '12-api-integration.md');
 if (!own && !partner) {
-  console.error('Không thấy 06-api-spec.md lẫn 12-api-integration.md — chạy /ba-api-spec hoặc /ba-api-integration trước.');
+  console.error('Không thấy 06-api-spec.md lẫn 12-api-integration.md — chạy /ba-api-spec hoặc /ba-api-spec partner trước.');
   process.exit(2);
 }
 

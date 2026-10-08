@@ -1,6 +1,6 @@
 ---
 name: ba-prototype
-description: Use when các màn đã có html-design.html và cần prototype bấm được dạng project Vite + React — ghép mọi màn high-fi, nối theo sitemap-flows. Sau ba-html-design + ba-sitemap.
+description: Use when các màn đã có html-design.html và cần prototype bấm được dạng project Vite + React — ghép mọi màn high-fi, nối theo sitemap-flows. Sau ba-html-design + ba-portal sitemap.
 ---
 
 # ba-prototype — Scaffold prototype bấm-được (Vite + React) từ html-design + flow
@@ -12,7 +12,7 @@ Nút bấm → điều hướng nhờ: iframe **same-origin** nên parent bắt 
 
 ## Điều kiện trước khi chạy
 - Mỗi màn đã có **`html-design.html`** (chạy `ba-html-design`/`ba-batch`). Màn thiếu → prototype hiện placeholder (báo chạy `ba-html-design`).
-- Có **`docs/Ho-so/sitemap-flows.md`** với sơ đồ Mermaid hành trình (chạy `ba-sitemap`) → để rút wiring. Thiếu thì wiring rỗng, chỉ có thanh chọn màn (điền `wiring.json` tay sau).
+- Có **`docs/Ho-so/sitemap-flows.md`** với sơ đồ Mermaid hành trình (chạy `ba-portal sitemap`) → để rút wiring. Thiếu thì wiring rỗng, chỉ có thanh chọn màn (điền `wiring.json` tay sau).
 
 ## Quy trình
 0. **Cổng phương án (BẮT BUỘC — `conventions.md` + `conv-gates.md` → "Cổng phương án").** Đọc `00-tracking.md` + `docs/Ho-so/sitemap-flows.md` (nếu có) TRƯỚC khi scaffold → trình phương án đủ 6 phần: **màn nào có `html-design.html`** để ghép (màn thiếu sẽ bị bỏ, nêu đích danh), bao nhiêu cạnh điều hướng suy ra được, thư mục `prototype/` sẽ TẠO MỚI hay **GHI ĐÈ** (`--force` xoá bản cũ — **luôn phải hỏi**), và **project sinh ra cần `npm install`** (ngoại lệ duy nhất của toolkit — người dùng phải biết trước) → `AskUserQuestion` **Chạy / Sửa phương án / Thu hẹp phạm vi / Hủy**.
@@ -44,7 +44,7 @@ Khung project luôn có **3 phần UI cố định**; script sinh sẵn, đừng
 ## Khi nào dùng
 - Đã có html-design các màn + sitemap-flows; cần **demo bấm-được** cho khách hàng, hoặc **seed frontend** để dev phát triển tiếp.
 
-**KHÔNG dùng khi.** Chỉ cần trang tài liệu flow để đọc (dùng `ba-sitemap`). Chưa có html-design (chạy `ba-html-design` trước). Cần code sản phẩm thật đầy đủ (đó là `dev-run` theo `plan.md`).
+**KHÔNG dùng khi.** Chỉ cần trang tài liệu flow để đọc (dùng `ba-portal sitemap`). Chưa có html-design (chạy `ba-html-design` trước). Cần code sản phẩm thật đầy đủ (đó là `dev-run` theo `plan.md`).
 
 ## Đầu vào / Đầu ra
 - **Vào:** `html-design.html` mỗi màn, `docs/Ho-so/sitemap-flows.md` (cạnh wiring), `03-overview.md` (tên màn).
@@ -61,4 +61,4 @@ Khung project luôn có **3 phần UI cố định**; script sinh sẵn, đừng
 
 ## Ranh giới
 
-- Khác `ba-proto-html` (một file HTML tự chứa, dựng TRƯỚC đặc tả để chốt nghiệp vụ); `ba-prototype` là project Vite + React ghép html-design, dựng SAU đặc tả.
+- Khác `ba-proto-first html` (một file HTML tự chứa, dựng TRƯỚC đặc tả để chốt nghiệp vụ); `ba-prototype` là project Vite + React ghép html-design, dựng SAU đặc tả.

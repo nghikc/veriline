@@ -64,7 +64,7 @@ Do `ba-task` quản. Là **nhật ký công việc phát triển KHÔNG phải C
 
 **Mục chi tiết mỗi WI:** Loại · Nguồn · Mô tả & mục tiêu · Trace (chuỗi truy vết ở mức phù hợp: Feature→`FR`/`F`/`S`; Bug→`R-S`/`TC`; Tech→`NFR`/ràng buộc) · Phạm vi dự kiến · Phụ trách + Ưu tiên · Phạm vi thực tế (docs + file code, điền khi Xong) · Commit/nhánh · Lịch sử trạng thái. Template khởi tạo ở `ba-task/template.md`.
 
-**Nối luồng:** `dev-run` cập nhật WI khi build (song song cột `dev`); `ba-meet` mở WI cho `ACT` là việc-mới/kỹ-thuật (mở CR nếu là thay đổi); `ba-next` liệt kê WI đang mở (Backlog/Đang làm/**Blocked** = gấp).
+**Nối luồng:** `dev-run` cập nhật WI khi build (song song cột `dev`); `ba-discover meet` mở WI cho `ACT` là việc-mới/kỹ-thuật (mở CR nếu là thay đổi); `ba-next` liệt kê WI đang mở (Backlog/Đang làm/**Blocked** = gấp).
 
 **Đọc sổ bằng script (tiết kiệm token):** như CR — `node .claude/skills/ba-toolkit/scripts/ledger.js docs/00-backlog.md <summary|next|get WI-NN|ids>`; đừng Read nguyên sổ cho thao tác cơ giới.
 

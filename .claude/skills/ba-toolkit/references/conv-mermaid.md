@@ -1,6 +1,6 @@
 # Quy ước — Sơ đồ Mermaid (phụ lục của `conventions.md`)
 
-> Tách khỏi `conventions.md` để giảm chi phí nạp: chỉ những skill **sinh hoặc soát sơ đồ** mới cần đọc file này (`ba-requirements`, `ba-screens`, `ba-screen-spec`, `ba-data-model`, `ba-api-spec`, `ba-architecture`, `ba-integration`, `ba-process`, `ba-persona`, `ba-roadmap`, `ba-urd`, `ba-diagram`, `ba-reverse`, `ba-review diagram`, `ba-portal`). Vẫn là **cùng một nguồn sự thật** với `conventions.md` — mọi tham chiếu dạng `conventions.md` → "Bộ chọn sơ đồ Mermaid" trỏ về đây.
+> Tách khỏi `conventions.md` để giảm chi phí nạp: chỉ những skill **sinh hoặc soát sơ đồ** mới cần đọc file này (`ba-requirements`, `ba-screens`, `ba-screen-spec`, `ba-data-model`, `ba-api-spec`, `ba-architecture`, `ba-integration`, `ba-discover process`, `ba-discover persona`, `ba-discover roadmap`, `ba-discover urd`, `ba-diagram`, `ba-reverse`, `ba-review diagram`, `ba-portal`). Vẫn là **cùng một nguồn sự thật** với `conventions.md` — mọi tham chiếu dạng `conventions.md` → "Bộ chọn sơ đồ Mermaid" trỏ về đây.
 
 Thứ tự làm khi cần vẽ: **(1)** chọn loại → **(2)** đối chiếu coverage → **(3)** tuân an toàn cú pháp → **(4)** tô màu phân vai.
 

@@ -28,7 +28,7 @@
   "het_han": "2027-03-25"
  },
  {
-  "file": "skills/ba-proto-html/scripts/check-proto.js",
+  "file": "skills/ba-proto-first/scripts/check-proto.js",
   "loai": "mang",
   "ly_do": "Checker TÌM gọi mạng trong prototype.html: dòng khớp là regex phát hiện XMLHttpRequest/fetch, không gọi mạng.",
   "nguoi_duyet": "orchestrator — chờ người xác nhận",
@@ -84,7 +84,7 @@
   "het_han": "2027-03-25"
  },
  {
-  "file": "skills/ba-sitemap/assets/templates.md",
+  "file": "skills/ba-portal/assets/sitemap-template.md",
   "loai": "vo-hinh",
   "ly_do": "Zero-width space (U+200B) đặt trước ``` của khối mermaid lồng trong khối code để markdown không đóng khối ngoài — mẹo hiển thị, không che lệnh.",
   "nguoi_duyet": "orchestrator — chờ người xác nhận",

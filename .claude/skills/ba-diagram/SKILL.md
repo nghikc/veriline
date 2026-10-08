@@ -1,9 +1,15 @@
 ---
 name: ba-diagram
-description: Use when cần VẼ một sơ đồ từ mô tả nghiệp vụ — tự chọn đúng loại Mermaid (swimlane đa vai, flowchart, sequence, state, ER, journey, gantt) và vẽ đạt chuẩn. Cửa vào cho mọi "vẽ sơ đồ cho X".
+description: Use when cần VẼ sơ đồ từ mô tả nghiệp vụ — tự chọn loại Mermaid (swimlane, flowchart, sequence, state, ER…) và vẽ đạt chuẩn; `export` biên dịch sơ đồ có sẵn thành .svg + HTML tương tác đem đi dùng.
 ---
 
 # ba-diagram — Chọn & vẽ sơ đồ Mermaid
+
+## Chế độ
+| Gọi | Làm gì |
+|---|---|
+| `/ba-diagram <mô tả>` (mặc định) | chọn loại + vẽ sơ đồ — quy trình bên dưới |
+| `/ba-diagram export <file.md> [--index N] [--all]` | biên dịch sơ đồ **đã có** thành `.svg` tĩnh + trang HTML tự chứa — mục **"Chế độ `export`"** cuối file (trước 08/10/2026 là skill `ba-figure`) |
 
 ## Mục tiêu
 Nhận một mô tả ("vẽ sơ đồ cho luồng X / dữ liệu Y / trạng thái Z") → **tự chọn đúng loại sơ đồ Mermaid** → **vẽ đạt chuẩn toolkit** (render được + đủ nghiệp vụ + có màu). Là cửa vào khi yêu cầu vẽ diagram **không gắn với một skill có sẵn** (ba-requirements/ba-screen-spec/ba-data-model đã tự vẽ sơ đồ của mình). Giữ thuần Mermaid, zero-dependency.
@@ -52,7 +58,8 @@ Dùng template + cách vẽ của loại đã chọn trong `recipes.md`, đồng
 
 ## Ranh giới
 - Kiến trúc & ngữ cảnh dùng `flowchart` + `subgraph`.
-- Cần xuất sơ đồ thành .svg hoặc HTML tương tác để đem đi dùng → `ba-figure`.
+- Cần xuất sơ đồ thành .svg hoặc HTML tương tác để đem đi dùng → chế độ `export` (dưới).
+- KHÁC `ba-portal`: portal dựng **cả bộ** tài liệu và nhúng 3,4 MB mermaid để vẽ lúc mở; `export` là **một** hình biên dịch sẵn, nhẹ hơn ~290 lần. Không thay `ba-portal sitemap` (một trang gộp luồng màn).
 
 ## Lưu ý
 - **Yêu cầu loại cần ENGINE NGOÀI** (BPMN chuẩn OMG, DBML/export SQL, D2, use-case UML native) — Mermaid không có gốc. **Giải thích + vẽ bản Mermaid tương đương** (swimlane cho BPMN, erDiagram cho DBML/D2-ERD, flowchart cho D2-activity, flowchart+subgraph cho D2-architect) theo **mục 10 của `recipes.md`**; nếu bắt buộc chuẩn gốc (import Camunda / export SQL chạy được) → báo rõ phải dùng công cụ ngoài, không im lặng vẽ sai.
@@ -64,3 +71,18 @@ Dùng template + cách vẽ của loại đã chọn trong `recipes.md`, đồng
 - `.claude/skills/ba-toolkit/references/conventions.md` → **"Bộ chọn sơ đồ Mermaid"** (quyết định) · **"Kiểm coverage sơ đồ"** · **"Sơ đồ Mermaid — an toàn cú pháp"** · **"Bảng màu phân vai node"**.
 - `recipes.md` (cùng thư mục) — cách vẽ + template + tô màu từng loại.
 - Agent `ba-diagram-reviewer` — soát coverage cho sơ đồ phức tạp (qua `ba-review diagram`).
+
+## Chế độ `export` — một sơ đồ → SVG tĩnh + trang tương tác
+Dùng khi cần *một hình* để đưa vào slide, Word hay gửi khách. `ba-portal` vẽ lúc mở trang (runtime, 3,4 MB); `export` biên dịch **lúc build** (~12–190 KB, không runtime, có file `.svg`, sơ đồ hỏng thì biết ngay ở đây). Nguồn vẫn là Mermaid trong `.md` — ý tưởng compile-sẵn lấy từ Archify (`research/04-archify.md`), không chép IR của họ.
+
+```bash
+node .claude/skills/ba-diagram/scripts/figure.js <file.md> [--index N] [--all] [--out <thư mục>] [--title "..."]
+node .claude/skills/ba-diagram/scripts/figure.js <file.mmd> [--out <thư mục>]
+```
+- `--index N` — sơ đồ thứ N (mặc định 1). `--all` — mọi sơ đồ, **một lần mở Chrome** cho cả lô. Tên file lấy từ **tiêu đề gần nhất phía trên** sơ đồ.
+- Đầu ra: `<tên>.svg` + `<tên>.html` (tự chứa, nhúng lại nguồn Mermaid trong comment để sửa sau). Chỉ đọc `.md` nguồn, ghi ra `--out`.
+- **Cần Chrome/Chromium** — không có thì báo lỗi và dừng; cố ý không có đường "nhúng runtime cho xong" (đó là đúng thứ `ba-portal` đã làm).
+- Sơ đồ hỏng cú pháp → **dừng mã 1**, không ghi file nửa vời.
+- **Tương tác chỉ có với `flowchart`/`graph`/`swimlane-beta`** (bấm node soi luồng, lọc theo tên, sáng/tối, tải SVG/PNG). ERD/sequence/state ra SVG đẹp nhưng không bấm được — dòng kết quả nói thẳng và trang ẩn các nút tương tác.
+- Giới hạn: id node có `_` làm cạnh `L_a_b_n` mơ hồ → chỉ nhận cạnh khi **cả hai** nửa là node thật, cạnh không phân giải được thì **đếm và báo**; nhãn cạnh không mờ theo khi chọn node; đổi sáng/tối chỉ đổi nền trang.
+- Hay dùng: sau `ba-architecture`/`ba-proto-first flow`/`ba-screens` khi có sơ đồ ưng ý; trước buổi trình bày — `--all` trên `01-requirements.md` để có bộ hình rời.

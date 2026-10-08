@@ -28,7 +28,7 @@ example/docs/
 > Bản công khai không kèm các HTML **sinh ra** (portal, sitemap, onepager, gói phát hành — mỗi file vài MB). Dựng lại từ gốc repo:
 > ```bash
 > node .claude/skills/ba-portal/scripts/build.js example/docs example/docs/Ho-so/portal.html
-> node .claude/skills/ba-sitemap/scripts/build.js example/docs example/docs/Ho-so/sitemap.html
+> node .claude/skills/ba-portal/scripts/sitemap.js example/docs example/docs/Ho-so/sitemap.html
 > node .claude/skills/ba-portal/scripts/build.js --single example/docs/Ho-so/00-onepager.md example/docs/Ho-so/00-onepager.html
 > node .claude/skills/ba-portal/scripts/build.js --single example/docs/Ho-so/releases/phase-1.md example/docs/Ho-so/releases/phase-1.html
 > ```
@@ -40,7 +40,7 @@ example/docs/
 
 > Mẹo: chạy `/ba-init` để tự động cả chuỗi dưới đây trong 1 lệnh (có gate dò gap). Phần dưới giải thích từng bước để bạn hiểu mỗi bước sinh ra gì.
 
-### Bước 0 — Phỏng vấn ý tưởng → `/ba-brainstorm`
+### Bước 0 — Phỏng vấn ý tưởng → `/ba-discover brainstorm`
 Cấp ý tưởng thô, trả lời phỏng vấn 7 phần (từng câu một). Khi gặp tính năng phức tạp (vd đăng nhập có khoá tài khoản), skill tự bật **Deep-dive** vẽ ASCII flow/bảng state.
 📄 Kết quả: `example/docs/00-brainstorm.md` — xem mục "4. Deep-dive" có sơ đồ trạng thái khoá tài khoản.
 
@@ -76,7 +76,7 @@ Sinh `plan.md` trong mỗi folder màn (kế hoạch TDD theo từng chức năn
 Tự chủ động: "Thực thi `example/docs/Screen-spec/Authentication/S01 - Login/plan.md`" → Claude dùng `executing-plans` (TDD, lấy test từ `test.md`).
 
 ### (Tùy chọn) Tài liệu cấp hệ thống
-`/ba-stakeholder`, `/ba-data-model`, `/ba-api-spec`, `/ba-design-system` → `04/05/06/07-*.md`.
+`/ba-discover stakeholder`, `/ba-data-model`, `/ba-api-spec`, `/ba-design-system` → `04/05/06/07-*.md`.
 > Ví dụ `07-design-system.md` được sinh bằng **reverse**: gom token từ `html-design.html` của Login + Register, chuẩn hoá 6 chỗ lệch (nền, sắc đen, bề rộng card, cỡ brand, font, `100vh`).
 
 ### (Tùy chọn) Cổng đọc
@@ -98,7 +98,7 @@ BR → StR → FR/NFR → F01 → S01/Login → R-S01-.. → UC/US(GWT) → TC-S
 | Tình huống | Lệnh |
 |---|---|
 | Thêm 1 màn hình | `/ba-add-screen` |
-| Thêm 1 chức năng (nhiều màn) | `/ba-add-feature` |
+| Thêm 1 chức năng (nhiều màn) | `/ba-add-screen feature` |
 | Đổi 1 chức năng (change request) | `/ba-change-request` (tự sync + đánh ⚠️ tài liệu lệch) |
 | Kiểm tra/dò gap | `/ba-review` → `00-gaps.md` (gap có mức 🔴/🟡/🟢) |
 | Đồng bộ ma trận | `/ba-track refresh` |
@@ -112,6 +112,6 @@ BR → StR → FR/NFR → F01 → S01/Login → R-S01-.. → UC/US(GWT) → TC-S
 ## 4. Tự thử nhanh
 Trong thư mục dự án, mở Claude Code và gõ:
 ```
-/ba-brainstorm
+/ba-discover brainstorm
 ```
 rồi mô tả ý tưởng của bạn. Cứ theo gate và câu hỏi của skill — đối chiếu kết quả với `example/docs/` để biết "đúng" trông thế nào.

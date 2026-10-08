@@ -9,9 +9,9 @@ Veriline là bộ skill cho [Claude Code](https://claude.com/claude-code) làm *
 
 ## Trong bộ có gì
 
-- **78 skill** (63 `ba-*` phân tích nghiệp vụ · 11 `dev-*` kỷ luật code/QA · 4 `ac-*` kiểm chứng và review), **10 agent** review chuyên trách, **96 script** Node không phụ thuộc thư viện ngoài.
-- **Lõi** (30 skill): pipeline BA chính, cổng review, truy vết, change request, portal, cổng kiểm chứng và bộ `dev-*`.
-- **Mở rộng** (48 skill): discovery (vision, persona, quy trình AS-IS/TO-BE), kiến trúc, API, dữ liệu, prototype, nghiệm thu, cẩm nang… Một số skill gắn nhãn *thử nghiệm* chỉ cài khi bạn chọn.
+- **49 skill** (35 `ba-*` phân tích nghiệp vụ · 11 `dev-*` kỷ luật code/QA · 3 `ac-*` kiểm chứng và review), **9 agent** review chuyên trách, **88 script** Node không phụ thuộc thư viện ngoài.
+- **Lõi** (32 skill): pipeline BA chính, cổng review, truy vết, change request, portal, cổng kiểm chứng và bộ `dev-*`.
+- **Mở rộng** (17 skill): discovery (vision, persona, quy trình AS-IS/TO-BE), kiến trúc, API, dữ liệu, prototype, nghiệm thu, cẩm nang… Một số skill gắn nhãn *thử nghiệm* chỉ cài khi bạn chọn.
 - Hook cho Claude Code: chặn đọc file bí mật (`.env`, khoá), nhắc cập nhật ma trận theo dõi, cảnh báo sửa tài liệu đã chốt mà chưa có change request.
 
 ## Yêu cầu hệ thống
@@ -34,8 +34,16 @@ node ~/veriline/.claude/skills/ba-export/scripts/install.js --to .
 
 Lệnh cài chép skill, agent và hook vào `.claude/` của dự án, ghi một khối luật ngắn vào `CLAUDE.md` (giữ nguyên phần bạn tự viết) và lưu dấu vân tay từng file để lần cập nhật sau không ghi đè chỗ bạn đã sửa.
 
-- Dự án chỉ làm tài liệu, không code: thêm `--scope docs`.
-- Dự án nhỏ (5–10 màn, 1–3 người): thêm `--mini`.
+Mặc định lệnh cài chỉ chép **bộ lõi** (19 skill): từ ý tưởng tới yêu cầu, màn hình, đặc tả, test case, thiết kế HTML và cổng tài liệu. Thêm cờ khi cần:
+
+| Cờ | Thêm gì |
+|---|---|
+| `--dev` | bộ dev (17 skill): lập kế hoạch build, viết code theo TDD, kiểm chứng độc lập — cho dự án sẽ viết code |
+| `--profile full` | mọi skill: khám phá (vision, persona, quy trình), kiến trúc, API, dữ liệu, prototype, nghiệm thu, cẩm nang… |
+| `--profile mini` | bộ gọn hơn lõi cho dự án 5–10 màn, 1–3 người |
+| `--scope docs` | dự án chỉ làm tài liệu, không code |
+
+Lựa chọn được ghi nhớ: lần cập nhật sau giữ nguyên bộ đã chọn. `/ba-next` gợi skill chưa cài kèm lệnh cài.
 - Kiểm tra bản mới: `git -C ~/veriline pull`, rồi chạy lại lệnh cài với `--check` (chỉ báo, không ghi) hoặc không cờ (cập nhật).
 
 > **Sắp có:** cài qua plugin marketplace của Claude Code (`claude plugin install`).
@@ -78,6 +86,8 @@ Bản phát hành không kèm các trang HTML sinh ra (portal, sitemap, onepager
 | Cổng chống PASS giả: kiểm chứng độc lập, gieo lỗi, review theo bằng chứng | ✅ | ✅ |
 | Đội agent tự chạy cả một phase (điều phối, chia lô, hội đồng bỏ phiếu, chấm điểm) | | ✅ |
 | Đồng bộ Jira/Confluence, sinh tài liệu ngược từ code hay tài liệu cũ | | ✅ |
+| Kiến trúc tích hợp nhiều hệ, mô hình đe doạ, lộ trình tách hệ thống cũ | | ✅ |
+| Báo cáo điều hành, bài tổng quan cho lãnh đạo, nhật ký thay đổi tài liệu đã chốt | | ✅ |
 | Mẫu hồ sơ theo ngành, xuất Word theo mẫu công ty, hỗ trợ triển khai | | ✅ |
 
 Quan tâm gói Pro: mở một issue gắn nhãn `pro`.

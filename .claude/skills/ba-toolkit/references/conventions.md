@@ -28,12 +28,12 @@ docs/
 ├── 07-design-system.md        # design system / token (tùy chọn, ba-design-system) — nguồn style cho skill Figma & ba-html-design
 ├── 10-architecture.md         # kiến trúc kỹ thuật: stack/phân tầng/ADR (tùy chọn, ba-architecture); trước build
 ├── 11-integration.md          # kiến trúc tích hợp: landscape/hợp đồng/MDM (tùy chọn, ba-integration); khi nhiều hệ
-├── 12-api-integration.md      # đánh giá & mapping API đối tác ngoài (tùy chọn, ba-api-integration)
+├── 12-api-integration.md      # đánh giá & mapping API đối tác ngoài (tùy chọn, ba-api-spec partner)
 ├── 00-tracking.md             # ma trận điều hành — script đọc liên tục, nên ở gốc
 ├── 00-cr.md                   # SỔ change request (ba-change-request) — không xoá dòng
 ├── 00-backlog.md              # SỔ work item (ba-task) — không xoá dòng
 ├── 00-changelog.md            # SỔ nhật ký thay đổi tài liệu đã chốt (ba-changelog) — không xoá dòng
-├── urd/<feature>.md           # URD theo từng feature (tùy chọn, ba-urd <feature>) — cùng khuôn 10 mục với 00-urd.md; KHÔNG vào portal mặc định
+├── urd/<feature>.md           # URD theo từng feature (tùy chọn, ba-discover urd <feature>) — cùng khuôn 10 mục với 00-urd.md; KHÔNG vào portal mặc định
 ├── Screen-spec/               # CONTAINER gom mọi folder màn (giữ gốc docs/ gọn khi số nhóm màn tăng); TRONG SUỐT với truy vết
 │   └── [<Nhóm>/]<Mã> - <MànHình>/   # 9 file BA + checklist mỗi màn (folder màn = "S01 - Login")
 │       ├── ascii-screen.md
@@ -43,18 +43,18 @@ docs/
 │       ├── userstory.md
 │       ├── design-spec.md     # UI brief cho Designer (states/CTA/microcopy/a11y); có thể chứa mục "## Bản Figma (preview)"
 │       ├── html-design.html
-│       ├── checklist.md       # checklist kiểm thử high-level (tùy chọn/khuyến nghị, ba-checklist) — mã CL-S..; KHÔNG tính vào 9/9
+│       ├── checklist.md       # checklist kiểm thử high-level (tùy chọn/khuyến nghị, ba-test checklist) — mã CL-S..; KHÔNG tính vào 9/9
 │       ├── test.md
 │       └── plan.md
 └── Ho-so/                     # CONTAINER tài liệu KHÔNG thuộc đặc tả chính; TRONG SUỐT với truy vết
-    ├── 00-brainstorm.md       # phỏng vấn sâu IT-BA (ba-brainstorm) — đầu vào cho yêu cầu
-    ├── 00-flows.md           # luồng nghiệp vụ + màn SƠ BỘ (ba-flow) — trước khi có 01/02/03
-    ├── prototype.html        # bản bấm thử một-file để chốt nghiệp vụ (ba-proto-html); KHÔNG vào portal — mở trực tiếp, gửi thẳng cho khách
+    ├── 00-brainstorm.md       # phỏng vấn sâu IT-BA (ba-discover brainstorm) — đầu vào cho yêu cầu
+    ├── 00-flows.md           # luồng nghiệp vụ + màn SƠ BỘ (ba-proto-first flow) — trước khi có 01/02/03
+    ├── prototype.html        # bản bấm thử một-file để chốt nghiệp vụ (ba-proto-first html); KHÔNG vào portal — mở trực tiếp, gửi thẳng cho khách
     ├── 00-intake.md           # kiểm kê tài liệu nguồn rời + trích dẫn (tùy chọn, ba-reverse-doc)
-    ├── 00-personas.md         # personas + user-journey (tùy chọn, ba-persona)
-    ├── 00-urd.md              # Yêu cầu Người dùng cấp dự án (tùy chọn, ba-urd) — nhu cầu UN + tiêu chí USC
-    ├── 00-vision.md           # Vision & Scope / Business Case (tùy chọn, ba-vision)
-    ├── 00-process.md          # quy trình AS-IS/TO-BE + Gap (tùy chọn, ba-process) — chạy sớm
+    ├── 00-personas.md         # personas + user-journey (tùy chọn, ba-discover persona)
+    ├── 00-urd.md              # Yêu cầu Người dùng cấp dự án (tùy chọn, ba-discover urd) — nhu cầu UN + tiêu chí USC
+    ├── 00-vision.md           # Vision & Scope / Business Case (tùy chọn, ba-discover vision)
+    ├── 00-process.md          # quy trình AS-IS/TO-BE + Gap (tùy chọn, ba-discover process) — chạy sớm
     ├── 00-glossary.md         # từ điển thuật ngữ toàn dự án (ba-requirements seed, skill sau bổ sung)
     ├── 00-gaps.md             # báo cáo gap (ba-review) — xem "Ghi 00-gaps.md" ở mục Quy ước gate
     ├── 00-traceability.md     # RTM đầy đủ (ba-trace) — ghi đè mỗi lần chạy
@@ -63,14 +63,14 @@ docs/
     ├── 00-onepager.md         # cả hồ sơ gộp thành MỘT bài văn liền mạch (ba-onepager)
     ├── 00-onepager.html       # bản render tự chứa của file trên
     ├── 00-dashboard.md        # báo cáo điều hành một trang (ba-dashboard) — ảnh chụp, ghi đè
-    ├── 04-stakeholders.md     # phân tích bên liên quan (tùy chọn, ba-stakeholder)
-    ├── 08-roadmap.md          # ưu tiên + lộ trình phát hành (tùy chọn, ba-roadmap) — tài liệu sống
-    ├── 09-uat.md              # kế hoạch nghiệm thu/UAT cấp dự án (tùy chọn, ba-uat)
-    ├── meetings/<ngày>-<chủ-đề>.md  # biên bản họp MoM (tùy chọn, ba-meet); KHÔNG vào portal — feed 00-cr khi là thay đổi
-    ├── releases/<phase>.md    # gói phát hành theo phase (tùy chọn, ba-release); render lẻ, KHÔNG vào portal
-    ├── wireframe.html        # wireframe lo-fi đen trắng gom mọi màn (tùy chọn, ba-wireframe-lofi); KHÔNG vào portal
+    ├── 04-stakeholders.md     # phân tích bên liên quan (tùy chọn, ba-discover stakeholder)
+    ├── 08-roadmap.md          # ưu tiên + lộ trình phát hành (tùy chọn, ba-discover roadmap) — tài liệu sống
+    ├── 09-uat.md              # kế hoạch nghiệm thu/UAT cấp dự án (tùy chọn, ba-accept uat)
+    ├── meetings/<ngày>-<chủ-đề>.md  # biên bản họp MoM (tùy chọn, ba-discover meet); KHÔNG vào portal — feed 00-cr khi là thay đổi
+    ├── releases/<phase>.md    # gói phát hành theo phase (tùy chọn, ba-accept release); render lẻ, KHÔNG vào portal
+    ├── wireframe.html        # wireframe lo-fi đen trắng gom mọi màn (tùy chọn, ba-html-design lofi); KHÔNG vào portal
     ├── 00-figma-sync.md      # SỔ đối soát Figma (ba-figma-draw push/pull, `figma-sync.js`) — một dòng = màn × nấc lofi|hifi; không xoá dòng
-    ├── dbschema/             # schema vật lý DBML sinh từ 05-data-model (tùy chọn, ba-dbschema)
+    ├── dbschema/             # schema vật lý DBML sinh từ 05-data-model (tùy chọn, `ba-data-model dbml`)
     ├── api-test/             # kiểm thử API (tùy chọn): checklist.md + api.http (đều do ba-api-test sinh)
     ├── notes/                # sổ codebase của đội dev: INDEX.md + ghi chú luồng/pattern/gotcha (ac-memory); KHÔNG vào portal
     ├── 00-lessons.md          # sổ bài học LS candidate → confirmed (ac-memory lessons); chỉ confirmed vào brief worker
@@ -80,8 +80,8 @@ docs/
     ├── 00-threat-model.md     # mô hình đe doạ bám tài liệu: ranh giới × tài sản × kẻ tấn công → TM-.. (ba-threat-model); sau cổng chốt kiến trúc
     ├── 00-migration.md        # lộ trình tách/đổi codebase cũ: MG-.. có tiêu chí đo được + quay lui (ba-migration); sau ba-reverse
     ├── audit/<Mã|app>-<ngày>.md # audit giao diện WCAG/UX/CWV, AU-nn có file:line (ac-audit-web); bằng chứng NFR + TC Manual
-    ├── userguide/             # cẩm nang vận hành (tùy chọn, ba-userguide, GĐ4); KHÔNG vào portal — đối tượng đọc riêng
-    ├── sitemap.md · sitemap-flows.md · sitemap.html   # luồng màn cho người dùng cuối (ba-sitemap); KHÔNG vào portal
+    ├── userguide/             # cẩm nang vận hành (tùy chọn, ba-accept userguide, GĐ4); KHÔNG vào portal — đối tượng đọc riêng
+    ├── sitemap.md · sitemap-flows.md · sitemap.html   # luồng màn cho người dùng cuối (ba-portal sitemap); KHÔNG vào portal
     ├── portal.html            # cổng đọc tài liệu (ba-portal)
     ├── dev-notes.md           # ghi chú kỹ thuật của dev-run — không đánh số, không vào portal
     └── removed/<Mã> - <Tên>/  # màn ĐÃ CẮT khỏi phạm vi (ba-remove) — giữ nguyên file kèm dòng CR;
@@ -167,7 +167,7 @@ Format footer dùng chung:
 Thiếu footer Thuật ngữ (ở doc bắt buộc) hoặc chưa có `docs/Ho-so/00-glossary.md` → `ba-review` gắn gap **🟢 Nhỏ**.
 
 ## Mã định danh (theo phân loại yêu cầu)
-Cấp nhu cầu người dùng — trong `00-urd.md` / `urd/<feature>.md` (do `ba-urd` cấp, **trước** khi có yêu cầu hệ thống):
+Cấp nhu cầu người dùng — trong `00-urd.md` / `urd/<feature>.md` (do `ba-discover urd` cấp, **trước** khi có yêu cầu hệ thống):
 - Nhu cầu người dùng (User Need): `UN-01` — *chưa phải yêu cầu hệ thống*; `ba-requirements` chuyển mỗi `UN` thành ≥1 `StR`/`FR`/`NFR` (dự án mới) hoặc đi qua `CR`/`WI` (dự án đang chạy).
 - Tiêu chí thành công của người dùng: `USC-01` — đo kết quả người dùng đạt được, nên đỡ ≥1 `BO-..` của `00-vision.md`.
 - Ngoại lệ phía người dùng (User Exception, URD §6): `UE-01` — tình huống hỏng/biên người dùng gặp. URD **không** trỏ xuống màn; màn xử lý nó **trích ngược** `UE-..` ở dòng xử lý (cột Trace của `E-S..`, Nguồn của `R-S..`/TC Negative). Không màn nào xử lý → cột cuối §6 ghi `n/a — lý do` hoặc `OQ-..` (mồ côi hợp lệ). `ba-trace` đo `UE→(R-S|E-S|TC)`; `UE` Critical/High mồ côi → 🟡 (`ba-review urd`).
@@ -184,7 +184,7 @@ Cấp giải pháp:
 - Màn hình (`03-overview.md`): `S01`
 - Yêu cầu màn (`srs.md`): chức năng `R-S<NN>-01` (trace `F`/`FR`); phi chức năng `R-S<NN>-N01` (trace `NFR`/`BR`)
 - Use case: `UC-S<NN>-01`. User story: `US-S<NN>-01`. Test case: `TC-S<NN>-01`.
-- Lỗi cấp màn (Ma trận lỗi trong `srs.md`): `E-S<NN>-01` — một cách màn hỏng, kèm mức (`blocker`/`major`/`minor`), thông báo **nguyên văn** và lối thoát. Là nguồn của `TC` Negative (`ba-test`) và mục "Xử lý sự cố" của cẩm nang (`ba-userguide`).
+- Lỗi cấp màn (Ma trận lỗi trong `srs.md`): `E-S<NN>-01` — một cách màn hỏng, kèm mức (`blocker`/`major`/`minor`), thông báo **nguyên văn** và lối thoát. Là nguồn của `TC` Negative (`ba-test`) và mục "Xử lý sự cố" của cẩm nang (`ba-accept userguide`).
 - Giả định cấp màn (`srs.md`): `GĐ-S<NN>-01` — giả định của riêng màn (dạng scoped của `GĐ`); trạng thái `Đề xuất → Đã xác nhận / Đã sửa / Đã bỏ / Chấp nhận rủi ro` như giả định cấp dự án.
 - Ràng buộc cấp màn (`srs.md`): `RB-S<NN>-01` — ràng buộc thiết kế/nghiệp vụ **không** phải `BRule` (rule hệ thống *thực thi*) hay `NFR` (chất lượng *đo được*): vd "phải chạy trên trình duyệt khách đã cũ", "không được lưu PII quá 30 ngày".
 - Câu hỏi mở cấp màn (mục "Quét yêu cầu ngầm" của `srs.md`): `OQ-S<NN>-01` — chiều quét mà trả lời đúng cần **hành vi mới** hay quyết định nghiệp vụ; khai ở bảng "Câu hỏi mở từ quét" (cột Chiều · Ai trả lời), ô của chiều trỏ về nó. Không tự đặt `R-S..` để lấp chiều. Mã **ngoài** màn (`UE-..` của URD) không đặt trong bảng quét — `ba-feasible` luật 9 đòi mã trong bảng khai ở tài liệu màn; `UE` trích ngược ở dòng `E-S`/`R-S` (xem `UE` ở trên).
@@ -196,7 +196,7 @@ Cấp quản trị thay đổi & công việc:
 Mã bổ trợ theo tài liệu (đầy đủ — skill KHÔNG tự bịa tiền tố mới ngoài danh sách):
 - Stakeholder (`04-stakeholders.md`): `SH-01`. Mục tiêu kinh doanh (`00-vision.md`): `BO-01`. Persona (`00-personas.md`): `PS-01`. **Ứng viên yêu cầu** rút từ nỗi đau/cơ hội của persona (`00-personas.md`): `U-01` — *chưa phải yêu cầu đã chốt*; khi được duyệt sẽ thành `FR`/`StR` (dự án mới, qua `ba-requirements`) hoặc đi qua `CR` (dự án đang chạy).
 - Kịch bản Given-When-Then (`test.md`/`09-uat.md`): `GWT-01`. Ca nghiệm thu UAT (`09-uat.md`): `UAT-01`.
-- Mục checklist high-level (`checklist.md` mỗi màn, do `ba-checklist`): `CL-S<NN>-01` — đánh **tuần tự toàn màn**, mỗi mục trace về `R-S`/`UC`/`US`/`E-S`. Đứng **song song `TC`** trong chuỗi (cả hai neo vào `R-S`/`UC`/`US`); `checklist` là bản high-level, `test` là ca chi tiết — mỗi `CL` nên có ≥1 `TC` phủ.
+- Mục checklist high-level (`checklist.md` mỗi màn, do `ba-test checklist`): `CL-S<NN>-01` — đánh **tuần tự toàn màn**, mỗi mục trace về `R-S`/`UC`/`US`/`E-S`. Đứng **song song `TC`** trong chuỗi (cả hai neo vào `R-S`/`UC`/`US`); `checklist` là bản high-level, `test` là ca chi tiết — mỗi `CL` nên có ≥1 `TC` phủ.
 - Quyết định kiến trúc (`10-architecture.md`/`11-integration.md`/`12-api-integration.md`): `ADR-01`. Giả định: `GĐ-01`. Open Question (`ba-reverse`/`ba-reverse-doc`): `OQ-01`; cấp màn: `OQ-S<NN>-01` (xem trên).
 - Hệ/đối tác ngoài (`12-api-integration.md`): `EXT-01`. Quyết định họp (`meetings/`): `DEC-01`. Action item họp (`meetings/`): `ACT-01`.
 - Cần tiền tố mới → bổ sung vào đây **và** vào `registry` cuối file trước, rồi mới dùng.
@@ -214,7 +214,7 @@ Trạng thái mỗi tài liệu: `✅` xong / `⬜` chưa / `⚠️` cần cập
 Cột `dev` = trạng thái **code** của màn, do `dev-run` quản (⚠️ đang dev / ✅ dev xong); không map ra file tài liệu — `ba-track refresh` giữ nguyên giá trị, không reset.
 Cột `e2e` = có script Playwright của màn (do `ba-test-e2e` sinh) hay chưa — ✅ có / 🔨 có nhưng chưa phủ trọn màn / ⬜ chưa / ⚠️ lệch `test.md`. **Vị trí spec là `e2e/tests/<Mã>-<Tên>.spec.ts` ở GỐC DỰ ÁN, không nằm trong `docs/`** — xem "Script E2E để ở đâu" bên dưới. Script đọc vị trí qua `ba-toolkit/e2epath.js`, không hardcode.
 **Màn lớn được chẻ thành nhiều spec theo tính năng** (`chatQpin.spec.ts`, `toolFilters.spec.ts`…) là hợp lệ — cái tên `<Mã>-<Tên>.spec.ts` chỉ ôm nổi một trong số đó. Những spec ấy nhận diện qua **mã `TC-S..` trong nội dung** (`e2epath.js` → `taggedSpecs`), và `ba-track refresh` ghi 🔨 cho màn chỉ có loại spec này — nếu chỉ hỏi theo tên file thì mỗi lần refresh lại hạ màn về ⬜, xoá bằng chứng phủ E2E có thật (dự án desktop 20/09/2026: S01, S17). Nhãn người/LLM đã đặt (✅ phủ đủ, ⚠️ lệch) **không bị hạ** xuống 🔨.
-Cột `checklist` = có `checklist.md` (checklist kiểm thử high-level, do `ba-checklist` sinh) hay chưa — ✅ có / ⬜ chưa / ⚠️ lệch nguồn. Là file per-màn **khuyến nghị**: **KHÔNG tính vào "9/9 hoàn thành doc"** (giống `e2e`, để dự án cũ không gãy gate), nhưng có mã `CL-S..` truy vết nên **`ba-review checklist`** soi độ phủ được. *(`ba-trace` RTM hiện chưa gồm tầng `CL` — mở rộng sau nếu cần.)*
+Cột `checklist` = có `checklist.md` (checklist kiểm thử high-level, do `ba-test checklist` sinh) hay chưa — ✅ có / ⬜ chưa / ⚠️ lệch nguồn. Là file per-màn **khuyến nghị**: **KHÔNG tính vào "9/9 hoàn thành doc"** (giống `e2e`, để dự án cũ không gãy gate), nhưng có mã `CL-S..` truy vết nên **`ba-review checklist`** soi độ phủ được. *(`ba-trace` RTM hiện chưa gồm tầng `CL` — mở rộng sau nếu cần.)*
 Cột `figma` = **tùy chọn** — chỉ có khi dự án đẩy layout lên Figma (`ba-figma-draw push-lofi|push|pull`); chủ sở hữu là `ba-figma-draw/scripts/figma-sync.js` (`apply`/`verify` ghi, thêm cột ngay sau `html` ở lần đẩy đầu), `ba-track refresh` **giữ nguyên giá trị** như `dev`, **không tính vào "Hoàn thành"**. Ký hiệu: ⬜ chưa · 🔲 lo-fi đã đẩy · ✅ hi-fi khớp · ⚠️ html mới hơn Figma (sửa sau khi đẩy mà không qua pull) · ✋ Figma sửa tay chưa kéo về. Chi tiết từng frame/khối ở sổ `Ho-so/00-figma-sync.md`.
 
 **Một dòng = một màn hình** (không phải một chức năng). Màn hình phục vụ nhiều chức năng thì cột "Mã CN" liệt kê tất cả mã, cách nhau dấu phẩy (vd `F04, F05, F06`); cột "Nhóm" để `—` nếu màn không thuộc nhóm lồng.
@@ -264,7 +264,7 @@ Thiếu bất kỳ vế nào → vẫn tính là `⚠️ chưa xác nhận` (gap
 ## Cổng phương án · Quy ước gate · Review agent độc lập · Cổng chốt kiến trúc · Ngưỡng "màn phức tạp" · Hồ sơ dự án
 **Nội dung đầy đủ sáu mục này ở `conv-gates.md`** (cùng thư mục) — tách ra để **25/55 skill không có cổng** khỏi phải nạp ~140 dòng. Tên mục giữ nguyên nên mọi tham chiếu `conv-gates.md` → "Cổng phương án" / "Quy ước gate" / "Ghi `00-gaps.md`" / "Cổng chốt kiến trúc" / "Review agent độc lập" / "Ngưỡng màn phức tạp" / "Hồ sơ dự án" vẫn đúng địa chỉ.
 
-> **"Xác nhận giả định" cố ý ở lại file này** (mục ngay trên), dù nó là một trong bốn cổng: 9 skill sinh giả định (`ba-vision`, `ba-persona`, `ba-urd`, `ba-process`, `ba-brainstorm`, `ba-roadmap`, `ba-uat`, `ba-integration`, `ba-api-integration`) **không** dùng cổng nào khác — bắt chúng nạp cả `conv-gates.md` chỉ vì 24 dòng này thì tách file mất ý nghĩa.
+> **"Xác nhận giả định" cố ý ở lại file này** (mục ngay trên), dù nó là một trong bốn cổng: 9 skill sinh giả định (`ba-discover vision`, `ba-discover persona`, `ba-discover urd`, `ba-discover process`, `ba-discover brainstorm`, `ba-discover roadmap`, `ba-accept uat`, `ba-integration`, `ba-api-spec partner`) **không** dùng cổng nào khác — bắt chúng nạp cả `conv-gates.md` chỉ vì 24 dòng này thì tách file mất ý nghĩa.
 
 **Bốn thứ phải nhớ kể cả khi không mở file kia:**
 1. **Bốn cổng, không thay nhau:** cổng phương án (*trước* khi ghi file) · xác nhận giả định (sau khi doc có giả định) · gate `ba-review` (sau khi doc xong) · cổng chốt kiến trúc (chốt ADR trước build).

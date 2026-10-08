@@ -71,4 +71,4 @@ Bảng: thứ đã cắt · CR · file đã sửa · folder đã chuyển vào `
 
 ## Ranh giới
 
-- Chiều ngược của `ba-add-screen`/`ba-add-feature`.
+- Chiều ngược của `ba-add-screen` (cả chế độ `feature`).

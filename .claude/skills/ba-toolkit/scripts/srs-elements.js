@@ -6,7 +6,7 @@
  *   SE.forScreen(dir)      → undefined (folder không có srs.md) | null | [{ n, ten, loai }]
  *   SE.scanDocs(docsDir)   → { 'S01': [...] | null, … } — mọi folder `S.. - Tên` (lồng nhóm bao nhiêu cũng được)
  *
- * Người dùng: `ba-wireframe-lofi/check-wireframe.js` (khối wireframe ↔ bảng) và `ba-html-design/check-el.js` (`data-el`
+ * Người dùng: `ba-html-design/check-wireframe.js` (khối wireframe ↔ bảng) và `ba-html-design/check-el.js` (`data-el`
  * trên html-design ↔ bảng). Tách ra (spec 2026-10-05 §1) để HAI checker đọc cùng một bảng theo cùng một cách — số `#` trên
  * wireframe và trên html-design phải là một bộ.
  *

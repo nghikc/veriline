@@ -19,7 +19,7 @@ const read = (p) => { try { return fs.readFileSync(p, 'utf8'); } catch { return 
 // Tài liệu bổ trợ nằm ở `docs/Ho-so/` (bố cục từ 13/08/2026) HOẶC ở gốc `docs/` (dự án cài
 // trước đó, hoặc người dùng chưa di chuyển). Tra phẳng bằng existsSync là báo "chưa có
 // vision/roadmap/uat" cho cả loạt dự án đã có đủ — nên mọi lượt tra đi qua docpath.js.
-const { hasDoc, readDoc, layout } = require('../../ba-toolkit/scripts/docpath.js');
+const { hasDoc, readDoc, resolveDoc, layout } = require('../../ba-toolkit/scripts/docpath.js');
 // Hồ sơ dự án (conventions → "Hồ sơ dự án"): lite tắt sổ WI / changelog / đối chiếu code /
 // review agent. Đề xuất phải im theo, không thì "một cửa" cứ nhắc thứ dự án đã chủ động bỏ.
 const { readProfile, readScope, off, screenFiles } = require('../../ba-toolkit/scripts/profile.js');
@@ -45,6 +45,25 @@ const THỬ_NGHIỆM = new Set((() => {
 })());
 const nhãnThử = (n) => (THỬ_NGHIỆM.has(n) ? ' (thử nghiệm)' : '');
 const readD = (name) => readDoc(DOCS, name);
+// Gói cài (M6): đề xuất một skill CHƯA CÀI (dự án cài bộ lõi, chưa có bộ dev / bộ mở rộng) → gắn lệnh cài. Lệnh lấy đường dẫn
+// nguồn từ manifest đích (.claude/ba-toolkit.json); không có → `ba-export update`. Skill bộ dev → `--dev`, còn lại `--profile full`.
+const BỘ_DEV = new Set((() => {
+  const m = read(path.join(SKILLS_DIR, 'ba-toolkit', 'references', 'conv-registry.md')).match(/```registry\n([\s\S]*?)```/);
+  const l = m && m[1].split('\n').find((x) => /^profile\.dev\.skills = /.test(x.trim()));
+  return l ? l.trim().split(' = ')[1].split(/\s+/).filter(Boolean) : [];
+})());
+function gắnLệnhCài(ds) {
+  let nguồn = null;
+  try { nguồn = JSON.parse(read(path.join(path.dirname(path.resolve(DOCS)), '.claude', 'ba-toolkit.json'))).source.path || null; } catch { /* không manifest */ }
+  for (const d of ds) {
+    const tên = (d.skill.match(/^(ba|dev|ac)-[a-z0-9-]+/) || [])[0];
+    if (!tên || càiRồi(tên)) continue;
+    const cờ = BỘ_DEV.has(tên) || tên.startsWith('dev-') ? '--dev' : '--profile full';
+    d.chưaCài = true;
+    d.lệnhCài = nguồn ? `node "${path.join(nguồn, '.claude', 'skills', 'ba-export', 'scripts', 'install.js')}" --to . ${cờ}` : `ba-export update ${cờ}`;
+  }
+  return ds;
+}
 
 if (!fs.existsSync(DOCS)) {
   const out = { giaiĐoạn: 'GĐ0', đềXuất: [
@@ -54,22 +73,25 @@ if (!fs.existsSync(DOCS)) {
     { skill: 'ba-reverse', lýDo: 'Nếu đã có codebase — sinh tài liệu ngược từ code rồi dừng' },
     { skill: 'ba-auto', lýDo: 'Nếu đã có codebase VÀ muốn đi thẳng tới MVP — chạy cả chuỗi (reverse → đặc tả → build → dev), chỉ dừng hỏi 2 lần' },
   ] };
+  gắnLệnhCài(out.đềXuất);
+  const thiếuCài = out.đềXuất.filter((d) => d.chưaCài);
   console.log(JSON_MODE ? JSON.stringify(out) : `Chưa có ${DOCS} — dự án mới.\n👉 Lần đầu dùng: /ba-start (nhận diện dự án + demo 10 phút)\n👉 Hoặc chạy: /ba-discover (GĐ1, từ ý tưởng) · /ba-reverse-doc (đã có tài liệu rời) · /ba-reverse (đã có code, dừng ở tài liệu) · /ba-auto (đã có code, chạy thẳng tới MVP) · /ba-init nếu muốn vào thẳng yêu cầu.`);
+  if (!JSON_MODE && thiếuCài.length) console.log(`   (chưa cài: ${thiếuCài.map((d) => d.skill).join(', ')} — ${thiếuCài[0].lệnhCài})`);
   process.exit(0);
 }
 
 /* ---- 1. Hiện trạng tài liệu hệ thống ---- */
 const SYS = [
-  ['00-vision.md', 'ba-vision', 'tùy chọn'], ['00-process.md', 'ba-process', 'tùy chọn'],
-  ['00-intake.md', 'ba-reverse-doc', 'tùy chọn'], ['00-personas.md', 'ba-persona', 'tùy chọn'],
-  ['00-urd.md', 'ba-urd', 'tùy chọn'],
-  ['00-brainstorm.md', 'ba-brainstorm', 'lõi'], ['01-requirements.md', 'ba-requirements', 'lõi'],
+  ['00-vision.md', 'ba-discover vision', 'tùy chọn'], ['00-process.md', 'ba-discover process', 'tùy chọn'],
+  ['00-intake.md', 'ba-reverse-doc', 'tùy chọn'], ['00-personas.md', 'ba-discover persona', 'tùy chọn'],
+  ['00-urd.md', 'ba-discover urd', 'tùy chọn'],
+  ['00-brainstorm.md', 'ba-discover brainstorm', 'lõi'], ['01-requirements.md', 'ba-requirements', 'lõi'],
   ['02-functions.md', 'ba-functions', 'lõi'], ['03-overview.md', 'ba-screens', 'lõi'],
-  ['04-stakeholders.md', 'ba-stakeholder', 'tùy chọn'], ['05-data-model.md', 'ba-data-model', 'tùy chọn'],
+  ['04-stakeholders.md', 'ba-discover stakeholder', 'tùy chọn'], ['05-data-model.md', 'ba-data-model', 'tùy chọn'],
   ['06-api-spec.md', 'ba-api-spec', 'tùy chọn'], ['07-design-system.md', 'ba-design-system', 'tùy chọn'],
-  ['08-roadmap.md', 'ba-roadmap', 'tùy chọn'], ['09-uat.md', 'ba-uat', 'GĐ4'],
+  ['08-roadmap.md', 'ba-discover roadmap', 'tùy chọn'], ['09-uat.md', 'ba-accept uat', 'GĐ4'],
   ['10-architecture.md', 'ba-architecture', 'trước build'], ['11-integration.md', 'ba-integration', 'khi nhiều hệ'],
-  ['12-api-integration.md', 'ba-api-integration', 'khi dùng API đối tác'],
+  ['12-api-integration.md', 'ba-api-spec partner', 'khi dùng API đối tác'],
   ['00-threat-model.md', 'ba-threat-model', 'sau cổng chốt kiến trúc'], ['00-migration.md', 'ba-migration', 'khi tách/đổi hệ cũ'],
 ];
 // Dòng của skill thử nghiệm chưa cài chỉ hiện khi tài liệu đã có (người làm tay / cài trước) — không đếm là "thiếu".
@@ -111,6 +133,8 @@ if (headIdx >= 0) {
       dev: ô('dev') || '⬜', e2e: ô('e2e') || '⬜', figma: ô('figma') || '⬜',
       // e2e sinh TỪ test.md → màn chưa có test.md thì chưa nói chuyện e2e được
       cóTest: ô('test') === '✅', đủTàiLiệu: đủDoc && !cờLệch,
+      // srs ✅ mà html chưa ✅ → còn kịp chốt bố cục bằng wireframe lo-fi (`ba-html-design lofi`) trước khi dựng high-fi.
+      chờHtml: ô('srs') === '✅' && col('html') >= 0 && ô('html') !== '✅',
       // Đủ mọi doc TRỪ `plan` ⬜ → thiếu ba-build, KHÔNG phải "đang dở cần đồng bộ" (xem GĐ2 bên dưới).
       // Danh sách cột lấy theo HỒ SƠ, không hardcode 8: `mini` không có brainstorm/usecase/
       // userstory/design-spec, hardcode thì điều kiện không bao giờ đúng và ba-build không được gợi ý.
@@ -238,7 +262,7 @@ const backlog = readD('00-backlog.md');
 const wiRows = backlog.split('\n').filter(l => /^\|\s*\*{0,2}WI-[A-Za-z0-9-]+\*{0,2}\s*\|/.test(l) && !/Xong|Hu[ỷỳ]|H[uủ]y/.test(l));
 const wiOpen = wiRows.length;
 const wiBlocked = wiRows.filter(l => /Blocked/.test(l)).length;
-// Biên bản họp (ba-meet): đếm MoM + action item CHƯA xong → việc đã chốt trong họp mà chưa ai làm
+// Biên bản họp (ba-discover meet): đếm MoM + action item CHƯA xong → việc đã chốt trong họp mà chưa ai làm
 const meetDir = require('../../ba-toolkit/scripts/docpath.js').resolveDoc(DOCS, 'meetings');
 let momCount = 0, actOpen = 0;
 if (meetDir) {
@@ -305,7 +329,7 @@ if (!côLõi('01-requirements.md') && protoFirst) {
   if (mànThiếuAscii.length)
     suggest('ba-screen-spec', `Màn ${mànThiếuAscii.join(', ')} chưa có ascii-screen.md — chạy \`ba-screen-spec --ascii <màn>\` (bước 3)`, true);
   else if (!cóProto)
-    suggest('ba-proto-html', `${mànFlow.length} màn đã có wireframe — dựng prototype một-file để demo (bước 4)`, true);
+    suggest('ba-proto-first html', `${mànFlow.length} màn đã có wireframe — dựng prototype một-file để demo (bước 4)`, true);
   else if (!quyếtĐịnh)
     suggest('ba-proto-first', '★ Prototype xong nhưng CHƯA có 00-decisions.md — chạy CỔNG CHỐT NGHIỆP VỤ (bước 5). Viết đặc tả khi chưa chốt là viết bằng suy đoán', true);
   else if (mànChưaChốt.length)
@@ -313,14 +337,14 @@ if (!côLõi('01-requirements.md') && protoFirst) {
   else
     suggest('ba-requirements', `${pdChốt.length} quyết định đã chốt — viết yêu cầu TỪ sổ PD (bước 6); mỗi FR trace ≥1 PD`, true);
   if (!cóProto && !mànThiếuAscii.length && !mànFlow.length)
-    suggest('ba-flow', 'Bảng màn sơ bộ trong 00-flows.md đang rỗng — bổ sung màn trước khi dựng prototype', true);
+    suggest('ba-proto-first flow', 'Bảng màn sơ bộ trong 00-flows.md đang rỗng — bổ sung màn trước khi dựng prototype', true);
 } else if (!côLõi('01-requirements.md')) {
   giaiĐoạn = 'GĐ1 — Khám phá';
   if (côLõi('00-intake.md')) suggest('ba-reverse-doc', 'Đã kiểm kê nguồn (00-intake.md) nhưng chưa có 01-requirements — trích tiếp yêu cầu 🔶 từ nguồn', true);
   else if (!côLõi('00-brainstorm.md')) suggest('ba-discover', 'Chưa có brainstorm lẫn requirements — chạy trọn GĐ1 (vision/stakeholder/persona/brainstorm/process). Đã có sẵn tài liệu rời của khách → /ba-reverse-doc trước');
   else suggest('ba-init', 'Đã có 00-brainstorm — vào GĐ2: requirements → functions → screens → per-màn');
-  if (!has('00-personas.md')) suggest('ba-persona', 'Chưa có 00-personas.md — dựng chân dung người dùng + hành trình để rút ứng viên U-.. trước khi viết yêu cầu', false);
-  if (!has('00-urd.md')) suggest('ba-urd', 'Chưa có 00-urd.md — chốt NHU CẦU người dùng (UN-..) + tiêu chí thành công (USC-..) trước khi viết yêu cầu hệ thống', false);
+  if (!has('00-personas.md')) suggest('ba-discover persona', 'Chưa có 00-personas.md — dựng chân dung người dùng + hành trình để rút ứng viên U-.. trước khi viết yêu cầu', false);
+  if (!has('00-urd.md')) suggest('ba-discover urd', 'Chưa có 00-urd.md — chốt NHU CẦU người dùng (UN-..) + tiêu chí thành công (USC-..) trước khi viết yêu cầu hệ thống', false);
 } else if (!côLõi('02-functions.md')) {
   giaiĐoạn = 'GĐ2 — Đặc tả'; suggest('ba-functions', 'Có requirements nhưng chưa có 02-functions.md');
 } else if (!côLõi('03-overview.md')) {
@@ -337,6 +361,10 @@ if (!côLõi('01-requirements.md') && protoFirst) {
   if (dởThật.length) suggest('ba-track ' + dởThật[0].tên, `Màn ${dởThật.map(s => s.code).join(', ')} đang dở/lệch (⚠️) — đồng bộ trước khi mở màn mới`, dởThật.some(s => s.trạngThái === '⚠️'));
   if (chưa.length >= 3) suggest('ba-batch', `${chưa.length} màn chưa bắt đầu (${chưa.map(s => s.code).join(', ')}) — đặc tả SONG SONG bằng subagent nhanh hơn tuần tự`);
   else if (chưa.length) suggest('ba-add-screen ' + chưa[0].tên, `Màn ${chưa.map(s => s.code).join(', ')} chưa bắt đầu`);
+  // Chế độ `lofi` của ba-html-design (trước là ba-wireframe-lofi): chỉ gợi khi chưa có wireframe.html nào — có rồi thì
+  // phần chốt phương án do thieu.js (`data-chosen`) nhắc, không lặp ở đây.
+  const chờHtml = screens.filter(s => s.chờHtml);
+  if (chờHtml.length && !has('wireframe.html')) suggest('ba-html-design lofi', `Màn ${chờHtml.map(s => s.code).join(', ')} đã có srs mà chưa dựng html — chốt BỐ CỤC bằng wireframe đen trắng (Ho-so/wireframe.html) trước khi bàn màu, tùy chọn`, false);
   if (!arch) suggest('ba-architecture', chỉDocs ? 'Chưa chốt kiến trúc (10-architecture.md) — tài liệu kỹ thuật bàn giao cho đội build, tùy chọn ở phạm vi docs' : 'Chưa chốt kiến trúc (10-architecture.md) — cần trước ba-build/dev-run', false);
 } else if (chỉDocs) {
   // Phạm vi docs: tài liệu đủ = xong việc của repo này. Bàn giao = gate tổng sạch → RTM → (UAT) → portal.
@@ -344,15 +372,22 @@ if (!côLõi('01-requirements.md') && protoFirst) {
   const gapsCũ = !has('00-gaps.md');
   if (gapsCũ) suggest('ba-review all', 'Tài liệu đủ nhưng chưa có gate tổng (00-gaps.md) — chạy scope all trước khi bàn giao', true);
   if (!has('00-traceability.md')) suggest('ba-trace', 'Xuất ma trận truy vết BR→…→TC (00-traceability.md) — bằng chứng độ phủ khi bàn giao', !gapsCũ);
-  if (!has('09-uat.md')) suggest('ba-uat', 'Kế hoạch nghiệm thu người dùng (09-uat.md) — tiêu chí để đội build/khách ký, tùy chọn', false);
+  if (!has('09-uat.md')) suggest('ba-accept uat', 'Kế hoạch nghiệm thu người dùng (09-uat.md) — tiêu chí để đội build/khách ký, tùy chọn', false);
   if (!arch) suggest('ba-architecture', 'Chưa có 10-architecture.md — nếu bàn giao cho đội build thì chốt kiến trúc là tài liệu họ cần đầu tiên, tùy chọn', false);
   if (!has('portal.html')) suggest('ba-portal', 'Xuất cổng đọc offline (Ho-so/portal.html) để gửi stakeholder', false);
+  // Chế độ sitemap của ba-portal (M6 đợt 3, decision 33 nhóm 9 — trước là ba-sitemap): trang luồng màn cho người dùng cuối.
+  if (!has('sitemap.html')) suggest('ba-portal sitemap', 'Trang luồng màn + wireframe cho người dùng cuối (Ho-so/sitemap.html) — tùy chọn khi bàn giao', false);
 } else if (!devDone) {
   giaiĐoạn = devStarted ? 'GĐ3 — Đang dev' : 'GĐ3 — Sẵn sàng dev';
   if (!arch) suggest('ba-architecture', 'Tài liệu đủ nhưng CHƯA chốt kiến trúc — dev-run sẽ phải hỏi stack ad-hoc', true);
   else if (adrDraft) suggest('ba-architecture', 'ADR còn Draft/⚠️ chưa chốt — qua cổng chốt trước rồi mới dev', true);
   // Kiến trúc đã chốt mà chưa có mô hình đe doạ → gợi (tùy chọn, không chặn dev): ac-judge lượt B đọc §6 của nó.
   else if (!has('00-threat-model.md') && !devStarted && càiRồi('ba-threat-model')) suggest('ba-threat-model', `Kiến trúc đã chốt nhưng chưa có mô hình đe doạ (00-threat-model.md) — TM bám ADR/NFR + checklist bảo mật cho ac-judge, tùy chọn trước khi dev${nhãnThử('ba-threat-model')}`, false);
+  // Có mô hình dữ liệu nghiệp vụ mà chưa có schema vật lý → gợi chế độ dbml (M6 đợt 3, decision 33 nhóm 8 — trước là
+  // ba-dbschema). Chỉ ở nhánh có dev: phạm vi docs đã rẽ ở trên, và chế độ dbml tự từ chối ở docs.
+  { const dbDir = resolveDoc(DOCS, 'dbschema');
+    if (arch && !adrDraft && !devStarted && has('05-data-model.md') && !(dbDir && fs.existsSync(path.join(dbDir, 'schema.dbml'))) && càiRồi('ba-data-model'))
+      suggest('ba-data-model dbml', 'Có 05-data-model.md nhưng chưa có schema vật lý (Ho-so/dbschema/schema.dbml) — chốt kiểu DB/khoá/index trước khi dev gõ migration, tùy chọn', false); }
   // dự án desktop 18/09/2026, đưa về nguồn 19/09: TÁCH ⚠️ khỏi ⬜. Bản gốc gộp cả hai vào "chưa dev xong" rồi gợi
   // ac-po/dev-run — nhắm sai đích khi ô ⚠️ nghĩa là ĐÃ CÓ CODE mà còn vướng thứ khác. Đo trên dự án
   // này 18/09: ba ô ⚠️ (S01, S02, S14) đều không thiếu code — S01 ghi thẳng "code đã phát hành ở
@@ -371,7 +406,7 @@ if (!côLõi('01-requirements.md') && protoFirst) {
   // ba-conformance TRƯỚC ba-accept: nghiệm thu một bản code lệch đặc tả là nghiệm thu nhầm
   if (!has('00-conformance.md')) suggest('ba-conformance', 'Dev xong nhưng CHƯA đối chiếu code với đặc tả — nghiệm thu bản code lệch là nghiệm thu nhầm', true);
   suggest('ba-accept', 'Dev xong toàn bộ — chạy chuỗi nghiệm thu: UAT → release → RTM → publish → ký');
-  if (!hasDoc(DOCS, 'userguide')) suggest('ba-userguide', 'Viết cẩm nang vận hành cho người dùng (bước tùy chọn GĐ4, sau UAT)', false);
+  if (!hasDoc(DOCS, 'userguide')) suggest('ba-accept userguide', 'Viết cẩm nang vận hành cho người dùng (bước tùy chọn GĐ4, sau UAT)', false);
 }
 /* Chen ngang mọi giai đoạn */
 // Dự án chạy luồng prototype-trước: FR không dẫn về PD nào = thứ CHƯA AI CHỐT mà đã viết vào đặc
@@ -414,8 +449,8 @@ if (tínhNăngTắt.length) {
   suggest(đầu.cach.replace(/\s*\([^)]*\)\s*$/, '').replace('<màn>', đầu.màn[0] || '').replace(/\s+/g, ' ').trim(),
     `${đầu.màn.length ? `${đầu.màn.length} màn (${đầu.màn.join(', ')})` : 'Dự án'} thiếu \`${đầu.khoá}\`${chú ? ` — ${chú}` : ''} — đang tắt ${đầu.tat.length} tính năng (${đầu.tat.slice(0, 2).join(', ')}${đầu.tat.length > 2 ? '…' : ''}); xem khối "Tính năng đang tắt"`, false);
 }
-if (dùngHệNgoài && !has('12-api-integration.md')) suggest('ba-api-integration', 'Kiến trúc/tích hợp có nhắc hệ ngoài/đối tác nhưng chưa có 12-api-integration.md (build-vs-buy + mapping field + readiness)', false);
-for (const f of adrDraftKhác) suggest(f === '11-integration.md' ? 'ba-integration' : 'ba-api-integration', `${f} còn ADR Draft/⚠️ chưa chốt — qua cổng CHỐT trước khi dev phần tích hợp`, devStarted);
+if (dùngHệNgoài && !has('12-api-integration.md')) suggest('ba-api-spec partner', 'Kiến trúc/tích hợp có nhắc hệ ngoài/đối tác nhưng chưa có 12-api-integration.md (build-vs-buy + mapping field + readiness)', false);
+for (const f of adrDraftKhác) suggest(f === '11-integration.md' ? 'ba-integration' : 'ba-api-spec partner', `${f} còn ADR Draft/⚠️ chưa chốt — qua cổng CHỐT trước khi dev phần tích hợp`, devStarted);
 if (pdTreo.length) {
   // KHÔNG route sang một skill: `PD` treo không phải việc skill nào làm được. Không có skill
   // riêng cho sổ PD (canon cố ý không đẻ thêm), và gán bừa `ba-change-request` là chỉ sai
@@ -447,9 +482,10 @@ if (devStarted && !has('00-dashboard.md')) suggest('ba-dashboard', 'Chưa có b�
 // việc của pipeline — đếm ra nhưng không đề xuất.
 if (crOpen) suggest('ba-change-request list', `${crOpen} CR đang làm dở trong 00-cr.md`, false);
 if (wiOpen && !tắt.backlog) suggest('ba-task list', `${wiOpen} Work Item đang mở trong 00-backlog.md${wiBlocked ? ` (${wiBlocked} Blocked)` : ''}`, wiBlocked > 0);
-if (actOpen) suggest('ba-meet', `${actOpen} action item (ACT) trong docs/meetings/ chưa Xong — rà lại, việc nào là thay đổi thì mở CR`, false);
+if (actOpen) suggest('ba-discover meet', `${actOpen} action item (ACT) trong docs/meetings/ chưa Xong — rà lại, việc nào là thay đổi thì mở CR`, false);
 
 /* ---- 5. In ---- */
+gắnLệnhCài(đềXuất);
 const out = { giaiĐoạn, hồSơ, phạmVi, tàiLiệuHệThống: sys.filter(s => s.có).map(s => s.file), thiếu: sys.filter(s => !s.có && s.note === 'lõi').map(s => s.file), mànHình: screens, gaps: gapCount, gapsScope: { scope: gapScope || null, ngày: gapNgày || null, đãPhủ: gapĐãPhủ || null, toànCục: gapToànCục }, adrDraft, crĐangMở: crOpen, crChờKiểm, crĐãĐóng, wiĐangMở: wiOpen, wiBlocked, biênBảnHọp: momCount, actChưaXong: actOpen, tínhNăngTắt, ...(nợHook.length ? { nợHook } : {}), đềXuất };   // nợHook chỉ có khi có nợ: giữ hình JSON cũ cho bánh cóc real-run
 if (JSON_MODE) { console.log(JSON.stringify(out, null, 2)); process.exit(0); }
 
@@ -475,5 +511,5 @@ if (tínhNăngTắt.length) {
   for (const g of tínhNăngTắt) console.log(`  ${g.khoá}: ${g.màn.length ? g.màn.join(', ') : '(dự án)'} (${g.tat.length} checker)`);
 }
 console.log('\n👉 Đề xuất tiếp theo:');
-for (const d of đềXuất.sort((a, b) => (b.gấp ? 1 : 0) - (a.gấp ? 1 : 0))) console.log(`  ${d.gấp ? '❗' : '·'} ${d.skill.startsWith('(') ? d.skill : '/' + d.skill} — ${d.lýDo}`);
+for (const d of đềXuất.sort((a, b) => (b.gấp ? 1 : 0) - (a.gấp ? 1 : 0))) console.log(`  ${d.gấp ? '❗' : '·'} ${d.skill.startsWith('(') ? d.skill : '/' + d.skill} — ${d.lýDo}${d.chưaCài ? `\n      ⤷ chưa cài skill này: ${d.lệnhCài}` : ''}`);
 console.log('');

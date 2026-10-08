@@ -38,7 +38,7 @@ hoso.docs = removed 00-vision.md 00-personas.md 00-process.md 00-urd.md 00-brain
 # Skill BẮT BUỘC có "Cổng phương án" (mục cùng tên ở trên). lint.js soát: mỗi skill dưới đây
 # phải có chuỗi "Cổng phương án" trong SKILL.md. Thêm orchestrator/skill ghi-nhiều-file mới
 # thì thêm vào đây, không thì lint không bắt được lúc nó quên cổng.
-gate.plan.skills = ac-po ba-threat-model ba-migration ba-atlassian ac-agent ac-team ac-eval ac-memory ac-jury ba-onepager ba-auto ba-init ba-discover ba-add-screen ba-add-feature ba-remove ba-batch ba-accept ba-release ba-reverse ba-reverse-doc ba-sitemap ba-prototype ba-meet ba-change-request ba-task ba-screen-spec ba-requirements ba-screens ba-architecture ba-userguide ba-conformance ba-new-skill ba-proto-first ba-proto-html ba-userguide-video ba-start
+gate.plan.skills = ac-po ba-threat-model ba-migration ba-atlassian ac-agent ac-team ac-eval ac-memory ac-jury ba-onepager ba-auto ba-init ba-discover ba-add-screen ba-remove ba-batch ba-accept ba-reverse ba-reverse-doc ba-portal ba-prototype ba-change-request ba-task ba-screen-spec ba-requirements ba-screens ba-architecture ba-conformance ba-new-skill ba-proto-first ba-userguide-video ba-start
 # Tập con của gate.plan.skills ĐƯỢC ORCHESTRATOR GỌI XUỐNG → phải có điều khoản miễn trừ
 # "gọi từ orchestrator đã qua cổng → không hỏi duyệt lại" (xem "Cổng cha bao phủ cổng con").
 # Thiếu điều khoản = người dùng bị hỏi duyệt 2 lần cho cùng một việc. lint.js soát.
@@ -46,11 +46,11 @@ gate.plan.skills = ac-po ba-threat-model ba-migration ba-atlassian ac-agent ac-t
 # Skill NẶNG (≥ ~100k token hoặc ≥ ~5 phút mỗi lần, đo 05–06/10/2026) → phương án/lúc bắt đầu PHẢI in dòng
 # "Ước tính: … (cost.js estimate …)" (conv-gates.md → "Cổng phương án" → Báo giá). lint.js (mục 11) soát: SKILL.md
 # của mỗi skill dưới đây phải chứa chuỗi `cost.js estimate`. Thêm skill nặng mới thì thêm vào đây + cost-defaults.json.
-gate.cost.skills = ba-html-design ba-figma-draw ba-userguide ba-userguide-video ba-batch ba-init ba-screen-spec ba-design-system ba-wireframe-lofi
-gate.plan.subskills = ba-migration ac-team ac-eval ac-memory ac-jury ba-onepager ba-screen-spec ba-requirements ba-screens ba-architecture ba-conformance ba-release ba-userguide
+gate.cost.skills = ba-html-design ba-figma-draw ba-accept ba-userguide-video ba-batch ba-init ba-screen-spec ba-design-system
+gate.plan.subskills = ba-migration ac-team ac-eval ac-memory ac-jury ba-onepager ba-screen-spec ba-requirements ba-screens ba-architecture ba-conformance ba-accept
 # Skill đã ngừng dùng → skill thay thế. lint.js soát: SKILL.md nào còn nhắc skill cũ thì
 # PHẢI nhắc cả skill mới trong cùng file, không thì nó là lối đi cụt cho người đọc.
-deprecated.skills = ba-figma-design:ba-figma-draw ba-api-checklist:ba-api-test
+deprecated.skills = ba-figma-design:ba-figma-draw ba-api-checklist:ba-api-test ba-figure:ba-diagram ba-checklist:ba-test ba-add-feature:ba-add-screen ba-api-integration:ba-api-spec ba-flow:ba-proto-first ba-proto-html:ba-proto-first ba-uat:ba-accept ba-release:ba-accept ba-userguide:ba-accept ba-vision:ba-discover ba-stakeholder:ba-discover ba-persona:ba-discover ba-process:ba-discover ba-urd:ba-discover ba-brainstorm:ba-discover ba-meet:ba-discover ba-roadmap:ba-discover ba-dbschema:ba-data-model ba-sitemap:ba-portal ba-wireframe-lofi:ba-html-design
 # Hồ sơ dự án (xem mục "Hồ sơ dự án"). Khai ở đầu docs/00-tracking.md; không khai = full.
 # profile.lite.off = cơ chế TẮT khi chạy lite; phải khớp object trả về của profile.js `off()`.
 profile.values = full lite mini
@@ -59,11 +59,14 @@ profile.lite.off = backlog changelog conformance agents
 # profile.mini.files = bộ file còn lại, đúng thứ tự cột tracking (khớp FILES_MINI của profile.js).
 profile.mini.off = usecase userstory designspec brainstorm
 profile.mini.files = ascii-screen srs html-design test plan
-# Bộ skill `ba-export --mini` cài (thay vì cả 66). Dự án nhỏ không dùng tới integration/
-# api-integration/dashboard/userguide/figma/prototype… — ít skill thì agent chọn đúng hơn.
-# `ba-toolkit` và TOÀN BỘ `dev-*` luôn được cài kèm — dev-run trỏ tới 8 skill dev-* khác nên
-# framework đó không chia nhỏ được. Không cần liệt kê chúng ở đây; install.js tự thêm.
-profile.mini.skills = ba-toolkit ba-next ba-requirements ba-functions ba-screens ba-screen-spec ba-test ba-html-design ba-build ba-review ba-track ba-trace ba-change-request ba-add-screen ba-remove ba-portal ba-export dev-run ba-start
+# BỘ CÀI (M6, 08/10/2026 — docs/decisions/32; install.js `--profile core|mini|full` + `--dev`, ghi nhớ trong manifest đích).
+# core = MẶC ĐỊNH lần cài đầu: lõi BA từ ý tưởng → đặc tả → test → thiết kế → portal. mini ⊆ core (dự án 5–10 màn).
+# dev = bộ cài thêm khi dự án viết code; TOÀN BỘ `dev-*` đi kèm theo tiền tố (dev-run trỏ tới 8 skill dev-* khác —
+# không chia nhỏ được), không cần liệt kê. `ba-toolkit` luôn được cài. Lint 44: mini ⊆ core, core ∩ dev = ∅, không skill
+# Pro/devonly, mô tả core ≤ 8000 ký tự; repo phát triển: core = manifest core.list − bộ dev + ba-add-screen ba-remove.
+profile.core.skills = ba-start ba-next ba-init ba-requirements ba-functions ba-screens ba-screen-spec ba-test ba-html-design ba-review ba-trace ba-track ba-change-request ba-task ba-portal ba-toolkit ba-export ba-add-screen ba-remove
+profile.dev.skills = dev-run ba-build ba-feasible ac-verify ac-judge ba-conformance ba-index
+profile.mini.skills = ba-toolkit ba-next ba-requirements ba-functions ba-screens ba-screen-spec ba-test ba-html-design ba-review ba-track ba-trace ba-change-request ba-add-screen ba-remove ba-portal ba-export ba-start
 # PHẠM VI dự án — trục thứ hai, độc lập với hồ sơ (xem conv-gates.md → "Hồ sơ dự án" → "Phạm vi").
 # Hồ sơ = đầu tư bao nhiêu vào tài liệu; phạm vi = có DEV hay không. Khai cùng dòng trong
 # 00-tracking.md: `Phạm vi: `docs``. Không khai = full. Đọc qua profile.js `readScope()`.
@@ -72,24 +75,29 @@ scope.values = full docs
 scope.off = dev
 # Skill CHỈ có nghĩa khi dự án có dev — `ba-export --scope docs` KHÔNG cài chúng, và `dev-*` (11,
 # gồm dev-run) + `ac-*` (agentcode) đi kèm theo tiền tố, không liệt kê. Giữ ở BA dù có vẻ "kỹ thuật": ba-reverse
-# (tiếp quản codebase vẫn là việc BA), ba-userguide, ba-architecture/ba-api-spec/ba-data-model/
-# ba-uat (tài liệu kỹ thuật là sản phẩm BA), ba-proto-html (prototype một file để chốt nghiệp
-# vụ, không phải code dự án). lint.js soát: mọi tên ở đây tồn tại và không phải dev-*.
-scope.dev.skills = ba-build ba-feasible ba-dbschema ba-api-test ba-test-e2e ba-prototype ba-conformance ba-auto ba-accept
+# (tiếp quản codebase vẫn là việc BA), ba-architecture/ba-api-spec/ba-data-model (tài liệu kỹ thuật là
+# sản phẩm BA), ba-proto-first html (prototype một file để chốt nghiệp vụ, không phải code dự án),
+# ba-accept (từ M6 đợt 3: chế độ `uat`/`release`/`userguide` là bàn giao tài liệu; chế độ trọn tự đọc
+# readScope và TỪ CHỐI ở docs — decision 33), ba-data-model (từ M6 đợt 3: chế độ `dbml` = schema
+# vật lý cho dev, tự đọc readScope và TỪ CHỐI ở docs — decision 33 nhóm 8). lint.js soát: mọi tên ở đây tồn tại và không phải dev-*.
+scope.dev.skills = ba-build ba-feasible ba-api-test ba-test-e2e ba-prototype ba-conformance ba-auto
 # Skill THỬ NGHIỆM (đợt cắt 25/09/2026): chưa từng chạy thật trên dự án tiêu dùng nào (docs/decisions/20). `ba-export/install.js` mặc định KHÔNG cài;
 # `--with-experimental` cài; đích đã có thì giữ + cập nhật; `--check` gắn nhãn. Thoát nhãn = chạy thật trên một dự án + bằng chứng bắt lỗi thật → gỡ tên.
 # Khoá vắng → mọi nơi đọc quay về hành vi cũ. ac-audit-web KHÔNG ở đây: scan-html.js đã bắt thật 10 FORM-LABEL (dự án desktop) — chỉ lighthouse.js chưa chạy thật.
 skills.experimental = ac-jury ba-atlassian ba-threat-model ba-migration
 # Agent chỉ phục vụ một skill thử nghiệm, dạng `agent:skill` — install.js cài agent khi và chỉ khi skill chủ được cài; check-agents miễn khi skill chủ vắng.
 agents.experimental = ac-juror:ac-jury
+# Agent đi theo skill CHỦ (M6): agent:skill1|skill2 — install.js chỉ cài agent khi ≥1 skill chủ được cài (agent trỏ vào
+# reference của skill vắng là lối đi cụt). Lint 44: mỗi agent trong agents.roster có dòng ở đây.
+agents.owner = ba-consistency-reviewer:ba-review ba-srs-quality-reviewer:ba-review ba-diagram-reviewer:ba-review|ba-diagram ba-inference-reviewer:ba-reverse|ba-conformance ba-manual-reviewer:ba-accept ba-change-observer:ba-changelog ac-verifier:ac-verify ac-builder:dev-run|ac-team ac-judge:ac-judge ac-evaluator:ac-eval ac-juror:ac-jury ac-auditor:ac-audit-web
 # GÓI PHÁT HÀNH (CHỐT 08/10/2026 — docs/decisions/32, release/manifest.json): skill gói Pro và skill giữ riêng (devonly) KHÔNG có
 # trong repo công khai. Mọi check đọc danh sách skill/agent ở registry (gate.plan.*, gate.cost.skills, scope.dev.skills, profile.aware,
 # agents.roster, po.*…) chỉ soát skill thuộc hai tập này KHI NÓ CÓ MẶT. Lint 45: file của skill KHÔNG thuộc hai tập (và agent công khai)
 # mà require/đường dẫn cứng tới skill trong hai tập → lỗi, trừ chỗ có điều kiện existsSync rõ ràng. Phải khớp manifest khi file đó có.
-skills.pro = ac-po ac-team ac-jury ac-eval ac-ci ac-memory ba-atlassian ba-reverse ba-reverse-doc ba-auto
-skills.devonly = ba-figma-draw ba-userguide-video ba-doc-public
+skills.pro = ac-po ac-team ac-jury ac-eval ac-ci ac-memory ba-atlassian ba-reverse ba-reverse-doc ba-auto ba-integration ba-threat-model ba-migration ba-dashboard ba-onepager ba-changelog
+skills.devonly = ba-figma-draw ba-userguide-video ba-doc-public ba-new-skill ba-launcher ac-agent
 # Agent chỉ phục vụ skill Pro, dạng `agent:skill` — check-agents miễn "thiếu file" khi skill chủ vắng (như agents.experimental).
-agents.pro = ac-evaluator:ac-eval ac-juror:ac-jury
+agents.pro = ac-evaluator:ac-eval ac-juror:ac-jury ba-change-observer:ba-changelog
 # gói sec (đợt 7) — đề xuất khoá registry (orchestrator quyết; chưa có check lint nào đọc)
 security.scan = ba-toolkit/scripts/scan-skills.js
 security.allowlist = ba-toolkit/references/security-allowlist.json
@@ -100,7 +108,7 @@ security.loai.vang = injection-nhe eval base64
 # ĐỘI AGENT (từ 15/09/2026, họ `ac-*` — xem conv-gates.md → "Đội agent"). Roster là canon máy-đọc của
 # `.claude/agents/*.md`: `<tên>:<loại>:<quyền>`. Loại: review (soát TÀI LIỆU, chỉ đọc) · verify (CHỨNG MINH
 # code: chạy proof, không sửa) · build (viết code — GĐ2). Quyền: ro = không Write/Edit/NotebookEdit/Agent;
-# review còn cấm Bash, verify BẮT BUỘC có Bash (chạy lệnh proof). Lint check 30 gọi ac-agent/check-agents.js
+# review còn cấm Bash, verify BẮT BUỘC có Bash (chạy lệnh proof). Lint check 30 gọi ba-toolkit/check-agents.js
 # soát hai chiều file ↔ roster, frontmatter, quyền khớp tools, và mỗi agent nói rõ "ai phái · trả về đâu".
 agents.kinds = review verify build
 agents.roster = ba-consistency-reviewer:review:ro ba-srs-quality-reviewer:review:ro ba-diagram-reviewer:review:ro ba-inference-reviewer:review:ro ba-manual-reviewer:review:ro ba-change-observer:review:ro ac-verifier:verify:ro ac-builder:build:rw ac-judge:verify:ro ac-evaluator:verify:ro ac-juror:review:ro ac-auditor:verify:ro
@@ -163,7 +171,7 @@ devserver.states = của-dự-án:0 lạ:3 không-thấy:1
 # `chỉ-test-dùng` (export chỉ file test nhắc — setter `dat*` làm đường nối cho test) in ra 🟢, KHÔNG tính exit.
 judge.wiring.labels = chỉ-nhắc-tên mồ-côi export-mồ-côi chỉ-test-dùng
 # Skill/script phải tôn trọng hồ sơ (đọc qua ba-toolkit/profile.js, và nói ra khi bỏ qua).
-profile.aware = ba-next ba-accept ba-review ba-task ba-changelog ba-conformance ba-screens ba-screen-spec ba-test ba-html-design ba-uat ba-checklist ba-track ba-export ba-trace ba-build ba-proto-first ba-proto-html ba-flow ac-verify ac-team ac-judge ac-eval ba-migration ba-atlassian ac-ci ac-audit-web ba-threat-model ac-po ba-start
+profile.aware = ba-next ba-accept ba-review ba-task ba-changelog ba-conformance ba-screens ba-screen-spec ba-test ba-html-design ba-track ba-export ba-trace ba-build ba-proto-first ac-verify ac-team ac-judge ac-eval ba-migration ba-atlassian ac-ci ac-audit-web ba-threat-model ac-po ba-start
 # Skill là MỐC của gap 🟠 ("Nợ có hạn", xem "Quy ước gate") → phải có CỔNG THU NỢ trong SKILL.md
 # (chuỗi "thu nợ 🟠"). Thiếu cổng này thì 🟠 không bao giờ bị thu, tức là biến thành gap bị lờ đi
 # vĩnh viễn — đúng thứ mức 🟠 sinh ra để chống. Thêm mốc mới ở ba-review thì thêm skill vào đây.
@@ -200,7 +208,7 @@ desc.total = 15000
 # lặp; (b) skill KHÔNG đẩy pipeline dự án đi bước nào — cài đặt toolkit, dựng trang, vẽ hình,
 # tra cứu. Mọi skill còn lại phải có dòng đó: `ba-next` là "một cửa" của toolkit nhưng trước
 # 09/09/2026 chỉ 11/77 skill trỏ về nó, tức là cửa tồn tại mà không lối nào dẫn tới.
-next.exempt = ac-agent ba-next ba-toolkit ba-export ba-launcher ba-new-skill ba-doc-public ba-index ba-figure ba-portal ba-diagram
+next.exempt = ac-agent ba-next ba-toolkit ba-export ba-launcher ba-new-skill ba-doc-public ba-index ba-portal ba-diagram
 # Phép kiểm do HOOK cưỡng chế (xem conventions.md → "Cưỡng chế bằng hook"). Dạng `mã:script:luật`.
 # Luật của toolkit là CHỮ trong SKILL.md, và người đọc chữ đó là một model — model bỏ sót được.
 # Những luật ĐO ĐƯỢC thì giao cho máy; luật cần PHÁN ĐOÁN vẫn thuộc skill/agent. Mỗi mã kiểm phải

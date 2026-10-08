@@ -47,7 +47,7 @@ Xong → `demo.js` lần nữa (chỉ dựng lại cổng tài liệu, giữ m�
 2. **Cửa vào theo loại** (lấy `đềXuất` của detect.js):
    - `ý-tưởng` → **`ba-init`** (từ ý tưởng tới kế hoạch build, dừng hỏi ở mỗi chặng). Ý tưởng còn mơ hồ, muốn chốt bằng bản bấm thử trước → nhắc `ba-proto-first`.
    - `tài-liệu-rời` → **`ba-reverse-doc`** với các file detect.js đã thấy (Word nên xuất PDF trước).
-   - `có-code` → `đềXuất` của script: có `ba-reverse` (gói Pro) thì đề xuất nó; không có → **`ba-init`**, Claude đọc code sẵn làm ngữ cảnh tham khảo, kèm một dòng "gói Pro có skill viết tài liệu ngược thẳng từ code".
+   - `có-code` → một dòng trước: "dự án đã có code — khi tới bước lập kế hoạch code cần bộ dev: `ba-export update --dev`". Rồi `đềXuất` của script: có `ba-reverse` (gói Pro) thì đề xuất nó; không có → **`ba-init`**, Claude đọc code sẵn làm ngữ cảnh tham khảo, kèm một dòng "gói Pro có skill viết tài liệu ngược thẳng từ code".
    - `code-và-tài-liệu` → hỏi một câu: nguồn chính là **tài liệu khách gửi** (→ `ba-reverse-doc`) hay **code đang chạy** (→ như `có-code`).
 3. Người dùng chọn → **invoke skill đó luôn** (Skill tool). Không chọn → dừng, để lại lệnh gợi ý.
 

@@ -1,9 +1,15 @@
 ---
 name: ba-html-design
-description: Use when cần dựng bản thiết kế HTML trực quan cho một màn hình đã có ascii-screen, srs và design-spec; bước 5, sinh html-design.html trong folder màn.
+description: Use when cần dựng bản thiết kế HTML trực quan cho một màn đã có ascii-screen, srs, design-spec; bước 5, sinh html-design.html; chế độ `lofi` — wireframe đen trắng chốt bố cục trước khi bàn màu (Ho-so/wireframe.html).
 ---
 
 # ba-html-design — Dựng HTML cho 1 màn hình
+
+## Chế độ
+| Gọi | Làm gì |
+|---|---|
+| `/ba-html-design <màn>` | Mặc định — dựng `html-design.html` high-fi cho MỘT màn (quy trình dưới đây) |
+| `/ba-html-design lofi [màn…]` | Wireframe lo-fi đen trắng gom mọi màn → `docs/Ho-so/wireframe.html`, khối đánh số `#` theo bảng phần tử srs, 2–3 phương án bố cục để người chọn — mục "Chế độ `lofi`" cuối file (trước là `ba-wireframe-lofi`) |
 
 ## Mục tiêu
 Cho một màn hình, sinh `docs/Screen-spec/<Nhóm>/<Màn>/html-design.html` — bản dựng trực quan tĩnh. **Dựng một màn là RÁP** từ khung chung, nguyên tố và khối đã duyệt — không nặn lại từ đầu mỗi phiên.
@@ -27,7 +33,7 @@ Cho một màn hình, sinh `docs/Screen-spec/<Nhóm>/<Màn>/html-design.html` �
    node .claude/skills/ba-html-design/scripts/check-shell.js docs                 # khung — so MỌI màn với nhau
    node .claude/skills/ba-html-design/scripts/check-design.js "<folder màn>" --plain # ngân sách · token · emoji · dấu hiệu "AI dựng"
    node .claude/skills/ba-html-design/scripts/check-el.js "<folder màn>" --plain     # mỗi dòng bảng phần tử srs có khối data-el, không số lạ
-   node .claude/skills/ac-audit-web/scripts/scan-html.js "<folder màn>" --plain    # WCAG/UX tĩnh
+   node .claude/skills/ba-toolkit/scripts/scan-html.js "<folder màn>" --plain    # WCAG/UX tĩnh
    node .claude/skills/ba-html-design/scripts/shot.js "<folder màn>" --out <tmp> --plain  # 375 & 1440 × mỗi trạng thái: cuộn ngang, chữ bị cắt, vùng bấm
    ```
    `check-shell.js` còn đỏ → **không báo xong**. Mục `P..` khác còn sau 3 vòng, hoặc cố ý giữ → **liệt kê từng mã kèm lý do lúc giao**; không mục nào được biến mất im lặng. Script in "không kiểm được" (vd máy không có Chrome) → ghi vào *Chưa kiểm*, không ghi "sạch".
@@ -88,3 +94,18 @@ Cho một màn hình, sinh `docs/Screen-spec/<Nhóm>/<Màn>/html-design.html` �
 - **Duyệt xong** (người trả `ok`) → nếu dự án dùng Figma: `ba-figma-draw push <màn>`.
 - Muốn bản audit đủ ba trục có agent (WCAG · UX · Core Web Vitals) → `ac-audit-web <Mã>` (`docs/Ho-so/audit/`).
 - **Xong bước này → chạy `ba-next`** — nó quét lại `docs/` để tính vị trí pipeline và đề xuất bước kế. Đừng tự đoán bước tiếp theo, cũng đừng nhảy cóc.
+
+## Chế độ `lofi` — Wireframe đen trắng để chốt bố cục
+Bậc giữa `ascii-screen.md` (phác) và `html-design.html` (high-fi): đen trắng, khối xám, chữ thật — người xem buộc bàn **bố cục · thứ tự · độ ưu tiên thông tin**, không bàn màu. Mỗi khối mang **đúng số `#`** của "Bảng mô tả chi tiết phần tử màn hình" trong `srs.md`. Bản đầy đủ (luật markup phương án, luật vẽ, bảng ranh giới): **`references/lofi.md`** — đọc trước khi dựng.
+
+> 💰 **Báo giá trước khi chạy** (`conv-gates.md` → "Cổng phương án" → Báo giá): in dòng `Ước tính: …` từ `node .claude/skills/ba-toolkit/scripts/cost.js estimate ba-html-design-lofi --man N` trước khi bắt tay (khoá riêng của chế độ trong `cost-defaults.json` — số lo-fi nhỏ hơn high-fi nhiều, chung khoá thì báo giá cả hai sai); chạy xong ghi số thật `cost.js record ba-html-design-lofi --tokens N --minutes M --units N`.
+
+1. **Điều kiện (CHẶN nếu thiếu):** mỗi màn định dựng có `ascii-screen.md` và `srs.md` có mục "Bảng mô tả chi tiết phần tử màn hình". Thiếu bảng → **DỪNG**, route `ba-screen-spec` (không có số `#` để đánh). Chạy ở cả `full`/`lite`/`mini` — bảng nằm trong `srs.md`.
+2. **Sinh `docs/Ho-so/wireframe.html`** — một file gom mọi màn, tự chứa: mỗi màn `<section class="wf-screen" data-screen="S01">`; **một dòng bảng = MỘT khối** `<div class="wf" data-el="4">` (phần tử lặp vẫn một khối bao ngoài); bảng chú giải `#` · tên · control type dưới mỗi màn; bố cục theo `ascii-screen.md`.
+3. **Phương án:** màn có ≥2 cách bố cục hợp lý → 2–3 `wf-variant` khác **chiến lược** bố cục, đúng 1 `data-recommended`, `data-reason` đủ 3 vế (`việc chính · khác gì · đánh đổi`, cấm "gọn gàng/hiện đại/trực quan/đẹp"), cùng bộ `data-el` và phủ đủ bảng; chọn bằng `?S02=B`. Màn hiển nhiên → 1 phương án + lý do một dòng.
+4. **Luật lo-fi:** chỉ thang xám (không màu thương hiệu, gradient, bóng, icon, emoji), một phông hai cỡ, chữ thật tiếng Việt không `Lorem ipsum`, ảnh/biểu đồ = khung gạch chéo có nhãn.
+5. Chạy `node .claude/skills/ba-html-design/scripts/check-wireframe.js docs` → sạch rồi mới báo xong.
+6. **Báo cáo:** số màn · số phần tử mỗi màn · phần tử chưa có khối · màn có phương án (chữ + lý do, khuyên dùng). Trả lời **đóng**: mỗi màn `S02: B`, hoặc `ok` = nhận mọi khuyên dùng.
+7. Nhận trả lời → đánh `data-chosen` (≤1 mỗi màn, giữ phương án khác làm lịch sử), chạy lại `check-wireframe.js`. Chế độ mặc định dựng theo phương án `data-chosen`; dự án dùng Figma → `ba-figma-draw push-lofi <màn>`.
+
+**Điểm dừng:** `ascii-screen.md` có khối mà bảng phần tử không có dòng → báo lệch, sửa `srs.md` trước, không tự thêm số `#`; không rõ khối nào quan trọng hơn → hỏi, đừng dùng màu để né. **Đầu ra** `docs/Ho-so/wireframe.html` — **không vào portal**, bản dùng một lần để chốt bố cục, đừng nuôi song song với html-design. **Xong chế độ này → chạy `ba-next`.**

@@ -68,7 +68,7 @@ Từ tài liệu + `plan.md` mà pipeline BA đã sinh, dev các màn chỉ đ�
 5b. Chọn PR và CI của PR đỏ → **`ac-ci`** (`inspect-checks.js` cắt log + Proof tái hiện, lô sửa cho `ac-builder`, `watch-checks.js` canh tới xanh; infra hỏi người, flaky ghi dev-notes). Chỉ khi PR đã mở — `ac-ci` không push, không mở PR.
 6. *(Tùy chọn)* nếu dự án có `docs/Ho-so/portal.html`, invoke `ba-portal` làm mới cổng đọc.
 6b. **Đối chiếu code vừa viết với đặc tả:** dev xong một màn → gợi ý invoke **`ba-conformance <màn>`** — dò ba thứ mà test xanh KHÔNG chứng minh được: code **lệch** quy tắc trong `srs.md`, phần đặc tả **chưa làm** (hàm rỗng/TODO), và code có **hành vi nghiệp vụ không nằm trong tài liệu** (validation ẩn, guard, tác dụng phụ). Chạy sớm ở đây rẻ hơn nhiều so với để `ba-accept` phát hiện lúc nghiệm thu.
-7. **Bàn giao — Giai đoạn 4:** dev xong phase → gợi ý invoke **`ba-accept <phase>`** để chạy nghiệm thu (UAT) → đóng gói phát hành (`ba-release`) → RTM (`ba-trace`) → xuất bản. Khép vòng đời BA.
+7. **Bàn giao — Giai đoạn 4:** dev xong phase → gợi ý invoke **`ba-accept <phase>`** để chạy nghiệm thu (UAT) → đóng gói phát hành (chế độ `ba-accept release`) → RTM (`ba-trace`) → xuất bản. Khép vòng đời BA.
 
 ## Lưu ý
 - `ba-build` dừng ở plan; `dev-run` là bước kế tiếp do người dùng trigger — không tự chạy sau ba-build.

@@ -423,5 +423,5 @@ const rel = (p) => path.relative(process.cwd(), p);
 console.log(`🧩 Prototype (Vite + React + Router) → ${rel(OUT)}/`);
 console.log(`   Màn: ${screens.length} (copy html-design) · Cạnh wiring: ${edgeCount} · khớp id: ${preciseCount} (${genCount} id sinh thêm cho nút CTA chưa có) · còn lại khớp text`);
 if (missingHtml.length) console.log(`   ⚠️  ${missingHtml.length} màn thiếu html-design.html: ${missingHtml.join(', ')} (chạy ba-html-design)`);
-if (!edgeCount) console.log('   ⚠️  Chưa rút được cạnh nào — wiring.json rỗng. Viết sitemap-flows.md (ba-sitemap) hoặc điền wiring.json tay.');
+if (!edgeCount) console.log('   ⚠️  Chưa rút được cạnh nào — wiring.json rỗng. Viết sitemap-flows.md (ba-portal sitemap) hoặc điền wiring.json tay.');
 console.log(`   Tiếp: cd ${rel(OUT)} && npm install && npm run dev · rồi tinh chỉnh src/wiring.json cho khớp nút thật.`);

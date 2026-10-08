@@ -5,7 +5,7 @@ description: Use when cần KIỂM THỬ API — outline ACL-.. theo endpoint (h
 
 # ba-api-test — Kiểm thử API: outline duyệt → file bắn được
 
-Toolkit đặc tả API rất kỹ (`ba-api-spec`, `ba-api-integration`, `ba-integration`) nhưng **không có gì kiểm chứng API chạy đúng** — `ba-test-e2e` chỉ bắn qua giao diện. Skill này mở tầng test API.
+Toolkit đặc tả API rất kỹ (`ba-api-spec` cả chế độ `partner`, `ba-integration`) nhưng **không có gì kiểm chứng API chạy đúng** — `ba-test-e2e` chỉ bắn qua giao diện. Skill này mở tầng test API.
 
 **Hai bước, một skill.** Trước 09/09/2026 đây là hai skill (`ba-api-checklist` → `ba-api-test`). Chúng luôn chạy nối đuôi, ghi vào **cùng một thư mục**, và mã `ATC-..` **chỉ có nghĩa khi trace về `ACL-..`** của bước trước — nên bước 2 không bao giờ chạy một mình được. Tách làm hai chỉ tạo ra một thứ tự mà không gì bắt buộc: người dùng gọi thẳng `ba-api-test` là bỏ qua vòng duyệt outline. Gộp lại thì **HARD STOP nằm ngay giữa skill**, không thể đi vòng.
 
@@ -20,12 +20,12 @@ Ranh giới:
 
 | Skill | Soi cái gì |
 |---|---|
-| `ba-checklist` | checklist kiểm thử **một MÀN HÌNH** (`CL-S..`) |
+| `ba-test checklist` | checklist kiểm thử **một MÀN HÌNH** (`CL-S..`) |
 | **`ba-api-test`** | kiểm thử **API** (`ACL-..` → `ATC-..`) — không qua giao diện |
 | `ba-test` / `ba-test-e2e` | ca chi tiết + script Playwright **qua giao diện** |
 
 ## Điều kiện (CHẶN nếu thiếu)
-Có `docs/06-api-spec.md` **hoặc** `docs/12-api-integration.md`. Không có cả hai → **DỪNG**, route `ba-api-spec` / `ba-api-integration`. Không bịa endpoint.
+Có `docs/06-api-spec.md` **hoặc** `docs/12-api-integration.md`. Không có cả hai → **DỪNG**, route `ba-api-spec` / `ba-api-spec partner`. Không bịa endpoint.
 
 ## GĐ1 — Outline `ACL-..` (để duyệt)
 

@@ -3,8 +3,8 @@
 # ba-doc-public: folder staging + lien ket Vercel (khong commit)
 .ba-site/
 
-# ba-userguide: engine Playwright cai tai cho (npm dep tuy chon duy nhat cua toolkit)
-.claude/skills/ba-userguide/engine/node_modules/
+# ba-accept userguide: engine Playwright cai tai cho (npm dep tuy chon duy nhat cua toolkit)
+.claude/skills/ba-accept/scripts/engine/node_modules/
 
 # ba-prototype: project Vite/React sinh ra (artifact, sinh lai duoc); bo ignore neu bat dau dev that tu day
 prototype/

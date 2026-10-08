@@ -28,7 +28,14 @@
  *                   DỪNG: skill + 3 hook cài sang chạy ở mọi Read/Edit/Stop của dự án đích — nguồn bị xâm
  *                   nhập là code lạ ở mọi đích. `--check`/`--dry` không ghi nên chỉ in, không chặn.
  *   --no-claude     bỏ qua bước ghi khối directive "luôn nạp" vào CLAUDE.md của đích
- *   --mini          bộ gọn theo canon `profile.mini.skills` (không ghi nhớ — lần update sau cài đủ)
+ *   --profile core|mini|full  BỘ SKILL (M6, docs/decisions/32). core (MẶC ĐỊNH lần cài đầu) = canon `profile.core.skills`
+ *                   (lõi BA ~19 skill: ý tưởng → đặc tả → test → thiết kế → portal) · mini = `profile.mini.skills` (⊆ core)
+ *                   · full = mọi skill ở nguồn (hành vi trước M6). GHI NHỚ trong manifest (`installProfile`): `update`
+ *                   giữ nguyên; manifest cũ chưa có trường này = full (dự án đang dùng không mất skill nào).
+ *                   Đích đã có skill ngoài hồ sơ → GIỮ + cập nhật; chỉ --prune mới gỡ.
+ *   --mini          bí danh của `--profile mini`
+ *   --dev           thêm BỘ DEV (canon `profile.dev.skills` + mọi `dev-*`): ba-build, dev-run, ac-verify… — dự án sẽ viết
+ *                   code. Ghi nhớ (`dev: true`); `--no-dev` tắt. Hồ sơ full đã gồm bộ dev. Không đi cùng `--scope docs`.
  *   --scope docs|full   PHẠM VI: `docs` = dự án chỉ làm tài liệu BA → KHÔNG cài bộ skill dev
  *                   (canon `scope.dev.skills` + mọi `dev-*`), khối CLAUDE.md in vòng đời 3 GĐ.
  *                   Được GHI NHỚ trong manifest: `update` sau đó giữ nguyên phạm vi, đổi bằng
@@ -197,6 +204,14 @@ const prevFiles = (manifest && manifest.files) || {};
 // chạy `ba-export update` mà bị cài lại 20 skill dev là đúng thứ --scope docs sinh ra để tránh.
 const scope = scopeArg || (manifest.scope === 'docs' ? 'docs' : 'full');
 const docsOnly = scope === 'docs';
+// Hồ sơ cài (M6): cờ → manifest → (đích đã có manifest mà chưa có trường = cài trước M6 = full) → core cho lần cài đầu.
+const profileArg = optVal('--profile') || (argv.includes('--mini') ? 'mini' : null);
+if (profileArg && !['core', 'mini', 'full'].includes(profileArg)) { console.error(`Error: --profile ${profileArg} — chỉ nhận core | mini | full.`); process.exit(2); }
+const lầnĐầu = !fs.existsSync(manifestPath);
+const installProfile = profileArg || manifest.installProfile || (lầnĐầu ? 'core' : 'full');
+const devArg = argv.includes('--dev') ? true : argv.includes('--no-dev') ? false : null;
+if (devArg && docsOnly) { console.error('Error: --dev cùng --scope docs — phạm vi docs là dự án KHÔNG viết code, bộ dev vô nghĩa. Bỏ một trong hai.'); process.exit(2); }
+const withDev = installProfile === 'full' ? !docsOnly : devArg !== null ? devArg : !!manifest.dev;
 
 // Nguồn: --from → manifest của đích (chạy từ dự án tiêu dùng) → repo cạnh script → ba-source.txt
 const srcRoot = path.resolve(
@@ -371,11 +386,8 @@ console.log(`${tag}Nguồn: ${srcRoot}`);
 console.log(`${tag}Đích:  ${destRoot}\n`);
 
 // 1) Skills ba-* + dev-* (framework dev clone từ superpowers, đi kèm toolkit)
-// --mini: chỉ cài BỘ GỌN theo canon `profile.mini.skills` (conv-registry.md). Dự án nhỏ không
-// dùng integration/api-integration/dashboard/userguide/figma/prototype…, và ít skill thì agent
-// chọn đúng hơn — 66 mô tả skill nạp mỗi phiên là chi phí thật, không chỉ là lộn xộn.
-// ba-toolkit LUÔN được cài (nó chứa conventions/profile/lint mà mọi skill khác dựa vào).
-const miniMode = argv.includes('--mini');
+// Hồ sơ cài (installProfile, tính ở đầu file): core/mini chỉ cài bộ canon trong conv-registry.md — mỗi mô tả skill nạp
+// MỖI phiên là chi phí thật, và ít skill thì agent chọn đúng hơn. ba-toolkit LUÔN được cài (conventions/profile/lint).
 // Registry máy-đọc nằm ở ba-toolkit/references/ (di trú 04/09/2026). Đọc sai chỗ thì hàm trả []
 // và --mini/--scope chết ở guard dưới — đã xảy ra thật: --mini exit 2 vô điều kiện suốt 11 ngày.
 // Đọc ĐÚNG cách lint.js đọc (parseRegistry): chỉ khối ```registry mới là canon máy-đọc — một dòng
@@ -396,10 +408,15 @@ const REG = (() => {
 })();
 const regKey = (key) => REG[key] || [];
 const miniCanon = regKey('profile.mini.skills');
+const coreCanon = regKey('profile.core.skills');
+const devPack = regKey('profile.dev.skills');
 const devCanon = regKey('scope.dev.skills');
-if (miniMode && !miniCanon.length) {
-  console.error('Error: --mini nhưng conv-registry.md không có khóa profile.mini.skills — không đoán bừa bộ skill.');
-  process.exit(2);
+// Nguồn cũ chưa có khoá bộ cài: người dùng KHÔNG gõ hồ sơ → cài đủ như trước M6 (đừng chặn lệnh cài từ nguồn đời cũ);
+// gõ rõ --profile core|mini mà khoá vắng → lỗi, không đoán bừa bộ skill.
+let installProfileThật = installProfile;
+if (installProfile !== 'full' && !(installProfile === 'mini' ? miniCanon : coreCanon).length) {
+  if (profileArg) { console.error(`Error: --profile ${installProfile} nhưng conv-registry.md không có khóa profile.${installProfile}.skills — không đoán bừa bộ skill. Dùng --profile full.`); process.exit(2); }
+  installProfileThật = 'full';
 }
 if (docsOnly && !devCanon.length) {
   console.error('Error: --scope docs nhưng conv-registry.md không có khóa scope.dev.skills — không đoán bừa bộ skill dev.');
@@ -409,20 +426,24 @@ let skillNames = fs.readdirSync(skillsSrc, { withFileTypes: true })
   .filter(e => e.isDirectory() && /^(ba|dev|ac)-/.test(e.name))
   .map(e => e.name)
   .sort();
-if (miniMode) {
-  // `dev-*` đi NGUYÊN BỘ hay không đi: dev-run trỏ tới 8 skill dev-* khác (executing-plans,
-  // test-driven-development, systematic-debugging…). Cài mỗi dev-run là để lại đúng loại lối đi
-  // cụt mà check 13 của lint.js tồn tại để chống. Bộ gọn chỉ tỉa `ba-*`.
-  const keep = new Set([...miniCanon, 'ba-toolkit',
-    ...fs.readdirSync(skillsSrc, { withFileTypes: true }).filter(e => e.isDirectory() && /^(dev|ac)-/.test(e.name)).map(e => e.name)]);
-  const bỏ = skillNames.filter(n => !keep.has(n));
-  skillNames = skillNames.filter(n => keep.has(n));
-  const thiếu = miniCanon.filter(n => !fs.existsSync(path.join(skillsSrc, n)));
-  if (thiếu.length) console.log(`${tag}⚠️  profile.mini.skills khai skill không có ở nguồn: ${thiếu.join(', ')}`);
-  // Nói ra cái bị bỏ (conv-gates.md → "Hồ sơ dự án", luật 6): im lặng cắt 48 skill thì người
-  // dùng sẽ tưởng toolkit thiếu chức năng chứ không nghĩ là mình đã chọn bộ gọn.
-  console.log(`${tag}⚙️ mini: cài ${skillNames.length} skill, BỎ ${bỏ.length} — ${bỏ.join(', ')}`);
-  console.log(`${tag}   Cần lại về sau: chạy \`ba-export update\` không kèm --mini để cài đủ bộ.\n`);
+const ngoàiHồSơĐãCó = [];
+if (installProfileThật !== 'full') {
+  // Bộ dev đi NGUYÊN BỘ hay không đi: dev-run trỏ tới 8 skill dev-* khác — cài lẻ là lối đi cụt (lint 13).
+  const keep = new Set([...(installProfile === 'mini' ? miniCanon : coreCanon), 'ba-toolkit',
+    ...(withDev ? [...devPack, ...skillNames.filter((n) => n.startsWith('dev-'))] : [])]);
+  const bỏ = [];
+  skillNames = skillNames.filter((n) => {
+    if (keep.has(n)) return true;
+    // Đích đã có (cài full trước đây, hay người dùng tự cài thêm) → GIỮ + cập nhật; chỉ --prune mới gỡ
+    if (!prune && fs.existsSync(path.join(destRoot, '.claude', 'skills', n, 'SKILL.md'))) { ngoàiHồSơĐãCó.push(n); return true; }
+    bỏ.push(n); return false;
+  });
+  const thiếu = [...keep].filter(n => !fs.existsSync(path.join(skillsSrc, n)));
+  if (thiếu.length) console.log(`${tag}⚠️  hồ sơ ${installProfile} khai skill không có ở nguồn: ${thiếu.join(', ')}`);
+  // Nói ra cái không cài (conv-gates.md → "Hồ sơ dự án", luật 6): im lặng cắt thì người dùng tưởng bộ skill thiếu chức năng.
+  console.log(`${tag}⚙️ bộ ${installProfile}${withDev ? ' + dev' : ''}: cài ${skillNames.length} skill, KHÔNG cài ${bỏ.length}${ngoàiHồSơĐãCó.length ? ` · giữ ${ngoàiHồSơĐãCó.length} skill ngoài bộ mà dự án đã có (${ngoàiHồSơĐãCó.join(', ')})` : ''}`);
+  if (!withDev && !docsOnly) console.log(`${tag}   Dự án sẽ viết code (lập kế hoạch build, dev, kiểm chứng): chạy lại kèm --dev.`);
+  console.log(`${tag}   Cần các skill mở rộng (khám phá, kiến trúc, API, prototype, nghiệm thu…): chạy lại kèm --profile full.\n`);
 }
 if (docsOnly) {
   // Phạm vi docs: dự án dừng ở tài liệu BA. Bộ dev (`scope.dev.skills` + mọi `dev-*`/`ac-*`) không cài —
@@ -465,6 +486,8 @@ if (expCanon.length) {
 // Agent chỉ phục vụ một skill thử nghiệm (canon `agents.experimental`, dạng `agent:skill`) đi theo skill đó:
 // skill không cài thì agent không cài — agent trỏ vào reference của skill vắng là lối đi cụt.
 const expAgentOwner = Object.fromEntries(regKey('agents.experimental').map((p2) => p2.split(':')).filter(([a, s]) => a && s));
+// M6: mọi agent có skill chủ (canon agents.owner, `a|b` = nhiều chủ) — không chủ nào được cài thì không cài agent. Khoá vắng (nguồn cũ) → như cũ.
+const agentOwner = Object.fromEntries(regKey('agents.owner').map((p2) => p2.split(':')).filter(([a, s]) => a && s).map(([a, s]) => [a, s.split('|')]));
 const skillSẽCài = new Set(skillNames);
 
 const skillsDest = path.join(destRoot, '.claude', 'skills');
@@ -494,6 +517,7 @@ if (fs.existsSync(agentsSrc)) {
     // chạy ở dự án đích không thấy file agent của mình vì filter cũ chỉ lấy ba-*.
     .filter(f => /^(ba|ac)-.*\.md$/.test(f) && !(docsOnly && f.startsWith('ac-')))
     .filter(f => { const chủ = expAgentOwner[f.replace(/\.md$/, '')]; return !chủ || skillSẽCài.has(chủ); })
+    .filter(f => { const chủ = agentOwner[f.replace(/\.md$/, '')]; return !chủ || chủ.some((c) => skillSẽCài.has(c)); })
     .sort();
   if (agentFiles.length) {
     for (const f of agentFiles) {
@@ -921,6 +945,8 @@ if (!dryRun) {
     installedAt: new Date().toISOString(),
     source: { path: srcRoot, version: srcVersion, git: srcGit, ...(nguồnDirty.length ? { dirtyFiles: nguồnDirty.slice(0, 200), dirtyCount: nguồnDirty.length, allowDirty } : {}) },
     scope,
+    installProfile: installProfileThật,
+    dev: installProfileThật === 'full' ? !docsOnly : withDev,
     security: quétNguồn.thiếu || quétNguồn.lỗi ? { quet: tómTắtQuét } : { do: quétNguồn.chuaDuyet.do, vang: quétNguồn.chuaDuyet.vang, daDuyet: quétNguồn.daDuyet, ...(quétĐỏ ? { allowUnsafe: true } : {}) },
     ...(expCanon.length ? { experimental: [...expGiữ, ...expCài].sort() } : {}),
     counts: { skills: skillNames.length, agents: agentCount, guides: guideCount, explain: explainCount },
@@ -1044,6 +1070,8 @@ if (!dryRun) {
 //     đích; (b) bản cũ TRÙNG hash manifest cũ (toolkit ghi, không ai sửa). Không có hash / đã sửa cục bộ → GIỮ + cảnh báo.
 //     Thêm một dòng ở đây mỗi khi `git mv` một file từ skill này sang skill khác.
 const DỜI_FILE = [   // đường dẫn CŨ ở đích — chỉ đọc/xoá khi existsSync, không require (lint 44 ranh giới gói)
+  ['ac-agent/scripts/check-agents.js', 'ba-toolkit/scripts/check-agents.js'], // M6 đợt 2: ac-agent thành skill giữ riêng, lint 30 vẫn cần nó
+  ['ac-audit-web/scripts/scan-html.js', 'ba-toolkit/scripts/scan-html.js'], // M6: ba-html-design (lõi) luôn chạy nó — không kéo ac-audit-web vào gói lõi
   ['ac-po/scripts/accept.js', 'ac-verify/scripts/accept.js'],
   ['ac-team/scripts/state.js', 'ba-toolkit/scripts/state.js'],
   ['ac-team/scripts/batch-plan.js', 'ba-toolkit/scripts/batch-plan.js'],

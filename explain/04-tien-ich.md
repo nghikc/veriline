@@ -4,7 +4,7 @@ group: tien-ich
 updated: 2026-07-15
 ---
 
-# Nhóm tiện ích — 24 skill giữ tài liệu sạch, chia sẻ được, và cài đặt
+# Nhóm tiện ích — 21 skill giữ tài liệu sạch, chia sẻ được, và cài đặt
 
 > Những skill này **không sinh tài liệu nghiệp vụ mới**; chúng **rà soát, đồng bộ, xuất bản** tài liệu đã có, hoặc mang cả toolkit sang dự án khác. Dùng xen kẽ bất cứ lúc nào trong pipeline.
 
@@ -106,6 +106,22 @@ Ba cặp dễ nhầm:
 
 **Ví dụ.** `node .claude/skills/ba-portal/scripts/build.js docs docs/Ho-so/portal.html` → mở `portal.html` trên trình duyệt thấy cả bộ tài liệu.
 
+### Chế độ `sitemap` — Trang luồng màn hình cho người dùng cuối (trước là `ba-sitemap`)
+
+**Làm gì.** Gom **wireframe ASCII của mọi màn** về một trang, kèm **sơ đồ điều hướng** (lấy từ `03-overview.md`) và **các hành trình người dùng chính** (rút từ `usecase.md`), rồi sinh `docs/Ho-so/sitemap.html` tự chứa để **người dùng cuối/khách hàng** hiểu nhanh "làm việc gì thì đi qua những màn nào". Phần cơ giới (gom ascii, trích sơ đồ, xếp màn) do script `sitemap.js` lo; phần phán đoán (viết hành trình) do skill viết vào `docs/Ho-so/sitemap-flows.md`. Không tự render — assemble một markdown rồi gọi `build.js --single` của chính `ba-portal`.
+
+**Có gate (orchestrator nhẹ).** Trước khi build, `sitemap.js --check` dò điều kiện và **CHẶN** nếu thiếu thứ cốt lõi: (1) `03-overview.md` không có sơ đồ điều hướng → dừng, chạy `ba-screens` trước; (2) hành trình nhắc mã màn `S..` không tồn tại → sửa `sitemap-flows.md`. Màn thiếu `ascii-screen.md` là gap **mềm** — hỏi bạn chạy `ba-screen-spec` cho màn đó hay build với ô trống (không tự bịa wireframe). Skill điều phối: gate readiness → lấp gap → viết hành trình → gate tham chiếu → build.
+
+**Khi nào dùng.** Các màn đã có `ascii-screen.md` và `03-overview.md` có sơ đồ điều hướng; cần đưa cho người dùng cuối xem toàn cảnh flow (trước build hoặc lúc nghiệm thu).
+
+**KHÔNG dùng khi.** Cần cẩm nang thao tác chi tiết (dùng `ba-accept userguide`); cần cổng đọc **mọi** tài liệu (dùng `ba-portal` không đối số). Chưa có `03-overview.md` → chạy `ba-screens` trước.
+
+**Đầu vào.** `03-overview.md`, `ascii-screen.md` mỗi màn, `usecase.md`, `00-tracking.md`.
+
+**Đầu ra.** `docs/Ho-so/sitemap.html` (bản end user) + nguồn `docs/Ho-so/sitemap.md`, `docs/Ho-so/sitemap-flows.md`.
+
+**Ví dụ.** Sau khi 6 màn có wireframe → `ba-portal sitemap` → mở `docs/Ho-so/sitemap.html` thấy bản đồ điều hướng, 3 hành trình chính, và khung từng màn nối theo flow.
+
 ---
 
 ## ba-doc-public — Đẩy HTML lên Vercel (online)
@@ -168,31 +184,13 @@ Ba cặp dễ nhầm:
 
 ---
 
-## ba-sitemap — Trang luồng màn hình cho người dùng cuối
-
-**Làm gì.** Gom **wireframe ASCII của mọi màn** về một trang, kèm **sơ đồ điều hướng** (lấy từ `03-overview.md`) và **các hành trình người dùng chính** (rút từ `usecase.md`), rồi sinh `docs/Ho-so/sitemap.html` tự chứa để **người dùng cuối/khách hàng** hiểu nhanh "làm việc gì thì đi qua những màn nào". Phần cơ giới (gom ascii, trích sơ đồ, xếp màn) do script `build.js` lo; phần phán đoán (viết hành trình) do skill viết vào `docs/Ho-so/sitemap-flows.md`. Không tự render — assemble một markdown rồi gọi `ba-portal --single`.
-
-**Có gate (orchestrator nhẹ).** Trước khi build, `build.js --check` dò điều kiện và **CHẶN** nếu thiếu thứ cốt lõi: (1) `03-overview.md` không có sơ đồ điều hướng → dừng, chạy `ba-screens` trước; (2) hành trình nhắc mã màn `S..` không tồn tại → sửa `sitemap-flows.md`. Màn thiếu `ascii-screen.md` là gap **mềm** — hỏi bạn chạy `ba-screen-spec` cho màn đó hay build với ô trống (không tự bịa wireframe). Skill điều phối: gate readiness → lấp gap → viết hành trình → gate tham chiếu → build.
-
-**Khi nào dùng.** Các màn đã có `ascii-screen.md` và `03-overview.md` có sơ đồ điều hướng; cần đưa cho người dùng cuối xem toàn cảnh flow (trước build hoặc lúc nghiệm thu).
-
-**KHÔNG dùng khi.** Cần cẩm nang thao tác chi tiết (dùng `ba-userguide`); cần cổng đọc **mọi** tài liệu (dùng `ba-portal`). Chưa có `03-overview.md` → chạy `ba-screens` trước.
-
-**Đầu vào.** `03-overview.md`, `ascii-screen.md` mỗi màn, `usecase.md`, `00-tracking.md`.
-
-**Đầu ra.** `docs/Ho-so/sitemap.html` (bản end user) + nguồn `docs/Ho-so/sitemap.md`, `docs/Ho-so/sitemap-flows.md`.
-
-**Ví dụ.** Sau khi 6 màn có wireframe → `ba-sitemap` → mở `docs/Ho-so/sitemap.html` thấy bản đồ điều hướng, 3 hành trình chính, và khung từng màn nối theo flow.
-
----
-
 ## ba-prototype — Prototype bấm-được (Vite + React) từ html-design + flow
 
 **Làm gì.** Scaffold một **project Vite + React + React Router** ở `prototype/` làm **prototype tương tác**: ghép `html-design.html` của mọi màn (giữ nguyên high-fi bằng `<iframe>`) và **nối các chức năng theo flow** — bấm nút trên màn sẽ điều hướng sang màn đích. Điều hướng nhờ iframe same-origin (parent bắt được click) đối chiếu `src/wiring.json` (nút → màn), mà `wiring.json` được rút tự động từ các cạnh Mermaid `Sxx -->|nhãn| Syy` trong `sitemap-flows.md`. Script scaffold lo phần cơ giới; LLM tinh chỉnh `wiring.json` cho khớp chữ trên nút thật. Khung project luôn có 3 phần chuẩn: **thanh menu list màn hình** bên trái (liệt kê mọi màn, **ẩn/hiện được** qua nút `‹`/`›`), **popup trạng thái** góc phải (gom bộ nút Default/Loading/Empty/Error… — **kéo-thả** + **thu gọn/mở**, thay cho thanh trên đầu), và **khung iframe** giữ html-design high-fi.
 
-**Khi nào dùng.** Đã có `html-design.html` các màn (`ba-html-design`) + `sitemap-flows.md` (`ba-sitemap`); cần **demo bấm-được** cho khách hàng, hoặc **hạt giống frontend** để dev phát triển tiếp.
+**Khi nào dùng.** Đã có `html-design.html` các màn (`ba-html-design`) + `sitemap-flows.md` (`ba-portal sitemap`); cần **demo bấm-được** cho khách hàng, hoặc **hạt giống frontend** để dev phát triển tiếp.
 
-**KHÔNG dùng khi.** Chỉ cần trang tài liệu flow để đọc (`ba-sitemap`). Chưa có html-design (chạy `ba-html-design`). Cần code sản phẩm thật đầy đủ (`dev-run` theo `plan.md`).
+**KHÔNG dùng khi.** Chỉ cần trang tài liệu flow để đọc (`ba-portal sitemap`). Chưa có html-design (chạy `ba-html-design`). Cần code sản phẩm thật đầy đủ (`dev-run` theo `plan.md`).
 
 **Đầu vào.** `html-design.html` mỗi màn, `docs/Ho-so/sitemap-flows.md` (cạnh wiring), `03-overview.md` (tên màn). *Không* đọc trực tiếp file system design (`07-design-system.md`/`10-architecture.md`): độ trung thực UI đến từ `html-design.html` — vốn đã được `ba-html-design` dựng theo `07-design-system.md`. Đổi giao diện chuẩn → sửa design-system rồi chạy lại `ba-html-design`, không sửa trong prototype.
 
@@ -234,17 +232,23 @@ Ba cặp dễ nhầm:
 
 ---
 
+### Chế độ `export` — Lấy một sơ đồ ra khỏi tài liệu để đem đi dùng (trước là `ba-figure`)
+
+**Làm gì.** Biến một sơ đồ trong tài liệu thành hai thứ mang đi được: một **file ảnh vector** (`.svg`) thả thẳng vào slide, README hay Confluence, và một **trang web tự chứa** để gửi cho người khác mở — bấm vào một khối trên sơ đồ thì chỉ còn khối đó và những gì nối trực tiếp với nó, phần còn lại mờ đi. Có ô lọc theo tên, nút đổi nền sáng/tối, và nút tải ảnh.
+
+**Khi nào dùng.** Sắp họp và cần hình để trình bày. Viết tài liệu ở nơi khác (Confluence, Notion, slide) và cần chèn sơ đồ vào. Hoặc muốn gửi riêng một sơ đồ cho khách xem mà không phải gửi cả bộ tài liệu.
+
+**Vì sao không dùng cổng đọc.** Cổng đọc (`ba-portal`) dựng cả bộ tài liệu và mang theo một thư viện vẽ nặng 3,4 MB để vẽ sơ đồ mỗi lần ai đó mở trang. Cho một tấm hình, đó là mang cả nhà máy đi giao một cái bánh: bản của `ba-diagram export` nhẹ hơn khoảng **290 lần**, và nếu sơ đồ có lỗi thì lỗi hiện ra **lúc bạn dựng hình**, chứ không phải lúc khách mở ra xem.
+
+**Điều cần biết trước.** Phần bấm-để-soi chỉ chạy với sơ đồ dạng lưu đồ và sơ đồ theo làn vai trò. Sơ đồ quan hệ dữ liệu, sơ đồ tuần tự và sơ đồ trạng thái vẫn ra ảnh đẹp nhưng không bấm được — công cụ nói rõ điều đó và ẩn luôn các nút tương tác, thay vì đưa bạn một trang bấm không ăn.
+
+**Khác skill gần kề.** `ba-portal` = cổng đọc cả bộ tài liệu. `ba-portal sitemap` = một trang gộp luồng đi giữa các màn cho người dùng cuối. `ba-diagram export` = **một** hình, để đem ra khỏi tài liệu.
+
 ## ba-reverse-doc — Dựng tài liệu BA từ tài liệu rời rạc
 
 **Làm gì.** Khách đưa một đống tài liệu lộn xộn (đặc tả cũ, PDF, ảnh chụp email/chat, biên bản, Excel) → skill kiểm kê nguồn vào `docs/Ho-so/00-intake.md` (mỗi khẳng định kèm **trích dẫn** file/trang, phân loại "trích trực tiếp" vs "suy diễn", nêu **mâu thuẫn giữa nguồn**) rồi seed `docs/01-requirements.md` — phần trích trực tiếp ghi rõ nguồn, phần suy diễn/lấp chỗ trống nằm dưới banner 🔶 chờ xác nhận. Đọc được PDF và ảnh trực tiếp; Word/PowerPoint thì nhờ xuất PDF hoặc dán nội dung.
 
 **Khi nào dùng.** Đã có tài liệu yêu cầu nhưng chưa có bộ `docs/` chuẩn. Là **chiều ngược từ TÀI LIỆU** — song sinh với `ba-reverse` (chiều ngược từ **CODE**).
-
-## ba-meet — Biên bản họp (Minutes of Meeting)
-
-**Làm gì.** Ghi chú họp thô / transcript → một biên bản chỉn chu `docs/Ho-so/meetings/<ngày>-<chủ-đề>.md`: ai họp, bàn gì, tách rõ **QUYẾT ĐỊNH** (`DEC`) khỏi **VIỆC CẦN LÀM** (`ACT` — mỗi việc một người phụ trách + một hạn), câu hỏi còn mở. Việc/quyết định nào là **thay đổi** tài liệu/chức năng đã chốt → skill mở luôn một **CR** trong sổ `00-cr.md`, nối cuộc họp vào pipeline thay vì để trôi.
-
-**Khi nào dùng.** Sau mỗi cuộc họp có quyết định/giao việc. Mang các `ACT` còn mở từ biên bản trước sang để theo dõi liên tục.
 
 ## ba-task — Sổ Work Item (theo dõi công việc phát triển)
 
@@ -318,18 +322,6 @@ Con số đo trên bộ tài liệu mẫu: mở cả hồ sơ một màn tốn k
 
 **Khác skill gần kề.** `ba-trace` dựng **toàn bộ** đồ thị truy vết để đo độ phủ — nó trả lời "còn chỗ nào hở". `ba-index` trả lời "cái này nói gì" cho **một** mã cụ thể. Một cái vẽ bản đồ, một cái chỉ đường tới một địa chỉ.
 
-## ba-figure — Lấy một sơ đồ ra khỏi tài liệu để đem đi dùng
-
-**Làm gì.** Biến một sơ đồ trong tài liệu thành hai thứ mang đi được: một **file ảnh vector** (`.svg`) thả thẳng vào slide, README hay Confluence, và một **trang web tự chứa** để gửi cho người khác mở — bấm vào một khối trên sơ đồ thì chỉ còn khối đó và những gì nối trực tiếp với nó, phần còn lại mờ đi. Có ô lọc theo tên, nút đổi nền sáng/tối, và nút tải ảnh.
-
-**Khi nào dùng.** Sắp họp và cần hình để trình bày. Viết tài liệu ở nơi khác (Confluence, Notion, slide) và cần chèn sơ đồ vào. Hoặc muốn gửi riêng một sơ đồ cho khách xem mà không phải gửi cả bộ tài liệu.
-
-**Vì sao không dùng cổng đọc.** Cổng đọc (`ba-portal`) dựng cả bộ tài liệu và mang theo một thư viện vẽ nặng 3,4 MB để vẽ sơ đồ mỗi lần ai đó mở trang. Cho một tấm hình, đó là mang cả nhà máy đi giao một cái bánh: bản của `ba-figure` nhẹ hơn khoảng **290 lần**, và nếu sơ đồ có lỗi thì lỗi hiện ra **lúc bạn dựng hình**, chứ không phải lúc khách mở ra xem.
-
-**Điều cần biết trước.** Phần bấm-để-soi chỉ chạy với sơ đồ dạng lưu đồ và sơ đồ theo làn vai trò. Sơ đồ quan hệ dữ liệu, sơ đồ tuần tự và sơ đồ trạng thái vẫn ra ảnh đẹp nhưng không bấm được — công cụ nói rõ điều đó và ẩn luôn các nút tương tác, thay vì đưa bạn một trang bấm không ăn.
-
-**Khác skill gần kề.** `ba-portal` = cổng đọc cả bộ tài liệu. `ba-sitemap` = một trang gộp luồng đi giữa các màn cho người dùng cuối. `ba-figure` = **một** hình, để đem ra khỏi tài liệu.
-
 ## ba-onepager — Gộp cả hồ sơ thành một tài liệu gửi đi được
 
 **Làm gì.** Đọc toàn bộ hồ sơ trong `docs/` — vì sao làm dự án, quy trình hiện nay, người dùng là ai, chức năng gì, màn nào, dữ liệu ra sao, kiến trúc thế nào, lộ trình đến đâu, còn gì chưa chốt — rồi **viết lại thành một bài văn liền mạch**, không phải xếp các file cạnh nhau. Kết quả là **một trang HTML tự chứa**, double-click là mở, gửi qua email được.
@@ -341,7 +333,7 @@ Hai điều làm nó khác một bản in hồ sơ:
 
 **Khi nào dùng.** Cần một file duy nhất gửi cho lãnh đạo, khách hàng, hoặc đối tác thẩm định — người sẽ đọc để **quyết**, không phải để tra.
 
-**KHÔNG dùng khi.** Người đọc cần tra cứu theo màn/theo tài liệu (dùng `ba-portal`); cần biết dự án đang chạy tới đâu (dùng `ba-dashboard`); chỉ cần gói của một phase (dùng `ba-release`).
+**KHÔNG dùng khi.** Người đọc cần tra cứu theo màn/theo tài liệu (dùng `ba-portal`); cần biết dự án đang chạy tới đâu (dùng `ba-dashboard`); chỉ cần gói của một phase (dùng `ba-accept release`).
 
 **Điểm dừng quan trọng.** Skill **dừng lại trình mục lục và chờ duyệt** trước khi viết một chữ nào. Mục lục là chỗ duy nhất quyết định bài dài bao nhiêu và bỏ mục nào — duyệt sau khi đã viết mười lăm nghìn chữ thì không ai bảo bỏ mục nữa. Mục lục lấy khung mười lăm mục làm mặc định nhưng **co giãn theo hồ sơ có thật**: mục không có nguồn thì bỏ và nói rõ lý do, dự án có tài liệu mà khung không phủ thì đề xuất thêm mục.
 
@@ -349,7 +341,7 @@ Hai điều làm nó khác một bản in hồ sơ:
 
 **Đầu ra.** `docs/Ho-so/00-onepager.md` + `docs/Ho-so/00-onepager.html`. Đây là bản **sinh ra**, không phải nguồn sự thật — sửa nội dung thì sửa ở `docs/` rồi chạy lại, đừng vá tay vào bản đã sinh.
 
-**Khác skill gần kề.** `ba-portal` render cả bộ tài liệu nhưng **giữ ranh giới file** (sidebar, đọc như hồ sơ); `ba-onepager` **xoá ranh giới file** (một mạch, đọc như bản trình bày). `ba-dashboard` nói **tình trạng** dự án; `ba-onepager` nói **nội dung**, không mang số tiến độ nào. `ba-release` gộp **một phase**; `ba-onepager` gộp **cả dự án**.
+**Khác skill gần kề.** `ba-portal` render cả bộ tài liệu nhưng **giữ ranh giới file** (sidebar, đọc như hồ sơ); `ba-onepager` **xoá ranh giới file** (một mạch, đọc như bản trình bày). `ba-dashboard` nói **tình trạng** dự án; `ba-onepager` nói **nội dung**, không mang số tiến độ nào. `ba-accept release` gộp **một phase**; `ba-onepager` gộp **cả dự án**.
 
 ## ba-start — Cửa vào cho người mới: xem demo rồi vào đúng cửa
 
