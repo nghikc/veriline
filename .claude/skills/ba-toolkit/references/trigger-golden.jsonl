@@ -1,0 +1,104 @@
+{"cum":"proto","cau":"Làm giúp mình một file HTML bấm thử được gồm mấy màn chính để gửi khách qua Zalo xem trước, chưa cần đặc tả gì cả","dung":"ba-proto-html","khong":["ba-prototype","ba-proto-first","ba-wireframe-lofi"]}
+{"cum":"proto","cau":"Khách chưa hình dung được app, dựng bản demo gọn trong một file mở bằng trình duyệt theo luồng màn đã phác để họ click thử","dung":"ba-proto-html","khong":["ba-prototype","ba-proto-first","ba-wireframe-lofi"]}
+{"cum":"proto","cau":"Tu file luong man vua chot, gop cac man thanh ban demo click duoc gui email cho sep","dung":"ba-proto-html","khong":["ba-prototype","ba-proto-first","ba-sitemap"]}
+{"cum":"proto","cau":"Các màn đều có html-design rồi, giờ ghép lại thành app React chạy bằng Vite để demo luồng high-fi","dung":"ba-prototype","khong":["ba-proto-html","ba-proto-first","ba-html-design"]}
+{"cum":"proto","cau":"Mình muốn bản prototype chạy npm run dev được, nối các màn thiết kế đã xong theo sitemap","dung":"ba-prototype","khong":["ba-proto-html","ba-sitemap","ba-proto-first"]}
+{"cum":"proto","cau":"Thiết kế từng màn đẹp rồi nhưng rời rạc, nối chúng thành một prototype hoàn chỉnh bấm qua lại giữa các màn","dung":"ba-prototype","khong":["ba-proto-html","ba-proto-first","ba-html-design"]}
+{"cum":"proto","cau":"Nghiệp vụ còn mơ hồ lắm, mình muốn làm prototype cho khách bấm chốt trước rồi mới viết tài liệu, chạy cả quy trình đó giúp mình","dung":"ba-proto-first","khong":["ba-proto-html","ba-prototype","ba-init"]}
+{"cum":"proto","cau":"Thay vì viết requirements trước, làm demo cho khách chốt nghiệp vụ rồi hẵng đặc tả — chạy trọn chuỗi này","dung":"ba-proto-first","khong":["ba-proto-html","ba-init","ba-prototype"]}
+{"cum":"proto","cau":"Dự án mới, khách không đọc tài liệu, chỉ tin cái gì nhìn thấy; bắt đầu từ luồng màn, demo, chốt quyết định rồi mới spec","dung":"ba-proto-first","khong":["ba-proto-html","ba-flow","ba-init"]}
+{"cum":"proto","cau":"Trước khi lên màu, cho mình bản khung đen trắng để chốt bố cục màn đăng ký","dung":"ba-wireframe-lofi","khong":["ba-html-design","ba-proto-html","ba-figma-draw"]}
+{"cum":"proto","cau":"Làm wireframe thô không màu mè cho màn S03, đánh số từng khối để đối chiếu srs","dung":"ba-wireframe-lofi","khong":["ba-html-design","ba-proto-html","ba-sitemap"]}
+{"cum":"proto","cau":"Sếp muốn duyệt bố cục trước, đừng làm giao diện hoàn chỉnh vội, chỉ cần các khối xám sắp đúng chỗ là được","dung":"ba-wireframe-lofi","khong":["ba-html-design","ba-proto-html","ba-figma-draw"]}
+{"cum":"trace","cau":"Xuất ma trận truy vết từ BR tới test case cho cả dự án","dung":"ba-trace","khong":["ba-track","ba-review"]}
+{"cum":"trace","cau":"Có yêu cầu nào bị mồ côi không, kiểm xem mỗi FR đã đi tới được test case chưa","dung":"ba-trace","khong":["ba-review","ba-track"]}
+{"cum":"trace","cau":"Auditor đòi bảng RTM đầy đủ, làm giúp mình","dung":"ba-trace","khong":["ba-track","ba-review"]}
+{"cum":"trace","cau":"File 00-tracking lệch với thực tế rồi, dựng lại theo các file đang có","dung":"ba-track","khong":["ba-trace","ba-review"]}
+{"cum":"trace","cau":"Vừa sửa màn S05 xong, rà giúp những tài liệu liên quan của màn đó cần cập nhật theo","dung":"ba-track","khong":["ba-trace","ba-review","ba-change-request"]}
+{"cum":"trace","cau":"bang theo doi tien do tung man sai het cot roi, lam lai giup","dung":"ba-track","khong":["ba-dashboard","ba-trace","ba-review"]}
+{"cum":"trace","cau":"Soát xem còn thiếu gì trước khi sang bước tiếp: chức năng nào chưa có màn, màn nào chưa có test","dung":"ba-review","khong":["ba-trace","ba-track","ba-next"]}
+{"cum":"trace","cau":"Chạy gate dò gap cho bộ tài liệu hiện tại","dung":"ba-review","khong":["ba-trace","ba-feasible"]}
+{"cum":"trace","cau":"Rà tổng độ phủ tài liệu BA rồi ghi các lỗ hổng ra file gaps","dung":"ba-review","khong":["ba-trace","ba-track"]}
+{"cum":"change","cau":"Khách vừa đổi ý, màn đăng nhập đã chốt giờ muốn thêm đăng nhập bằng OTP, xử lý đúng quy trình thay đổi giúp mình","dung":"ba-change-request","khong":["ba-task","ba-add-feature","ba-add-screen"]}
+{"cum":"change","cau":"Mở CR cho việc đổi quy tắc tính phí trong srs đã duyệt","dung":"ba-change-request","khong":["ba-task","ba-changelog"]}
+{"cum":"change","cau":"Liệt kê các yêu cầu thay đổi còn đang mở","dung":"ba-change-request","khong":["ba-task","ba-dashboard"]}
+{"cum":"change","cau":"Ghi lại bug: nút lưu ở màn S04 bấm hai lần tạo hai bản ghi","dung":"ba-task","khong":["ba-change-request","dev-systematic-debugging"]}
+{"cum":"change","cau":"Tạo work item cho việc nâng cấp thư viện ORM, không đổi nghiệp vụ gì","dung":"ba-task","khong":["ba-change-request","ba-add-feature"]}
+{"cum":"change","cau":"Mình cần một spike tìm hiểu thư viện xuất PDF, ghi vào backlog","dung":"ba-task","khong":["ba-change-request","ba-add-feature"]}
+{"cum":"change","cau":"Hệ thống cần thêm chức năng tích điểm khách hàng thân thiết, chắc đụng tới mấy màn, làm trọn từ yêu cầu tới đặc tả","dung":"ba-add-feature","khong":["ba-add-screen","ba-change-request","ba-task"]}
+{"cum":"change","cau":"Bổ sung tính năng báo cáo doanh thu mới vào dự án đang có tài liệu","dung":"ba-add-feature","khong":["ba-add-screen","ba-change-request","ba-task"]}
+{"cum":"change","cau":"Thêm một màn Quên mật khẩu vào app, đặc tả, thiết kế, test luôn","dung":"ba-add-screen","khong":["ba-add-feature","ba-screen-spec","ba-change-request"]}
+{"cum":"change","cau":"Cần thêm màn hình cài đặt thông báo, cập nhật overview và tracking giúp","dung":"ba-add-screen","khong":["ba-add-feature","ba-track","ba-screens"]}
+{"cum":"api","cau":"Viết đặc tả các endpoint backend của hệ thống mình: request, response, mã lỗi","dung":"ba-api-spec","khong":["ba-api-test","ba-api-integration","ba-integration"]}
+{"cum":"api","cau":"Dev backend cần danh sách API của app kèm payload để code","dung":"ba-api-spec","khong":["ba-api-test","ba-api-integration"]}
+{"cum":"api","cau":"Lên các ca kiểm thử cho API đơn hàng: happy path, sai quyền, thiếu field","dung":"ba-api-test","khong":["ba-api-spec","ba-test"]}
+{"cum":"api","cau":"Sinh file api.http để bắn thử các endpoint","dung":"ba-api-test","khong":["ba-api-spec","ba-test-e2e"]}
+{"cum":"api","cau":"Làm checklist test API theo từng endpoint","dung":"ba-api-test","khong":["ba-checklist","ba-api-spec"]}
+{"cum":"api","cau":"App cần gọi cổng thanh toán VNPay, phân tích mapping field và mức sẵn sàng tích hợp","dung":"ba-api-integration","khong":["ba-integration","ba-api-spec"]}
+{"cum":"api","cau":"Mình phải kết nối với API hoá đơn điện tử của bên thứ ba, nên tự làm hay mua dịch vụ?","dung":"ba-api-integration","khong":["ba-integration","ba-architecture"]}
+{"cum":"api","cau":"Hệ thống phải nói chuyện với ERP, CRM và kho — chốt kiến trúc tích hợp tổng thể, sync hay async, ai sở hữu dữ liệu","dung":"ba-integration","khong":["ba-api-integration","ba-architecture"]}
+{"cum":"api","cau":"Vẽ landscape các hệ thống liên quan và hợp đồng tích hợp giữa chúng","dung":"ba-integration","khong":["ba-api-integration","ba-diagram"]}
+{"cum":"hinh","cau":"Vẽ sơ đồ quy trình duyệt đơn nghỉ phép có nhân viên, trưởng phòng và HR","dung":"ba-diagram","khong":["ba-figure","ba-process"]}
+{"cum":"hinh","cau":"Cho mình sơ đồ trạng thái của đơn hàng từ lúc tạo đến lúc huỷ","dung":"ba-diagram","khong":["ba-figure"]}
+{"cum":"hinh","cau":"ve sequence dang nhap SSO giup minh","dung":"ba-diagram","khong":["ba-figure"]}
+{"cum":"hinh","cau":"Xuất sơ đồ luồng thanh toán thành file SVG để chèn vào slide","dung":"ba-figure","khong":["ba-diagram"]}
+{"cum":"hinh","cau":"Mình muốn trang HTML tương tác của sơ đồ này, bấm node thì sáng luồng, có nút tải PNG","dung":"ba-figure","khong":["ba-diagram","ba-portal"]}
+{"cum":"hinh","cau":"Biến sơ đồ mermaid trong file requirements thành hình đẹp đem gửi khách","dung":"ba-figure","khong":["ba-diagram","ba-onepager"]}
+{"cum":"ac","cau":"Chấm điểm xem code màn S07 làm được bao nhiêu phần trăm so với đặc tả","dung":"ac-eval","khong":["ac-verify","ac-judge","ba-conformance"]}
+{"cum":"ac","cau":"Cho mình con số % hoàn thành theo từng TC của cả dự án để so với tuần trước","dung":"ac-eval","khong":["ac-verify","ba-dashboard"]}
+{"cum":"ac","cau":"Màn S02 dev xong hết task rồi, kiểm chứng độc lập xem có thật sự PASS không trước khi đánh dấu xong","dung":"ac-verify","khong":["ac-eval","ac-judge","dev-verification-before-completion"]}
+{"cum":"ac","cau":"Chạy từng Proof trong plan của màn thanh toán bằng một agent khác người code","dung":"ac-verify","khong":["ac-eval","ac-judge"]}
+{"cum":"ac","cau":"Review diff nhánh này như một senior khó tính, chỉ ra lỗi có file:line","dung":"ac-judge","khong":["ac-verify","dev-requesting-code-review"]}
+{"cum":"ac","cau":"Soi PR 42 xem có rủi ro gì không, cho verdict approve hay request changes","dung":"ac-judge","khong":["ac-verify","ac-ci"]}
+{"cum":"reverse","cau":"Có sẵn source code Laravel cũ, sinh lại tài liệu BA từ code","dung":"ba-reverse","khong":["ba-reverse-doc","ba-auto"]}
+{"cum":"reverse","cau":"Đọc repo này rồi suy ra data model, API và danh sách màn","dung":"ba-reverse","khong":["ba-reverse-doc","ba-auto","ba-data-model"]}
+{"cum":"reverse","cau":"Khách gửi một mớ file Word, PDF, ảnh chụp màn hình, dựng lại requirements có cấu trúc từ đó","dung":"ba-reverse-doc","khong":["ba-reverse","ba-requirements"]}
+{"cum":"reverse","cau":"Từ biên bản họp và email khách hàng, viết lại 01-requirements kèm trích nguồn","dung":"ba-reverse-doc","khong":["ba-reverse","ba-meet","ba-requirements"]}
+{"cum":"reverse","cau":"Có codebase rồi, chạy tự động hết từ đọc code ra tài liệu tới plan và code MVP, chỉ hỏi mình phạm vi thôi","dung":"ba-auto","khong":["ba-reverse","ba-init"]}
+{"cum":"reverse","cau":"Một phát từ repo cũ ra bản MVP mới, máy tự chốt các cổng","dung":"ba-auto","khong":["ba-reverse","ba-migration"]}
+{"cum":"xuat","cau":"Viết một bản đọc liền mạch về cả dự án gửi giám đốc, dạng văn xuôi, không bảng mã","dung":"ba-onepager","khong":["ba-portal","ba-release","ba-dashboard"]}
+{"cum":"xuat","cau":"Sếp chỉ có 10 phút, cần một file HTML kể lại dự án từ đầu đến cuối","dung":"ba-onepager","khong":["ba-portal","ba-dashboard"]}
+{"cum":"xuat","cau":"Đóng gói toàn bộ docs thành một trang tra cứu có menu bên trái mở offline được","dung":"ba-portal","khong":["ba-onepager","ba-sitemap"]}
+{"cum":"xuat","cau":"Xuất bản gọn cho khách xem tài liệu dự án, có sidebar để tìm từng màn","dung":"ba-portal","khong":["ba-onepager","ba-doc-public"]}
+{"cum":"xuat","cau":"Làm trang cho người dùng cuối xem luồng đi giữa các màn và wireframe từng màn","dung":"ba-sitemap","khong":["ba-portal","ba-wireframe-lofi","ba-proto-html"]}
+{"cum":"xuat","cau":"Cho mình sơ đồ điều hướng các màn kèm hành trình người dùng, một file html tĩnh","dung":"ba-sitemap","khong":["ba-portal","ba-diagram","ba-figure"]}
+{"cum":"xuat","cau":"Đóng gói phát hành phase 1: mục tiêu, chức năng, Gantt, rủi ro, tiêu chí nghiệm thu","dung":"ba-release","khong":["ba-roadmap","ba-accept","ba-uat"]}
+{"cum":"xuat","cau":"Chuẩn bị gói release cấp phase cho đợt go-live tới","dung":"ba-release","khong":["ba-accept","ba-roadmap"]}
+{"cum":"test","cau":"Viết test case chi tiết cho màn đăng nhập dựa trên srs và usecase","dung":"ba-test","khong":["ba-checklist","ba-uat","ba-test-e2e"]}
+{"cum":"test","cau":"Màn S06 cần bộ TC đầy đủ bước và kết quả mong đợi","dung":"ba-test","khong":["ba-checklist","ba-test-e2e"]}
+{"cum":"test","cau":"Trước khi viết test case, lên danh mục các điểm cần kiểm cho màn giỏ hàng thôi","dung":"ba-checklist","khong":["ba-test","ba-uat"]}
+{"cum":"test","cau":"Làm checklist kiểm thử high-level cho màn S03","dung":"ba-checklist","khong":["ba-test","ba-api-test"]}
+{"cum":"test","cau":"Lập kế hoạch UAT cho cả dự án, kịch bản end-to-end để khách ký","dung":"ba-uat","khong":["ba-test","ba-test-e2e","ba-accept"]}
+{"cum":"test","cau":"Khách muốn nghiệm thu, cần ma trận từ yêu cầu tới kịch bản UAT","dung":"ba-uat","khong":["ba-trace","ba-accept","ba-test"]}
+{"cum":"test","cau":"Màn S01 có test.md rồi, sinh script Playwright chạy được","dung":"ba-test-e2e","khong":["ba-test","dev-test-driven-development"]}
+{"cum":"test","cau":"Chuyển các test case của màn thanh toán thành test tự động e2e","dung":"ba-test-e2e","khong":["ba-test","ba-uat"]}
+{"cum":"next","cau":"Giờ mình nên làm gì tiếp theo với dự án này?","dung":"ba-next","khong":["ba-toolkit","ba-dashboard"]}
+{"cum":"next","cau":"Không biết đang ở bước nào, quét docs giúp rồi đề xuất bước kế","dung":"ba-next","khong":["ba-toolkit","ba-track"]}
+{"cum":"next","cau":"xong screen spec roi, tiep theo chay gi?","dung":"ba-next","khong":["ba-toolkit","ba-test"]}
+{"cum":"next","cau":"Bộ BA toolkit gồm những skill nào, thứ tự pipeline ra sao?","dung":"ba-toolkit","khong":["ba-next","ba-launcher"]}
+{"cum":"next","cau":"Giải thích tổng quan quy trình từ ý tưởng tới code của bộ công cụ này","dung":"ba-toolkit","khong":["ba-next","ba-onepager"]}
+{"cum":"discovery","cau":"Người dùng của app là ai? Dựng vài chân dung người dùng và hành trình cảm xúc của họ","dung":"ba-persona","khong":["ba-urd","ba-vision","ba-stakeholder"]}
+{"cum":"discovery","cau":"Làm persona cho nhân viên kho và quản lý cửa hàng","dung":"ba-persona","khong":["ba-urd","ba-stakeholder"]}
+{"cum":"discovery","cau":"Chốt người dùng thực sự cần gì, chưa bàn giải pháp, kèm tiêu chí thành công","dung":"ba-urd","khong":["ba-persona","ba-vision","ba-requirements"]}
+{"cum":"discovery","cau":"Viết tài liệu nhu cầu người dùng trước khi sang yêu cầu hệ thống","dung":"ba-urd","khong":["ba-requirements","ba-persona"]}
+{"cum":"discovery","cau":"Vì sao công ty nên làm dự án này? Viết business case, mục tiêu kinh doanh và cách đo thành công","dung":"ba-vision","khong":["ba-urd","ba-onepager"]}
+{"cum":"discovery","cau":"Làm rõ tầm nhìn và phạm vi dự án trước khi viết yêu cầu","dung":"ba-vision","khong":["ba-urd","ba-brainstorm","ba-discover"]}
+{"cum":"data","cau":"Thiết kế ERD và từ điển dữ liệu cho hệ thống quản lý kho","dung":"ba-data-model","khong":["ba-dbschema","ba-diagram"]}
+{"cum":"data","cau":"Liệt kê các thực thể nghiệp vụ và quan hệ giữa chúng","dung":"ba-data-model","khong":["ba-dbschema"]}
+{"cum":"data","cau":"Chuyển mô hình dữ liệu thành schema DBML để mở trên dbdiagram","dung":"ba-dbschema","khong":["ba-data-model"]}
+{"cum":"data","cau":"Dev cần schema vật lý: kiểu cột, khoá, index cho Postgres từ file 05-data-model","dung":"ba-dbschema","khong":["ba-data-model","ba-architecture"]}
+{"cum":"none","cau":"Thời tiết Hà Nội hôm nay thế nào?","dung":"none","khong":[]}
+{"cum":"none","cau":"Dịch câu này sang tiếng Anh giúp mình: cảm ơn anh đã hỗ trợ nhiệt tình","dung":"none","khong":[]}
+{"cum":"proto","cau":"Mai họp với khách rồi, cần gì đó cho họ bấm thử cho có cảm giác app, gửi link hay file cũng được, mấy màn chính thôi","dung":"ba-proto-html","khong":["ba-prototype","ba-proto-first","ba-doc-public"]}
+{"cum":"proto","cau":"Team frontend muốn có sẵn khung dự án React từ mấy màn thiết kế để khỏi dựng lại từ đầu, demo luồng luôn","dung":"ba-prototype","khong":["ba-proto-html","dev-run"]}
+{"cum":"trace","cau":"Từ yêu cầu BR-03 lần xuống tới test nào, đủ chưa, xuất bảng cho mình","dung":"ba-trace","khong":["ba-index","ba-review"]}
+{"cum":"change","cau":"Anh PM bảo phần thanh toán chốt rồi giờ đổi sang trả góp, làm sao cho đúng quy trình?","dung":"ba-change-request","khong":["ba-add-feature","ba-task"]}
+{"cum":"change","cau":"Refactor lại tầng repository cho gọn, ghi nhận việc này để theo dõi","dung":"ba-task","khong":["ba-change-request","dev-writing-plans"]}
+{"cum":"api","cau":"Bên Zalo OA có API gửi tin, mình cần biết field của họ khớp với dữ liệu của mình thế nào","dung":"ba-api-integration","khong":["ba-integration","ba-api-spec"]}
+{"cum":"hinh","cau":"Cái sơ đồ trong tài liệu nhìn trên web đẹp nhưng mình cần bản ảnh để dán vào Word","dung":"ba-figure","khong":["ba-diagram","ba-portal"]}
+{"cum":"ac","cau":"Code màn đặt lịch xong rồi đấy, có chắc đúng như test.md chưa? Đừng để người viết code tự chấm","dung":"ac-verify","khong":["ac-eval","ac-judge"]}
+{"cum":"xuat","cau":"Khách muốn tự mở xem mọi tài liệu mà không cần cài gì, có mục lục bấm qua lại","dung":"ba-portal","khong":["ba-onepager","ba-doc-public"]}
+{"cum":"test","cau":"QA hỏi màn tìm kiếm cần kiểm những gì, chưa cần chi tiết từng bước","dung":"ba-checklist","khong":["ba-test","ba-uat"]}
+{"cum":"reverse","cau":"Công ty có hệ thống chạy 5 năm không ai viết tài liệu, chỉ còn mã nguồn","dung":"ba-reverse","khong":["ba-reverse-doc","ba-migration","ba-auto"]}
+{"cum":"discovery","cau":"Trước khi bàn tính năng, mình muốn hiểu từng nhóm người dùng một ngày của họ ra sao, chỗ nào họ bực","dung":"ba-persona","khong":["ba-urd","ba-process"]}
+{"cum":"data","cau":"Bảng khách hàng nên có những cột gì, kiểu gì, index ra sao cho MySQL","dung":"ba-dbschema","khong":["ba-data-model"]}

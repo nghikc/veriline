@@ -1,0 +1,66 @@
+# CI của BA toolkit — chạy trên mỗi push/PR vào main.
+# 3 lớp kiểm, đều zero-dependency (không npm install):
+#   1. test.js       — bộ kiểm toolkit: lint + mọi script chạy được + NHÓM ĐỐI KHÁNG.
+#                      Nhóm đối kháng là phần CI cũ thiếu: nạp cho mỗi checker một fixture cố tình
+#                      hỏng và bắt nó phải báo lỗi. Không có nó, một checker bị hỏng thành
+#                      luôn-trả-0 vẫn làm CI xanh, và mọi gate mù mà không ai biết.
+#   2. build portal  — dựng portal từ example/docs (kèm lint Mermaid tĩnh).
+#   3. render check  — mở portal bằng Chrome headless, đếm sơ đồ Mermaid vỡ (phải = 0).
+#      Đợt 5 (24/09/2026): render check CŨNG có đối chứng âm — "0 lỗi" chỉ có nghĩa khi cùng bước
+#      đó, trên fixture có 1 khối hỏng, ra được ≥ 1 lỗi. Và đếm phải KHỚP: số sơ đồ vẽ được + số
+#      lỗi == số <pre class="mermaid"> trong HTML nguồn (bản cũ đếm mọi `<svg`, kể cả icon, nên
+#      mermaid không chạy mà trang có icon vẫn xanh). --virtual-time-budget cho script async chạy xong.
+name: ci
+on:
+  push:
+    branches: [main]
+    # Tag phát hành (M4, docs/decisions/32): "CI xanh trên tag" phải là một lần chạy thật trên commit của tag
+    tags: ['v*']
+  pull_request:
+
+jobs:
+  lint-and-render:
+    # Ghim bản Ubuntu: ubuntu-latest chuyển sang 26 từ 19/10/2026 — đổi máy chạy là quyết định có chủ ý, không tự trôi
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      # Node 22.13+: ba-index dùng node:sqlite (không cờ); Node 20 thiếu nó → 2 ca chỉ mục đỏ (đo 08/10/2026).
+      - uses: actions/setup-node@v7   # v4 chạy trên Node 20 của Actions (đã khai tử); v7 chạy Node 24
+        with:
+          node-version: 22
+
+      - name: Bộ kiểm toolkit (lint + script + đối kháng)
+        # Repo công khai (lõi, không có skill gói Pro) chạy --public: ca phụ thuộc Pro bỏ qua đúng danh sách BỎ_QUA_CÔNG_KHAI.
+        run: node .claude/skills/ba-toolkit/scripts/test.js $([ -d .claude/skills/ac-po ] || echo --public)
+
+      - name: Lint strict (bỏ qua / checker con exit≠0 / quét 0 đối tượng = lỗi)
+        run: node .claude/skills/ba-toolkit/scripts/lint.js --strict
+
+      - name: Build example portal + portal đối chứng âm
+        run: |
+          node .claude/skills/ba-portal/scripts/build.js example/docs /tmp/portal.html
+          node .claude/skills/ba-portal/scripts/build.js .github/fixtures/mermaid-hong /tmp/portal-hong.html
+
+      - name: Render check (Chrome headless — mermaid error = fail, có đối chứng âm)
+        run: |
+          render() {   # $1 = html nguồn → in "tổng ok lỗi"
+            google-chrome --headless=new --disable-gpu --no-sandbox --virtual-time-budget=10000 \
+              --dump-dom "file://$1" > "$1.dom" 2>/dev/null
+            total=$(grep -o '<pre class="mermaid">' "$1" | wc -l)
+            ok=$(grep -o '<pre class="mermaid"><svg' "$1.dom" | wc -l)
+            errs=$(grep -o 'class="mermaid mermaid-error"' "$1.dom" | wc -l)
+            echo "$total $ok $errs"
+          }
+          read t o e < <(render /tmp/portal-hong.html)
+          echo "đối chứng âm: $t khối — vẽ $o · lỗi $e (mong: 2 · 1 · 1)"
+          if [ "$e" -lt 1 ] || [ $((o + e)) -ne "$t" ]; then
+            echo "::error::render check MÙ — fixture có khối hỏng mà không bắt được, hoặc đếm lệch; số 0 lỗi của portal thật không đọc được"
+            exit 1
+          fi
+          read t o e < <(render /tmp/portal.html)
+          echo "example portal: $t khối — vẽ $o · lỗi $e"
+          if [ $((o + e)) -ne "$t" ]; then
+            echo "::error::$((t - o - e)) sơ đồ không vẽ cũng không báo lỗi (Chrome dừng trước khi mermaid chạy xong?)"
+            exit 1
+          fi
+          test "$e" -eq 0 && test "$t" -gt 0

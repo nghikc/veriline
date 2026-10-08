@@ -1,0 +1,34 @@
+.DS_Store
+
+# ba-doc-public: folder staging + lien ket Vercel (khong commit)
+.ba-site/
+
+# ba-userguide: engine Playwright cai tai cho (npm dep tuy chon duy nhat cua toolkit)
+.claude/skills/ba-userguide/engine/node_modules/
+
+# ba-prototype: project Vite/React sinh ra (artifact, sinh lai duoc); bo ignore neu bat dau dev that tu day
+prototype/
+
+# ba-changelog: hang doi ghi vet thay doi do hook sinh (bo dem cuc bo, khong phai tai lieu).
+# So that la docs/00-changelog.md - file do PHAI commit.
+.claude/spec-changes.jsonl
+# Mốc "đã nhắc tới đâu" của hook Stop — trạng thái runtime của MỘT máy, không phải của dự án.
+# Cùng loại với hàng đợi ở trên. Không bỏ qua thì mọi dự án dùng toolkit đều mọc một file lạ
+# trong `git status` sau lượt đầu tiên, và người ta sẽ commit nó rồi đá nhau giữa các máy.
+.claude/ba-hook-gate.json
+**/.claude/ba-hook-gate.json
+# Bộ đếm theo luật của hook (gói E 25/09/2026, `hook-gate.js --stats`) — runtime của một máy, cùng loại mốc trên.
+.claude/ba-hook-stats.json
+**/.claude/ba-hook-stats.json
+**/.claude/ba-hook-stats.json.*.tmp
+# Sổ phiên của hook-session.js (W7) — phiên nào đang mở trên nhánh nào; runtime của một máy.
+.claude/ba-session.json
+**/.claude/ba-session.json
+**/.claude/ba-session.json.*.tmp
+
+# chỉ mục truy xuất — sinh từ docs/, không phải nguồn
+**/.claude/ba-index.db*
+_ref/
+
+# output harness-eval (tech-leads-club) — sinh ra, ~3 MB/lần chạy
+.harness-eval/

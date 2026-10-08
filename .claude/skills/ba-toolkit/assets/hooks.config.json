@@ -1,0 +1,7 @@
+{
+  "_": "Bật/tắt từng phép kiểm hook. Chép file này ra `.claude/ba-hooks.json` của dự án để đổi.",
+  "S3": false,
+  "_S3": "Chạy gate dev THẬT (test/lint/typecheck lấy từ docs/Ho-so/dev-notes.md) ở cuối lượt. Mặc định TẮT: đây là phép kiểm đắt nhất — nó chạy bộ test của dự án. Bật cho dự án lớn, hồ sơ `full`.",
+  "S8": true,
+  "_S8": "Hai tín hiệu ở cuối lượt: (a) ≥150 lượt gọi tool mà <1,5 tool/lượt → nhắc GỘP lệnh độc lập vào một lượt (đo 19/09/2026: 1,00 tool/lượt trên 1.493 lượt; chi phí nằm ở số lần nạp lại ngữ cảnh, không ở MB); (b) >300 lượt kể từ compact cuối → nhắc mở phiên mới. Mỗi tín hiệu kêu một lần mỗi nấc. `{\"S7\": false}` cũ vẫn tắt được."
+}

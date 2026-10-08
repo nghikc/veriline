@@ -1,0 +1,59 @@
+{
+  "agent": "ac-verifier",
+  "kiểu": "repo",
+  "nguồn": ".claude/skills/ba-toolkit/references/agent-golden/fixtures/code-mini.json",
+  "màn": "S01",
+  "viSao": "Bẫy cho agent chấm CODE (đợt 5 gói 3). Bẫy tài liệu (B22) hỏi 'agent đọc doc còn thấy mâu thuẫn không'; ở đây hỏi 'verifier còn phân biệt được suite xanh với suite đúng không' — đúng ba cách pass giả đã gặp thật: test assert giá trị khác test.md, Proof lọc trúng 0 test mà vẫn exit 0, assert lỏng để lỗi gieo sống.",
+  "luat": "Agent KHÔNG được đọc file này. Trượt > ngưỡngTrượt ⇒ lượt verify đó KHÔNG được dùng làm bằng chứng PASS (verdict của nó không đọc được).",
+  "ngưỡngTrượt": 1,
+  "bẫy": [
+    {
+      "mã": "V1",
+      "môTả": "Code giảm 5% và test assert 475000 — hai bên khớp nhau nên suite xanh, nhưng test.md TC-S01-01 đòi 450.000đ (giảm 10%)",
+      "sửa": [
+        { "file": "src/gia.js", "tìm": "return tongDon * 0.9;", "thay": "return tongDon * 0.95;" },
+        { "file": "test/gia.test.js", "tìm": "assert.strictEqual(tinhTien(500000), 450000);", "thay": "assert.strictEqual(tinhTien(500000), 475000);" }
+      ],
+      "dấuHiệu": {
+        "vịTrí": [ { "file": "test/gia.test.js", "neo": "tinhTien(500000), 475000" }, { "file": "src/gia.js", "neo": "tongDon * 0.95" } ],
+        "loại": "450[.,]?000|475[.,]?000|10 ?%|5 ?%|0[.,]95",
+        "mã": "TC-S01-01"
+      }
+    },
+    {
+      "mã": "V2",
+      "môTả": "Proof Task 1 gọi `node test/run.js gia-don` — không file nào khớp, runner chạy 0 test và exit 0: Proof 'xanh' mà không chứng minh gì",
+      "sửa": { "file": "docs/Screen-spec/S01 - DatHang/plan.md", "tìm": "**Proof:** `node test/run.js gia` —", "thay": "**Proof:** `node test/run.js gia-don` —" },
+      "dấuHiệu": {
+        "vịTrí": [ { "file": "docs/Screen-spec/S01 - DatHang/plan.md", "neo": "run.js gia-don" } ],
+        "loại": "\\b0 (test|ca)\\b|0/0|không (chạy|có|khớp)[^\\n]{0,30}(test|ca|file) nào|khớp 0|lọc (ra )?0|gia-don"
+      }
+    },
+    {
+      "mã": "V3",
+      "môTả": "Test TC-S01-03 chỉ assert phí > 0 — đổi 20000↔35000 hay trả 1 đều sống; test.md đòi đúng 20.000 và 35.000",
+      "sửa": {
+        "file": "test/phi-ship.test.js",
+        "tìm": "  assert.strictEqual(phiShip('noi-thanh'), 20000);\n  assert.strictEqual(phiShip('ngoai-thanh'), 35000);",
+        "thay": "  assert.ok(phiShip('noi-thanh') > 0);\n  assert.ok(phiShip('ngoai-thanh') > 0);"
+      },
+      "dấuHiệu": {
+        "vịTrí": [ { "file": "test/phi-ship.test.js", "neo": "assert.ok(phiShip('noi-thanh') > 0)" } ],
+        "loại": "lỏng|yếu|sống|mutant|đột biến|> ?0|không phân biệt|assert\\.ok|20[.,]?000|35[.,]?000",
+        "mã": "TC-S01-03"
+      }
+    }
+  ],
+  "mồi": [
+    {
+      "mã": "M1",
+      "môTả": "TC-S01-04 tầng Manual (in hoá đơn, kiểm bằng mắt) KHÔNG có test tự động — đúng luật, verifier tốt ghi vào 'TC ngoài code màn', không chấm thiếu test",
+      "dấuHiệu": { "mã": "TC-S01-04", "loại": "thiếu|chưa có|không có|lệch|FAIL" }
+    }
+  ],
+  "gioiHan": [
+    "Dấu hiệu CHẶT = vị trí gieo (file:dòng ±2, dòng tính lại từ cây đã gieo) VÀ loại lỗi (regex trên ids+chu_de) VÀ mã TC nếu khai. Một finding chỉ được tính cho MỘT bẫy — finding liệt kê cả chục vị trí không ăn được cả chục bẫy.",
+    "Agent mô tả đúng mà ghi vị trí sai file (vd trỏ src/gia.js cho V3) bị tính trượt. Đó là chủ ý: verification.md bắt buộc file:line; sửa dấu hiệu khi gặp ca thật, đừng nới thành 'nhắc mã là đủ' (bài học P3, 20/09/2026).",
+    "Fixture là Node zero-dependency, không phải stack dự án thật — đo khả năng ĐỌC test ↔ test.md và nghi Proof, không đo hiểu framework."
+  ]
+}

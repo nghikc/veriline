@@ -1,0 +1,128 @@
+[
+ {
+  "file": "skills/ba-launcher/scripts/server.js",
+  "loai": "mang",
+  "ly_do": "Server HTTP local của ba-launcher: listen 127.0.0.1, kiểm Host, POST cần token ngẫu nhiên; các fetch('/api/...') là JS trình duyệt gọi lại chính server đó, không ra ngoài máy.",
+  "nguoi_duyet": "orchestrator — chờ người xác nhận",
+  "het_han": "2027-03-25"
+ },
+ {
+  "file": "skills/ba-index/scripts/server.js",
+  "loai": "mang",
+  "ly_do": "Server tra cứu chỉ mục local: listen 127.0.0.1, kiểm Host, POST cần token; fetch là JS trang gọi /api/* của chính nó.",
+  "nguoi_duyet": "orchestrator — chờ người xác nhận",
+  "het_han": "2027-03-25"
+ },
+ {
+  "file": "skills/ba-toolkit/scripts/devserver.js",
+  "loai": "mang",
+  "ly_do": "Dò dev server CỦA dự án (URL lấy từ cấu hình E2E_BASE_URL/.env của dự án, GET trang HTML) để ac-eval/verify thao tác TC Manual; không gửi dữ liệu dự án đi.",
+  "nguoi_duyet": "orchestrator — chờ người xác nhận",
+  "het_han": "2027-03-25"
+ },
+ {
+  "file": "skills/ba-portal/assets/vendor/mermaid.min.js",
+  "loai": "mang",
+  "ly_do": "Mermaid vendor (minified): `fetch(){…}` là phương thức của bộ phân tích KaTeX (gullet token), không phải gọi mạng. Đổi bản vendor thì soi lại.",
+  "nguoi_duyet": "orchestrator — chờ người xác nhận",
+  "het_han": "2027-03-25"
+ },
+ {
+  "file": "skills/ba-proto-html/scripts/check-proto.js",
+  "loai": "mang",
+  "ly_do": "Checker TÌM gọi mạng trong prototype.html: dòng khớp là regex phát hiện XMLHttpRequest/fetch, không gọi mạng.",
+  "nguoi_duyet": "orchestrator — chờ người xác nhận",
+  "het_han": "2027-03-25"
+ },
+ {
+  "file": "skills/ac-verify/scripts/mutate.js",
+  "loai": "shell",
+  "ly_do": "Chạy lệnh Proof do plan.md của dự án khai (người dùng viết) trong worktree tạm, có timeout — shell bật để lệnh có pipe/&& chạy đúng như người viết.",
+  "nguoi_duyet": "orchestrator — chờ người xác nhận",
+  "het_han": "2027-03-25"
+ },
+ {
+  "file": "skills/ba-toolkit/scripts/hook-gate.js",
+  "loai": "shell",
+  "ly_do": "Luật S3 (tắt mặc định): chạy ≤3 lệnh test/lint trích từ tài liệu dự án, chỉ nhận lệnh bắt đầu bằng npm/pnpm/yarn/node/pytest…, timeout 180 s. Nguồn lệnh là docs của dự án đích — bật S3 là tin docs.",
+  "nguoi_duyet": "orchestrator — chờ người xác nhận",
+  "het_han": "2027-03-25"
+ },
+ {
+  "file": "skills/ba-doc-public/scripts/deploy.js",
+  "loai": "shell-ghep",
+  "ly_do": "which(cmd) ghép `command -v ${cmd}` nhưng chỉ được gọi với hằng 'vercel' (deploy.js:253); không nhận biến từ ngoài.",
+  "nguoi_duyet": "orchestrator — chờ người xác nhận",
+  "het_han": "2027-03-25"
+ },
+ {
+  "file": "skills/ba-toolkit/scripts/hook-guard.js",
+  "loai": "bi-mat",
+  "ly_do": "Chính hook chặn đọc bí mật: nhắc tên file env/khoá SSH trong danh sách mẫu CHẶN và thông báo cho qua bản mẫu .env.example — không đọc file nào.",
+  "nguoi_duyet": "orchestrator — chờ người xác nhận",
+  "het_han": "2027-03-25"
+ },
+ {
+  "file": "skills/ba-toolkit/scripts/test.js",
+  "loai": "bi-mat",
+  "ly_do": "Ca đối kháng của hook-guard/devserver: chuỗi tên file env/khoá SSH/credential AWS là đường dẫn đưa vào hook-guard --check để chứng minh bị chặn, và .env ghi trong thư mục TMP của test.",
+  "nguoi_duyet": "orchestrator — chờ người xác nhận",
+  "het_han": "2027-03-25"
+ },
+ {
+  "file": "skills/ba-toolkit/scripts/test.js",
+  "loai": "mang",
+  "ly_do": "Fixture của test: server http tạm trên localhost (devserver) và chuỗi mã mẫu có fetch('/x') cho scanner khác — chạy trong TMP, không ra ngoài máy.",
+  "nguoi_duyet": "orchestrator — chờ người xác nhận",
+  "het_han": "2027-03-25"
+ },
+ {
+  "file": "skills/ac-ci/scripts/inspect-checks.js",
+  "loai": "vo-hinh",
+  "ly_do": "Regex gỡ BOM (U+FEFF) ở đầu dòng log của gh run view — ký tự BOM nằm trong regex literal, là dữ liệu cần xoá chứ không che chữ.",
+  "nguoi_duyet": "orchestrator — chờ người xác nhận",
+  "het_han": "2027-03-25"
+ },
+ {
+  "file": "skills/ba-sitemap/assets/templates.md",
+  "loai": "vo-hinh",
+  "ly_do": "Zero-width space (U+200B) đặt trước ``` của khối mermaid lồng trong khối code để markdown không đóng khối ngoài — mẹo hiển thị, không che lệnh.",
+  "nguoi_duyet": "orchestrator — chờ người xác nhận",
+  "het_han": "2027-03-25"
+ },
+ {
+  "file": "skills/ba-review/SKILL.md",
+  "loai": "injection-nhe",
+  "ly_do": "Câu giải thích subagent chỉ có lời nhắc hệ thống của nó + CLAUDE.md + prompt được viết — mô tả, không phải lệnh.",
+  "nguoi_duyet": "orchestrator — chờ người xác nhận",
+  "het_han": "2027-03-25"
+ },
+ {
+  "file": "skills/ba-toolkit/scripts/real-cut.js",
+  "loai": "ghi-ngoai",
+  "ly_do": "Đọc (không ghi) bản đồ ẩn danh riêng ~/.ba-toolkit/real-map/<P>.json — để tên thật KHÔNG nằm trong repo; chỉ ghi vào fixtures/real/ của repo nguồn (W2).",
+  "nguoi_duyet": "người dùng — duyệt 07/10/2026",
+  "het_han": "2027-04-07"
+ },
+ {
+  "file": "skills/ba-toolkit/scripts/real-cut.js",
+  "loai": "bi-mat",
+  "ly_do": "Regex CẤM để KHÔNG BAO GIỜ chép .env/khoá/credential vào kho hình thật — chuỗi là bộ lọc, không đọc bí mật.",
+  "nguoi_duyet": "người dùng — duyệt 07/10/2026",
+  "het_han": "2027-04-07"
+ },
+ {
+  "file": "skills/ba-export/scripts/install.js",
+  "loai": "bi-mat",
+  "ly_do": "DENY_CHUẨN (hook-review 07/10/2026): các luật Read(...) cho file env, khoá .pem, thư mục khoá SSH/credential AWS ở home là luật permissions.deny mà install.js GHI vào settings.json đích để Claude Code CHẶN đọc — không đọc file nào.",
+  "nguoi_duyet": "orchestrator — chờ người xác nhận",
+  "het_han": "2027-04-07"
+ },
+ {
+  "file": "skills/ba-toolkit/scripts/test.js",
+  "loai": "ghi-ngoai",
+  "ly_do": "Ca đối kháng hook-guard (3hs/3ht, hook-review 07/10/2026) dùng chuỗi thư mục home và biến môi trường HOME làm ĐẦU VÀO thử cho hook (Grep vào thư mục khoá phải bị chặn, in HOME phải qua) — không đọc/ghi ngoài TMP.",
+  "nguoi_duyet": "orchestrator — chờ người xác nhận",
+  "het_han": "2027-04-07"
+ }
+]

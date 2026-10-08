@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TeamTasks — Đăng ký</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      color: #111827;
+    }
+
+    /* ── Branding ── */
+    .brand {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      background: #4f46e5;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    .brand-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: #111827;
+    }
+    .brand-tagline {
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      padding: 32px 32px 24px;
+      width: 100%;
+      max-width: 440px;
+    }
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      color: #111827;
+      text-align: center;
+    }
+
+    /* ── Form ── */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+    label .req {
+      color: #ef4444;
+      margin-left: 4px;
+    }
+    .helper-text {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+    .input-wrap {
+      position: relative;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 15px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.15s;
+      background: #fff;
+      color: #111827;
+    }
+    input:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
+    }
+    input.error {
+      border-color: #ef4444;
+    }
+    input.error:focus {
+      box-shadow: 0 0 0 3px rgba(239,68,68,0.12);
+    }
+    input:disabled {
+      background: #f9fafb;
+      color: #9ca3af;
+      cursor: not-allowed;
+    }
+    .toggle-pw {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #6b7280;
+      padding: 4px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+    }
+    .toggle-pw:hover { color: #374151; }
+    input[type="password"] { padding-right: 40px; }
+    input[type="text"].pw-field { padding-right: 40px; }
+
+    /* ── Field error ── */
+    .field-error {
+      font-size: 12px;
+      color: #ef4444;
+      margin-top: 4px;
+      display: none;
+    }
+    .field-error.visible { display: block; }
+
+    /* ── Password Strength Meter ── */
+    .strength-wrap {
+      margin-top: 8px;
+      display: none;
+    }
+    .strength-wrap.visible { display: block; }
+    .strength-bar-track {
+      height: 4px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+    .strength-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.25s ease, background 0.25s ease;
+      width: 0%;
+    }
+    .strength-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #6b7280;
+    }
+    .strength-label span {
+      font-weight: 600;
+    }
+    /* Yếu */
+    .strength-weak .strength-bar-fill   { width: 33%; background: #ef4444; }
+    .strength-weak .strength-label span { color: #ef4444; }
+    /* Trung bình */
+    .strength-medium .strength-bar-fill   { width: 66%; background: #f59e0b; }
+    .strength-medium .strength-label span { color: #d97706; }
+    /* Mạnh */
+    .strength-strong .strength-bar-fill   { width: 100%; background: #10b981; }
+    .strength-strong .strength-label span { color: #059669; }
+
+    /* ── Submit button ── */
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .btn-primary:hover:not(:disabled) { background: #4338ca; }
+    .btn-primary:active:not(:disabled) { background: #3730a3; }
+    .btn-primary:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+      opacity: 0.75;
+    }
+    .btn-primary.loading { background: #6366f1; cursor: not-allowed; }
+
+    /* Spinner */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .spinner.visible { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Login link ── */
+    .login-link {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+    .login-link a {
+      color: #4f46e5;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .login-link a:hover { text-decoration: underline; }
+
+    /* ── Snackbar ── */
+    .snackbar {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1f2937;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      transition: transform 0.25s ease;
+      z-index: 100;
+      white-space: nowrap;
+    }
+    .snackbar.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── Success overlay (simulated) ── */
+    .success-overlay {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 12px 0 4px;
+    }
+    .success-overlay.visible { display: flex; }
+    .success-icon {
+      width: 56px; height: 56px;
+      background: #ecfdf5;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .success-icon svg { stroke: #059669; } /* icon đồ hoạ: ngưỡng 3:1 (WCAG 1.4.11), không phải chữ */
+    .success-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 8px;
+    }
+    .success-subtitle {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 24px;
+      font-size: 12px;
+      color: #9ca3af;
+      text-align: center;
+    }
+
+  
+/* `body.auth-shell` = vùng CHƯA đăng nhập (canon: ba-html-design/shell.md §1.5).
+   Không có app-header/app-nav là ĐÚNG, không phải thiếu. Layout căn giữa đã nằm ở rule `body` trên. */
+/* ── Thanh trạng thái UI (canon: ba-html-design/shell.md §2.3) ────────────── */
+.statebar{position:static;z-index:40;background:var(--surface-app,#f9fafb);
+  border-bottom:1px dashed var(--border,#e5e7eb);font-size:12px}
+.statebar__toggle{display:block;width:100%;text-align:left;padding:6px 16px;background:none;
+  border:0;color:var(--text-placeholder,#9ca3af);cursor:pointer;font-size:11px;letter-spacing:.02em}
+.statebar__body{display:none;padding:0 16px 8px;flex-direction:column;gap:6px}
+.statebar[data-open="true"] .statebar__body{display:flex}
+.statebar__group{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.statebar__label{flex:0 0 104px;color:var(--text-placeholder,#9ca3af);font-size:11px}
+.statebar__btn{padding:4px 10px;border:1px solid var(--border,#d1d5db);border-radius:999px;
+  background:var(--surface-card,#fff);color:var(--text-secondary,#4b5563);font-size:12px;cursor:pointer}
+.statebar__btn.active,.statebar__btn.is-active{background:var(--brand-primary,#4f46e5);
+  border-color:var(--brand-primary,#4f46e5);color:#fff}
+@media (max-width:767px){.statebar__label{flex-basis:100%}}
+/* 07 §10: tôn trọng prefers-reduced-motion — bỏ chuyển động trượt/chuyển màu, spinner giữ để còn tín hiệu đang tải */
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{transition:none!important}}
+</style>
+</head>
+<body class="auth-shell">
+
+  <!-- Demo state switcher (cho tài liệu BA, không có trong production) -->
+  <!-- ▼ UI-STATE-BAR — chỉ có trong html-design, KHÔNG có trong production -->
+<div class="statebar" id="statebar" data-open="true">
+  <button class="statebar__toggle" aria-expanded="true" aria-controls="statebarBody" onclick="statebarToggle(this)">◆ Trạng thái giao diện (bản đặc tả BA — không có trong production) <span aria-hidden="true">▾</span></button>
+  <div class="statebar__body" id="statebarBody">
+    <div class="statebar__group" data-group="ui">
+      <span class="statebar__label">Trạng thái UI</span>
+      <button class="statebar__btn is-active" onclick="setState('idle')">Mặc định</button>
+      <button class="statebar__btn" onclick="setState('loading')">Đang tải</button>
+    </div>
+    <div class="statebar__group" data-group="error">
+      <span class="statebar__label">Ca lỗi</span>
+      <button data-trace="E-S06-03" class="statebar__btn" onclick="setState('error-email-exists')">Email đã tồn tại</button>
+      <button data-trace="E-S06-04" class="statebar__btn" onclick="setState('error-weak-pw')">Mật khẩu yếu</button>
+      <button data-trace="E-S06-05" class="statebar__btn" onclick="setState('error-pw-mismatch')">MK không khớp</button>
+      <button data-trace="E-S06-06" class="statebar__btn" onclick="setState('error-org-empty')">Tên tổ chức trống</button>
+      <button data-trace="E-S06-08" class="statebar__btn" onclick="setState('error-network')">Mất mạng</button>
+    </div>
+    <div class="statebar__group" data-group="biz">
+      <span class="statebar__label">Trạng thái nghiệp vụ</span>
+      <button class="statebar__btn" onclick="setState('typing')">Nhập liệu</button>
+      <button class="statebar__btn" onclick="setState('success')">Thành công</button>
+    </div>
+  </div>
+</div>
+<!-- ▲ UI-STATE-BAR -->
+
+  <!-- Branding -->
+  <div data-el="1" class="brand" aria-hidden="true">
+    <div class="brand-logo">
+      <div class="brand-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <span class="brand-name">TeamTasks</span>
+    </div>
+    <p class="brand-tagline">Quản lý công việc nhóm</p>
+  </div>
+
+  <!-- Card -->
+  <div class="card" role="main">
+    <h1 class="card-title" id="form-title">Tạo tài khoản mới</h1>
+
+    <!-- Success overlay -->
+    <div class="success-overlay" id="success-overlay" role="status" aria-live="polite">
+      <div class="success-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <p class="success-title">Tài khoản đã được tạo!</p>
+      <p class="success-subtitle">Đang chuyển bạn vào Dashboard với vai trò <strong>Org Admin</strong>...</p>
+    </div>
+
+    <!-- Form -->
+    <form id="register-form" novalidate onsubmit="handleSubmit(event)">
+
+      <!-- Email -->
+      <div data-el="2" class="form-group">
+        <label for="email">Email <span class="req" aria-hidden="true">*</span></label>
+        <div class="input-wrap">
+          <input
+            type="email"
+            id="email"
+            name="email"
+            autocomplete="email"
+            placeholder="ten@cty.vn"
+            aria-required="true"
+            aria-describedby="email-error"
+            onblur="validateEmail()"
+            oninput="clearError('email-error', 'email')"
+          />
+        </div>
+        <p class="field-error" id="email-error" role="alert"></p>
+      </div>
+
+      <!-- Mật khẩu -->
+      <div data-el="3" class="form-group">
+        <label for="password">Mật khẩu <span class="req" aria-hidden="true">*</span></label>
+        <div class="input-wrap">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            autocomplete="new-password"
+            aria-required="true"
+            aria-describedby="password-strength-label password-error"
+            oninput="updateStrength()"
+            onblur="validatePassword()"
+          />
+          <button data-el="7" type="button" class="toggle-pw" id="toggle-pw" onclick="togglePw('password', 'toggle-pw')" aria-label="Hiện mật khẩu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+        <!-- Thanh đo độ mạnh -->
+        <div data-el="4" class="strength-wrap" id="strength-wrap" aria-live="polite">
+          <div class="strength-bar-track">
+            <div class="strength-bar-fill" id="strength-bar"></div>
+          </div>
+          <p class="strength-label" id="password-strength-label">Độ mạnh: <span id="strength-text">Yếu</span></p>
+        </div>
+        <p class="field-error" id="password-error" role="alert"></p>
+      </div>
+
+      <!-- Xác nhận mật khẩu -->
+      <div data-el="5" class="form-group">
+        <label for="confirm-password">Xác nhận mật khẩu <span class="req" aria-hidden="true">*</span></label>
+        <div class="input-wrap">
+          <input
+            type="password"
+            id="confirm-password"
+            name="confirm-password"
+            autocomplete="new-password"
+            aria-required="true"
+            aria-describedby="confirm-error"
+            onblur="validateConfirm()"
+            oninput="clearError('confirm-error', 'confirm-password')"
+          />
+          <button data-el="7" type="button" class="toggle-pw" id="toggle-confirm" onclick="togglePw('confirm-password', 'toggle-confirm')" aria-label="Hiện xác nhận mật khẩu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+        <p class="field-error" id="confirm-error" role="alert"></p>
+      </div>
+
+      <!-- Tên tổ chức -->
+      <div data-el="6" class="form-group">
+        <label for="org-name">Tên tổ chức <span class="req" aria-hidden="true">*</span></label>
+        <p class="helper-text">Tên này hiển thị với tất cả thành viên trong tổ chức của bạn</p>
+        <div class="input-wrap">
+          <input
+            type="text"
+            id="org-name"
+            name="org-name"
+            maxlength="100"
+            placeholder="Công ty TNHH ABC"
+            autocomplete="organization"
+            aria-required="true"
+            aria-describedby="org-error"
+            onblur="validateOrg()"
+            oninput="clearError('org-error', 'org-name')"
+          />
+        </div>
+        <p class="field-error" id="org-error" role="alert"></p>
+      </div>
+
+      <!-- Submit -->
+      <button data-el="8" type="submit" class="btn btn-primary" id="submit-btn">
+        <div class="spinner" id="spinner" aria-hidden="true"></div>
+        <span id="submit-label">Tạo tài khoản</span>
+      </button>
+
+    </form>
+
+    <!-- Link đăng nhập -->
+    <p data-el="9" class="login-link" id="login-link-wrap">
+      Đã có tài khoản? <a href="/login">Đăng nhập</a>
+    </p>
+  </div>
+
+  <!-- Snackbar -->
+  <div class="snackbar" id="snackbar" role="status" aria-live="polite"></div>
+
+  <!-- Footer -->
+  <footer>
+    Phiên bản 1.0 · © 2026 TeamTasks
+  </footer>
+
+  <script>
+    /* =====================================================================
+       Trạng thái nội bộ
+    ===================================================================== */
+    let strengthLevel = ''; // 'weak' | 'medium' | 'strong'
+    // Icon hiện/ẩn mật khẩu — inline SVG kiểu Lucide (07 §5), không emoji
+    const SVG_OPEN = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+    const ICON_EYE = SVG_OPEN + '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>';
+    const ICON_EYE_OFF = SVG_OPEN + '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>';
+
+    /* =====================================================================
+       Đo độ mạnh mật khẩu
+    ===================================================================== */
+    function getStrength(pw) {
+      if (!pw) return null;
+      const hasLetter  = /[a-zA-Z]/.test(pw);
+      const hasDigit   = /\d/.test(pw);
+      const hasSpecial = /[^a-zA-Z0-9]/.test(pw);
+      if (pw.length < 8 || !hasLetter || !hasDigit) return 'weak';
+      if (pw.length >= 12 && hasSpecial) return 'strong';
+      return 'medium';
+    }
+
+    function updateStrength() {
+      const pw = document.getElementById('password').value;
+      const wrap = document.getElementById('strength-wrap');
+      const bar  = document.getElementById('strength-bar').parentElement.parentElement; // strength-wrap
+      const text = document.getElementById('strength-text');
+      const barEl= document.getElementById('strength-bar');
+      const barTrack = barEl.parentElement.parentElement; // strength-wrap
+
+      if (!pw) {
+        wrap.classList.remove('visible');
+        wrap.className = 'strength-wrap';
+        strengthLevel = '';
+        return;
+      }
+
+      const level = getStrength(pw);
+      strengthLevel = level;
+      wrap.classList.add('visible');
+      // reset classes
+      wrap.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
+      if (level === 'weak')   { wrap.classList.add('strength-weak');   text.textContent = 'Yếu';       barEl.style.width='33%';  barEl.style.background='#ef4444'; text.style.color='#ef4444'; }
+      if (level === 'medium') { wrap.classList.add('strength-medium'); text.textContent = 'Trung bình'; barEl.style.width='66%'; barEl.style.background='#f59e0b'; text.style.color='#d97706'; }
+      if (level === 'strong') { wrap.classList.add('strength-strong'); text.textContent = 'Mạnh';       barEl.style.width='100%'; barEl.style.background='#10b981'; text.style.color='#059669'; }
+    }
+
+    /* =====================================================================
+       Validate từng trường
+    ===================================================================== */
+    function validateEmail() {
+      const val = document.getElementById('email').value.trim();
+      const err = document.getElementById('email-error');
+      if (!val) {
+        return showFieldError('email-error', 'email', 'Vui lòng nhập địa chỉ email.');
+      }
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!re.test(val)) {
+        return showFieldError('email-error', 'email', 'Vui lòng nhập địa chỉ email hợp lệ.');
+      }
+      clearError('email-error', 'email');
+      return true;
+    }
+
+    function validatePassword() {
+      const pw = document.getElementById('password').value;
+      const level = getStrength(pw);
+      if (!pw) {
+        return showFieldError('password-error', 'password', 'Vui lòng nhập mật khẩu.');
+      }
+      if (level === 'weak') {
+        return showFieldError('password-error', 'password', 'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ cái và chữ số.');
+      }
+      clearError('password-error', 'password');
+      return true;
+    }
+
+    function validateConfirm() {
+      const pw  = document.getElementById('password').value;
+      const cfm = document.getElementById('confirm-password').value;
+      if (!cfm) {
+        return showFieldError('confirm-error', 'confirm-password', 'Vui lòng xác nhận mật khẩu.');
+      }
+      if (pw !== cfm) {
+        return showFieldError('confirm-error', 'confirm-password', 'Mật khẩu xác nhận không khớp.');
+      }
+      clearError('confirm-error', 'confirm-password');
+      return true;
+    }
+
+    function validateOrg() {
+      const val = document.getElementById('org-name').value.trim();
+      if (!val) {
+        return showFieldError('org-error', 'org-name', 'Tên tổ chức không được để trống.');
+      }
+      if (val.length > 100) {
+        return showFieldError('org-error', 'org-name', 'Tên tổ chức không được vượt quá 100 ký tự.');
+      }
+      clearError('org-error', 'org-name');
+      return true;
+    }
+
+    function showFieldError(errId, inputId, msg) {
+      const errEl = document.getElementById(errId);
+      errEl.textContent = msg;
+      errEl.classList.add('visible');
+      document.getElementById(inputId).classList.add('error');
+      return false;
+    }
+
+    function clearError(errId, inputId) {
+      const errEl = document.getElementById(errId);
+      errEl.classList.remove('visible');
+      errEl.textContent = '';
+      document.getElementById(inputId).classList.remove('error');
+    }
+
+    /* =====================================================================
+       Submit
+    ===================================================================== */
+    function handleSubmit(e) {
+      e.preventDefault();
+      const ok1 = validateEmail();
+      const ok2 = validatePassword();
+      const ok3 = validateConfirm();
+      const ok4 = validateOrg();
+      if (!ok1 || !ok2 || !ok3 || !ok4) return;
+
+      // Simulate API call
+      setState('loading');
+      setTimeout(() => {
+        setState('success');
+      }, 2000);
+    }
+
+    /* =====================================================================
+       Toggle hiện/ẩn mật khẩu
+    ===================================================================== */
+    function togglePw(inputId, btnId) {
+      const input = document.getElementById(inputId);
+      const btn   = document.getElementById(btnId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        input.classList.add('pw-field');
+        btn.setAttribute('aria-label', btnId === 'toggle-pw' ? 'Ẩn mật khẩu' : 'Ẩn xác nhận mật khẩu');
+        btn.innerHTML = ICON_EYE_OFF;
+      } else {
+        input.type = 'password';
+        input.classList.remove('pw-field');
+        btn.setAttribute('aria-label', btnId === 'toggle-pw' ? 'Hiện mật khẩu' : 'Hiện xác nhận mật khẩu');
+        btn.innerHTML = ICON_EYE;
+      }
+    }
+
+    /* =====================================================================
+       Snackbar
+    ===================================================================== */
+    let snackTimer = null;
+    function showSnackbar(msg) {
+      const el = document.getElementById('snackbar');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(snackTimer);
+      snackTimer = setTimeout(() => el.classList.remove('show'), 3500);
+    }
+
+    /* =====================================================================
+       Demo trạng thái
+    ===================================================================== */
+    function setAllInputsDisabled(disabled) {
+      ['email','password','confirm-password','org-name'].forEach(id => {
+        document.getElementById(id).disabled = disabled;
+      });
+    }
+
+    function resetAllErrors() {
+      ['email-error','password-error','confirm-error','org-error'].forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.remove('visible');
+        el.textContent = '';
+      });
+      ['email','password','confirm-password','org-name'].forEach(id => {
+        document.getElementById(id).classList.remove('error');
+      });
+    }
+
+    function resetForm() {
+      document.getElementById('register-form').reset();
+      // reset password type
+      document.getElementById('password').type = 'password';
+      document.getElementById('confirm-password').type = 'password';
+      document.getElementById('toggle-pw').innerHTML = ICON_EYE;
+      document.getElementById('toggle-pw').setAttribute('aria-label','Hiện mật khẩu');
+      document.getElementById('toggle-confirm').innerHTML = ICON_EYE;
+      document.getElementById('toggle-confirm').setAttribute('aria-label','Hiện xác nhận mật khẩu');
+      // reset strength
+      const wrap = document.getElementById('strength-wrap');
+      wrap.classList.remove('visible','strength-weak','strength-medium','strength-strong');
+      document.getElementById('strength-bar').style.width = '0%';
+      document.getElementById('strength-text').textContent = 'Yếu';
+    }
+
+    function setState(state) {
+      // Nút đang chọn trên statebar (gọi cả từ handleSubmit → so theo onclick, không theo nhãn)
+      document.querySelectorAll('.statebar__btn').forEach(b => b.classList.toggle('is-active', b.getAttribute('onclick') === `setState('${state}')`));
+
+      // Defaults
+      const form = document.getElementById('register-form');
+      const btn  = document.getElementById('submit-btn');
+      const spinner = document.getElementById('spinner');
+      const label = document.getElementById('submit-label');
+      const successOverlay = document.getElementById('success-overlay');
+
+      // Hide success first
+      successOverlay.classList.remove('visible');
+      form.style.display = '';
+      resetAllErrors();
+      setAllInputsDisabled(false);
+      btn.disabled = false;
+      btn.classList.remove('loading');
+      spinner.classList.remove('visible');
+      label.textContent = 'Tạo tài khoản';
+
+      if (state === 'idle') {
+        resetForm();
+      }
+
+      else if (state === 'typing') {
+        resetForm();
+        document.getElementById('email').value = 'new.user@cty.vn';
+        document.getElementById('password').value = 'Abc12345';
+        document.getElementById('confirm-password').value = 'Abc12345';
+        document.getElementById('org-name').value = 'Công ty TNHH ABC';
+        updateStrength();
+      }
+
+      else if (state === 'loading') {
+        document.getElementById('email').value = 'new.user@cty.vn';
+        document.getElementById('password').value = 'Abc12345';
+        document.getElementById('confirm-password').value = 'Abc12345';
+        document.getElementById('org-name').value = 'Công ty TNHH ABC';
+        updateStrength();
+        setAllInputsDisabled(true);
+        btn.disabled = true;
+        btn.classList.add('loading');
+        spinner.classList.add('visible');
+        label.textContent = 'Đang tạo tài khoản...';
+      }
+
+      else if (state === 'error-email-exists') {
+        document.getElementById('email').value = 'an.nguyen@cty.vn';
+        document.getElementById('password').value = 'Abc12345';
+        document.getElementById('confirm-password').value = 'Abc12345';
+        document.getElementById('org-name').value = 'Công ty TNHH ABC';
+        updateStrength();
+        showFieldError('email-error', 'email', 'Email đã được sử dụng. Vui lòng dùng địa chỉ khác hoặc đăng nhập.');
+        setTimeout(() => document.getElementById('email').focus(), 50);
+      }
+
+      else if (state === 'error-weak-pw') {
+        resetForm();
+        document.getElementById('email').value = 'new.user@cty.vn';
+        document.getElementById('password').value = 'abc';
+        document.getElementById('org-name').value = 'Công ty TNHH ABC';
+        updateStrength();
+        showFieldError('password-error', 'password', 'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ cái và chữ số.');
+        btn.disabled = true;
+      }
+
+      else if (state === 'error-pw-mismatch') {
+        document.getElementById('email').value = 'new.user@cty.vn';
+        document.getElementById('password').value = 'Abc12345';
+        document.getElementById('confirm-password').value = 'Abc12346';
+        document.getElementById('org-name').value = 'Công ty TNHH ABC';
+        updateStrength();
+        showFieldError('confirm-error', 'confirm-password', 'Mật khẩu xác nhận không khớp.');
+        btn.disabled = true;
+      }
+
+      else if (state === 'error-org-empty') {
+        document.getElementById('email').value = 'new.user@cty.vn';
+        document.getElementById('password').value = 'Abc12345';
+        document.getElementById('confirm-password').value = 'Abc12345';
+        document.getElementById('org-name').value = '';
+        updateStrength();
+        showFieldError('org-error', 'org-name', 'Tên tổ chức không được để trống.');
+      }
+
+      else if (state === 'error-network') {
+        document.getElementById('email').value = 'new.user@cty.vn';
+        document.getElementById('password').value = 'Abc12345';
+        document.getElementById('confirm-password').value = 'Abc12345';
+        document.getElementById('org-name').value = 'Công ty TNHH ABC';
+        updateStrength();
+        showSnackbar('Lỗi kết nối. Vui lòng thử lại.');
+      }
+
+      else if (state === 'success') {
+        form.style.display = 'none';
+        successOverlay.classList.add('visible');
+        document.getElementById('login-link-wrap').style.display = 'none';
+        setTimeout(() => {
+          document.getElementById('login-link-wrap').style.display = '';
+        }, 3000);
+      }
+    }
+  
+function statebarToggle(btn){
+  const box = btn.closest('.statebar');
+  const open = box.dataset.open !== 'true';
+  box.dataset.open = String(open);
+  btn.setAttribute('aria-expanded', String(open));
+}
+</script>
+
+</body>
+</html>

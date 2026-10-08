@@ -1,0 +1,33 @@
+{
+  "agent": "ba-diagram-reviewer",
+  "mode": "diagram",
+  "sốFinding": 4,
+  "ids": [
+    "D",
+    "E",
+    "F",
+    "FR-06",
+    "FR-09",
+    "HT",
+    "StR-03",
+    "StR-04",
+    "TL",
+    "so-do-4.1"
+  ],
+  "chủĐề": [
+    "rang-buoc-khong-hien-dien-trong-so-do",
+    "thieu-lane-vai-tro-nguoi-duyet-org-admin",
+    "thieu-thong-bao-ban-giao-lien-lane",
+    "thieu-thong-bao-doi-trang-thai"
+  ],
+  "mức": {
+    "🔴": 1,
+    "🟡": 2,
+    "🟢": 1
+  },
+  "ghiLúc": "2026-09-11",
+  "gioiHan": [
+    "golden = TẬP mã + chủ đề + phân bố mức của MỘT lần chạy; không phải \"đáp án đúng\", chỉ là \"lần trước agent thấy gì\"",
+    "ngưỡng trôi 0,6 là ước lượng, chưa đo trên nhiều lần chạy cùng prompt — chỉnh khi có số"
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "agent": "ba-consistency-reviewer",
+  "mode": "project",
+  "sốFinding": 14,
+  "ids": [
+    "BR-01",
+    "F02",
+    "F03",
+    "F06",
+    "F07",
+    "F08",
+    "F09",
+    "F10",
+    "F12",
+    "F13",
+    "F14",
+    "FR-01",
+    "FR-02",
+    "FR-03",
+    "FR-06",
+    "FR-08",
+    "FR-09",
+    "FR-10",
+    "FR-13",
+    "GĐ-02",
+    "NFR-03",
+    "S01",
+    "S02",
+    "StR-04",
+    "TR-02",
+    "U-02",
+    "U-03"
+  ],
+  "chủĐề": [
+    "chinh-sach-khoa-tai-khoan",
+    "csv-import-vang-roadmap",
+    "f02-muon-ma-fr01",
+    "f02-vi-tri-man",
+    "f14-thieu-trong-map-man",
+    "f14-vang-mat-lich",
+    "huy-viec-chua-chot-nhung-in-scope",
+    "nhac-deadline-t1-lech",
+    "pham-vi-du-lieu-dashboard",
+    "polling-30s-vs-60s",
+    "reach-f12-choi-quy-mo",
+    "realtime-cau-chu",
+    "str04-choi-fr09",
+    "thieu-nang-luc-admin-reset"
+  ],
+  "mức": {
+    "🔴": 3,
+    "🟡": 8,
+    "🟢": 3
+  },
+  "ghiLúc": "2026-09-11",
+  "gioiHan": [
+    "golden = TẬP mã + chủ đề + phân bố mức của MỘT lần chạy; không phải \"đáp án đúng\", chỉ là \"lần trước agent thấy gì\"",
+    "ngưỡng trôi 0,6 là ước lượng, chưa đo trên nhiều lần chạy cùng prompt — chỉnh khi có số"
+  ]
+}

@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — TeamTasks (html-design)</title>
+<style>
+  /* ══ Design tokens — docs/07-design-system.md ══ */
+  :root {
+    --brand-primary: #4F46E5;
+    --brand-primary-hover: #4338CA;
+    --brand-primary-active: #3730A3;
+    --surface-bg: #F0F2F5;
+    --surface-card: #FFFFFF;
+    --surface-disabled: #F9FAFB;
+    --border: #D1D5DB;
+    --text-primary: #111827;
+    --text-secondary: #6B7280;
+    --text-label: #374151;
+    --text-placeholder: #9CA3AF;
+    --danger: #EF4444;
+    --warning: #F59E0B;
+    --warning-strong: #D97706;
+    --success-strong: #059669;
+    /* token bổ sung 6b */
+    --brand-tint: #EEF2FF; --border-subtle: #E5E7EB; --surface-hover: #F3F4F6;
+    --overlay-dark: #1F2937;
+    --focus-ring: 0 0 0 3px rgba(79,70,229,.12);
+    --shadow-card: 0 4px 24px rgba(0,0,0,.08);
+    --shadow-overlay: 0 4px 16px rgba(0,0,0,.25);
+    /* alert tints (DS mục 2) */
+    --tint-warn-bg:#FFF7ED; --tint-warn-bd:#FED7AA; --tint-warn-tx:#92400E;
+    --tint-err-bg:#FEF2F2;  --tint-err-bd:#FECACA;  --tint-err-tx:#991B1B;
+    --tint-ok-bg:#ECFDF5;   --tint-ok-tx:#059669;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--surface-bg);
+    color: var(--text-primary);
+    min-height: 100dvh;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  button { font: inherit; cursor: pointer; }
+  [hidden] { display: none !important; }
+  svg { flex: none; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; /* sr-only chuẩn: kẹp vùng 1px ra khỏi luồng */ overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  :focus-visible { outline: none; box-shadow: var(--focus-ring), 0 0 0 1.5px var(--brand-primary); border-radius: 8px; }
+
+  /* ══ Demo state switcher (cho tài liệu BA, không có trong production) ══ */
+  .demo-btn {
+    border: 1px solid var(--border); background: var(--surface-card); border-radius: 20px;
+    padding: 4px 12px; font-size: 12px; color: var(--text-label); transition: background .15s, color .15s, border-color .15s;
+  }
+  .demo-btn:hover, .demo-btn.active { background: var(--brand-primary); border-color: var(--brand-primary); color: #fff; }
+
+  /* ══ Header ══ */
+  .app-header {
+    background: var(--surface-card); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; position: sticky; top: 0; z-index: 50;
+  }
+  .brand { display: flex; align-items: center; gap: 8px; font-size: 22px; font-weight: 700; text-decoration: none; color: var(--text-primary); }
+  .brand-icon {
+    width: 32px; height: 32px; border-radius: 8px; background: var(--brand-primary);
+    color: #fff; display: grid; place-items: center;
+  }
+  .header-tools { display: flex; align-items: center; gap: 8px; position: relative; }
+  .icon-btn {
+    position: relative; width: 44px; height: 44px; border: none; background: transparent;
+    border-radius: 8px; font-size: 20px; color: var(--text-secondary); display: grid; place-items: center;
+  }
+  .icon-btn:hover { background: var(--surface-bg); }
+  .avatar-btn {
+    display: flex; align-items: center; gap: 4px; border: none; background: transparent;
+    border-radius: 8px; padding: 4px 8px; min-height: 44px;
+  }
+  .avatar-btn:hover { background: var(--surface-bg); }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--brand-primary); color: #fff; font-size: 13px; font-weight: 700; display: grid; place-items: center; }
+  .caret { color: var(--text-secondary); }
+
+  /* dropdowns (menu cá nhân + panel thông báo) */
+  .dropdown {
+    position: absolute; top: calc(100% + 6px); right: 0; background: var(--surface-card);
+    border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow-overlay);
+    min-width: 200px; display: none; z-index: 60;
+  }
+  .dropdown.open { display: block; }
+  .menu-item { display: block; width: 100%; text-align: left; padding: 12px 16px; border: none; background: none; font-size: 14px; color: var(--text-primary); }
+  .menu-item:hover { background: var(--surface-bg); }
+  .menu-item.danger { color: var(--tint-err-tx); }
+  .menu-hint { font-size: 12px; color: var(--text-placeholder); }
+  .menu-sep { border-top: 1px solid var(--border); margin: 4px 0; }
+
+  /* panel thông báo */
+  .notif-panel { width: min(340px, calc(100vw - 24px)); }
+  .notif-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .notif-head h2 { font-size: 14px; font-weight: 700; }
+  .link-btn { border: none; background: none; color: var(--brand-primary); font-size: 12px; font-weight: 600; padding: 4px; }
+  .link-btn:hover { color: var(--brand-primary-hover); text-decoration: underline; }
+  .notif-item { display: flex; gap: 12px; width: 100%; text-align: left; border: none; background: none; padding: 12px 16px; font-size: 13px; color: var(--text-primary); border-bottom: 1px solid var(--surface-bg); }
+  .notif-item:hover { background: var(--surface-bg); }
+  .notif-item.unread { background: rgba(79,70,229,.06); }
+  .notif-item.unread:hover { background: rgba(79,70,229,.1); }
+  .dot { flex: none; width: 8px; height: 8px; border-radius: 50%; margin-top: 8px; background: var(--border); }
+  .unread .dot { background: var(--brand-primary); }
+  .notif-time { display: block; font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+  .notif-empty { padding: 32px 16px; text-align: center; color: var(--text-secondary); font-size: 13px; }
+
+  /* ══ Vùng nội dung ══ */
+  .page { max-width: 1100px; margin: 0 auto; padding: 16px; }
+  .page-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin: 8px 0 16px; }
+  .greeting h1 { font-size: 20px; font-weight: 700; }
+  .greeting p { font-size: 13px; color: var(--text-secondary); }
+  /* Nút — 07 §6a: btn + btn-primary · btn-secondary · btn-ghost · btn-danger */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border: 1.5px solid transparent; border-radius: 8px; padding: 12px 20px;
+    font-size: 15px; font-weight: 600; min-height: 44px;
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .btn-primary { background: var(--brand-primary); color: #fff; }
+  .btn-primary:hover { background: var(--brand-primary-hover); }
+  .btn-primary:active { background: var(--brand-primary-active); }
+  .btn-secondary { background: var(--surface-card); color: var(--text-label); border-color: var(--border); }
+  .btn-secondary:hover { border-color: var(--text-secondary); }
+  .btn-ghost { background: transparent; color: var(--brand-primary); }
+  .btn-ghost:hover { background: var(--surface-hover); }
+  .btn-danger { background: var(--surface-card); color: var(--tint-err-tx); border-color: var(--tint-err-bd); }
+  .btn-danger:hover { background: var(--tint-err-bg); }
+  .btn:disabled { background: var(--surface-disabled); color: var(--text-placeholder); border-color: var(--border); opacity: .75; cursor: not-allowed; }
+
+  /* thẻ thống kê */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 16px; }
+  .stat {
+    background: var(--surface-card); border: 1.5px solid transparent; border-radius: 16px;
+    box-shadow: var(--shadow-card); padding: 12px 16px; text-align: left; transition: border-color .15s;
+  }
+  .stat:hover { border-color: var(--border); }
+  .stat.selected { border-color: var(--brand-primary); }
+  .stat .num { display: block; font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat .lbl { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+  .stat.warn .num { color: var(--tint-err-tx); }
+  .stat.warn .lbl svg { color: var(--danger); }
+
+  /* thanh công cụ */
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .toolbar .field { display: flex; flex-direction: column; gap: 4px; }
+  .toolbar label { font-size: 13px; font-weight: 600; color: var(--text-label); }
+  .toolbar select, .toolbar input {
+    font: inherit; font-size: 15px; padding: 8px 12px; border: 1.5px solid var(--border);
+    border-radius: 8px; background: var(--surface-card); color: var(--text-primary); min-height: 44px;
+  }
+  .toolbar select:focus, .toolbar input:focus { outline: none; border-color: var(--brand-primary); box-shadow: var(--focus-ring); }
+  .toolbar .search { flex: 1; min-width: 180px; margin-left: auto; }
+  .toolbar .search input { width: 100%; }
+  .toolbar input::placeholder { color: var(--text-placeholder); }
+
+  /* bảng công việc */
+  .task-card { background: var(--surface-card); border-radius: 16px; box-shadow: var(--shadow-card); overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { font-size: 13px; font-weight: 600; color: var(--text-label); text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--surface-disabled); }
+  tbody tr { border-bottom: 1px solid var(--surface-bg); cursor: pointer; transition: background .15s; }
+  tbody tr:hover { background: var(--surface-bg); }
+  tbody td { padding: 12px 16px; font-size: 14px; vertical-align: middle; }
+  .t-title { font-weight: 600; }
+  .assignee { display: flex; align-items: center; gap: 8px; }
+  .assignee .avatar { width: 26px; height: 26px; font-size: 11px; flex: none; }
+  .deadline { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .deadline.overdue { display: inline-flex; align-items: center; gap: 4px; color: var(--tint-err-tx); font-weight: 600; }
+  .deadline.overdue svg { color: var(--danger); }
+  /* Badge theo 07 §6b STATUS — icon SVG + chữ; chữ lấy màu đạt AA trên nền tint, icon mang token 6b */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; border: 1px solid transparent; white-space: nowrap; }
+  .badge.st-todo      { background: var(--surface-disabled); border-color: var(--border); color: var(--text-secondary); }
+  .badge.st-doing     { background: var(--brand-tint); color: var(--brand-primary); }
+  .badge.st-review    { background: var(--tint-warn-bg); border-color: var(--tint-warn-bd); color: var(--tint-warn-tx); }
+  .badge.st-review svg { color: var(--warning-strong); }
+  .badge.st-done      { background: var(--tint-ok-bg); color: var(--text-label); }
+  .badge.st-done svg  { color: var(--success-strong); }
+  .badge.pr-urgent    { background: var(--tint-err-bg); border-color: var(--tint-err-bd); color: var(--tint-err-tx); }
+  .badge.pr-urgent svg { color: var(--danger); }
+  .badge.pr-high      { background: var(--tint-warn-bg); border-color: var(--tint-warn-bd); color: var(--tint-warn-tx); }
+  .badge.pr-high svg  { color: var(--warning-strong); }
+  .badge.pr-medium    { background: var(--surface-disabled); border-color: var(--border); color: var(--text-label); }
+  .badge.pr-medium svg { color: var(--warning); }
+  .badge.pr-low       { background: var(--surface-disabled); border-color: var(--border); color: var(--text-secondary); }
+  .load-more { display: block; margin: 12px auto 16px; }
+
+  /* mobile: bảng → thẻ dọc */
+  @media (max-width: 767px) {
+    thead { position: absolute; left: -9999px; }
+    tbody tr { display: block; padding: 12px 16px; }
+    tbody td { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border: none; }
+    tbody td::before { content: attr(data-th); font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+    .stats { grid-auto-flow: column; grid-template-columns: none; overflow-x: auto; padding-bottom: 4px; }
+    .stat { min-width: 120px; }
+  }
+
+  /* ══ UI states (loading / empty / error) ══ */
+  /* Skeleton: nền phẳng + nhấp nháy opacity (không gradient shimmer) */
+  .skeleton { background: var(--border-subtle); animation: skPulse 1.2s ease-in-out infinite; border-radius: 8px; }
+  @keyframes skPulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+  .sk-stat { height: 72px; border-radius: 16px; }
+  .sk-row { height: 46px; margin: 8px 16px; }
+  .state-block { text-align: center; padding: 40px 24px; }
+  .state-block .state-icon { display: grid; place-items: center; width: 48px; height: 48px; margin: 0 auto 12px; border-radius: 999px; background: var(--surface-bg); color: var(--text-secondary); }
+  .state-block.is-error .state-icon { background: var(--tint-err-bg); color: var(--tint-err-tx); }
+  .state-block h2 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .state-block p { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+
+  /* ══ Modal Tạo công việc ══ */
+  .backdrop { position: fixed; inset: 0; background: rgba(17,24,39,.5); display: none; align-items: flex-start; justify-content: center; padding: 24px 16px; z-index: 100; overflow-y: auto; }
+  .backdrop.open { display: flex; }
+  .modal {
+    background: var(--surface-card); border-radius: 16px; box-shadow: var(--shadow-overlay);
+    width: 100%; max-width: 520px; padding: 24px; animation: pop .15s ease-out;
+  }
+  @keyframes pop { from { transform: scale(.97); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .modal-head h2 { font-size: 20px; font-weight: 700; }
+  .close-btn { border: none; background: none; color: var(--text-secondary); width: 44px; height: 44px; border-radius: 8px; display: grid; place-items: center; }
+  .close-btn:hover { background: var(--surface-bg); }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-label); margin-bottom: 4px; }
+  .req { color: var(--danger); }
+  .form-group input, .form-group textarea, .form-group select {
+    width: 100%; font: inherit; font-size: 15px; padding: 8px 12px; min-height: 44px;
+    border: 1.5px solid var(--border); border-radius: 8px; color: var(--text-primary);
+  }
+  .form-group :is(input,textarea,select):focus { outline: none; border-color: var(--brand-primary); box-shadow: var(--focus-ring); }
+  .form-group .invalid { border-color: var(--danger); }
+  .form-group textarea { resize: vertical; min-height: 72px; }
+  .field-error { display: none; font-size: 12px; color: var(--danger); margin-top: 4px; }
+  .field-error.show { display: block; }
+  .form-row { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 768px) { .form-row { grid-template-columns: 1fr 1fr; } }
+  fieldset { border: none; }
+  fieldset legend { font-size: 13px; font-weight: 600; color: var(--text-label); margin-bottom: 8px; }
+  .radio-row { display: flex; flex-wrap: wrap; gap: 12px; }
+  .radio-row label { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 400; color: var(--text-primary); min-height: 44px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+  .modal-lead { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+  .export-choices { display: flex; gap: 12px; flex-wrap: wrap; }
+  .export-choices .btn { flex: 1; }
+  .page-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* ══ Toast ══ */
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 80px);
+    background: var(--overlay-dark); color: #fff; padding: 12px 20px; border-radius: 8px;
+    box-shadow: var(--shadow-overlay); font-size: 14px; transition: transform .25s ease; z-index: 200;
+    max-width: calc(100vw - 32px);
+  }
+  .toast.show { transform: translate(-50%, 0); }
+
+  .doc-footer { text-align: center; font-size: 12px; color: var(--text-placeholder); padding: 16px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+
+/* ── Khung dùng chung (canon: ba-html-design/shell.md §1.4) ───────────────── */
+.app-nav{display:flex;gap:4px;flex:1 1 auto;margin-left:8px}
+.app-nav__link{padding:8px 12px;border-radius:8px;font-size:14px;text-decoration:none;color:var(--text-secondary,#4b5563)}
+.app-nav__link:hover{background:var(--surface-hover,#f3f4f6)}
+.app-nav__link[aria-current="page"]{color:var(--brand-primary,#4f46e5);background:var(--surface-hover,#f3f4f6);font-weight:600}
+.app-nav__toggle{display:none;background:none;border:0;font-size:20px;cursor:pointer;padding:4px 8px}
+@media (max-width:767px){
+  .app-nav__toggle{display:block}
+  .app-nav{position:absolute;left:0;right:0;top:100%;flex-direction:column;gap:0;padding:8px;margin:0;
+    background:var(--surface-card,#fff);border-bottom:1px solid var(--border,#e5e7eb);
+    transform:translateY(-8px);opacity:0;pointer-events:none;
+    transition:transform .18s ease-out,opacity .18s ease-out;z-index:60}
+  .app-header[data-nav="open"] .app-nav{transform:none;opacity:1;pointer-events:auto}
+}
+@media (prefers-reduced-motion:reduce){.app-nav{transition:none}}
+
+.badge-count{position:absolute;top:0;right:0;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--danger,#dc2626);color:#fff;font-size:10px;line-height:16px;text-align:center;font-weight:700}
+
+/* ── Thanh trạng thái UI (canon: ba-html-design/shell.md §2.3) ────────────── */
+.statebar{position:static;z-index:40;background:var(--surface-app,#f9fafb);
+  border-bottom:1px dashed var(--border,#e5e7eb);font-size:12px}
+.statebar__toggle{display:block;width:100%;text-align:left;padding:6px 16px;background:none;
+  border:0;color:var(--text-placeholder,#9ca3af);cursor:pointer;font-size:11px;letter-spacing:.02em}
+.statebar__body{display:none;padding:0 16px 8px;flex-direction:column;gap:6px}
+.statebar[data-open="true"] .statebar__body{display:flex}
+.statebar__group{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.statebar__label{flex:0 0 104px;color:var(--text-placeholder,#9ca3af);font-size:11px}
+.statebar__btn{padding:4px 10px;border:1px solid var(--border,#d1d5db);border-radius:999px;
+  background:var(--surface-card,#fff);color:var(--text-secondary,#4b5563);font-size:12px;cursor:pointer}
+.statebar__btn.active,.statebar__btn.is-active{background:var(--brand-primary,#4f46e5);
+  border-color:var(--brand-primary,#4f46e5);color:#fff}
+@media (max-width:767px){.statebar__label{flex-basis:100%}}
+</style>
+</head>
+<body>
+
+<!-- Demo state switcher (cho tài liệu BA, không có trong production) -->
+<!-- ▼ UI-STATE-BAR — chỉ có trong html-design, KHÔNG có trong production -->
+<div class="statebar" id="statebar" data-open="true">
+  <button class="statebar__toggle" aria-expanded="true" aria-controls="statebarBody" onclick="statebarToggle(this)">◆ Trạng thái giao diện (bản đặc tả BA — không có trong production) <span aria-hidden="true">▾</span></button>
+  <div class="statebar__body" id="statebarBody">
+    <div class="statebar__group" data-group="ui">
+      <span class="statebar__label">Trạng thái UI</span>
+      <button class="statebar__btn demo-btn active is-active" onclick="setState('default')">Mặc định</button>
+      <button class="statebar__btn demo-btn" onclick="setState('loading')">Đang tải</button>
+      <button class="statebar__btn demo-btn" onclick="setState('empty')">Rỗng</button>
+      <button class="statebar__btn demo-btn" onclick="setState('error')">Lỗi</button>
+    </div>
+  </div>
+</div>
+<!-- ▲ UI-STATE-BAR -->
+
+<header class="app-header" data-el="1">
+  <a class="brand" href="#" aria-label="TeamTasks — về Dashboard">
+    <span class="brand-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="brand-name">TeamTasks</span>
+  </a>
+  
+    <button class="app-nav__toggle" aria-label="Mở menu" aria-expanded="false" aria-controls="appNav" onclick="toggleNav(this)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <nav class="app-nav" id="appNav" aria-label="Điều hướng chính">
+      <a class="app-nav__link" href="#" aria-current="page">Dashboard</a>
+      <a class="app-nav__link" href="#">Tổ chức</a>
+      <a class="app-nav__link" href="#">Hồ sơ</a>
+    </nav>
+<div class="header-tools">
+    <div style="position:relative">
+      <button class="icon-btn" id="bellBtn" aria-label="3 thông báo chưa đọc" aria-expanded="false" onclick="togglePanel()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="badge-count" id="notifBadge">3</span>
+      </button>
+      <div class="dropdown notif-panel" id="notifPanel" aria-label="Thông báo">
+        <div class="notif-head"><h2>Thông báo</h2><button class="link-btn" onclick="readAll()">Đọc tất cả</button></div>
+        <div id="notifList">
+          <button class="notif-item unread" onclick="readOne(this)"><span class="dot" aria-hidden="true"></span><span>Bạn được giao <strong>"Viết tài liệu API"</strong><span class="notif-time">2 phút trước</span></span></button>
+          <button class="notif-item unread" onclick="readOne(this)"><span class="dot" aria-hidden="true"></span><span>Trần B chuyển <strong>"Thiết kế trang chủ"</strong> sang Đang duyệt<span class="notif-time">1 giờ trước</span></span></button>
+          <button class="notif-item unread" onclick="readOne(this)"><span class="dot" aria-hidden="true"></span><span>Lê C bình luận trong <strong>"Sửa lỗi đăng nhập"</strong><span class="notif-time">Hôm qua</span></span></button>
+        </div>
+        <div class="notif-empty" id="notifEmpty" hidden>Chưa có thông báo</div>
+      </div>
+    </div>
+    <div style="position:relative">
+      <button class="avatar-btn" id="avatarBtn" aria-label="Menu cá nhân — Nguyễn Văn A" aria-expanded="false" onclick="toggleMenu()">
+        <span class="avatar">NA</span><span class="caret"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>
+      </button>
+      <div class="dropdown" id="userMenu" aria-label="Menu cá nhân">
+        <button class="menu-item">Hồ sơ cá nhân</button>
+        <button class="menu-item">Tổ chức <span class="menu-hint">(Team Lead/Admin)</span></button>
+        <div class="menu-sep" role="separator"></div>
+        <button class="menu-item danger">Đăng xuất</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <div class="page-head">
+    <div data-el="2" class="greeting">
+      <h1>Chào, Nguyễn Văn A!</h1>
+      <p>Vai trò: Team Lead · Tổ chức Acme — tổng quan công việc của cả nhóm</p>
+    </div>
+    <div class="page-actions">
+      <!-- (CR-01) Xuất báo cáo — chỉ Team Lead/Org Admin; Member không thấy nút (R-S02-17) -->
+      <button class="btn btn-secondary" onclick="openExport()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Xuất báo cáo</button>
+      <button data-el="3" class="btn btn-primary" onclick="openModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Tạo công việc</button>
+    </div>
+  </div>
+
+  <!-- ══ DEFAULT ══ -->
+  <div id="state-default">
+    <div data-el="4" class="stats" role="group" aria-label="Thống kê nhanh — click một thẻ để lọc danh sách">
+      <button class="stat" aria-pressed="false" onclick="toggleStat(this)"><span class="num">24</span><span class="lbl">Tổng</span></button>
+      <button class="stat" aria-pressed="false" onclick="toggleStat(this)"><span class="num">8</span><span class="lbl">Cần làm</span></button>
+      <button class="stat" aria-pressed="false" onclick="toggleStat(this)"><span class="num">6</span><span class="lbl">Đang làm</span></button>
+      <button class="stat" aria-pressed="false" onclick="toggleStat(this)"><span class="num">9</span><span class="lbl">Hoàn thành</span></button>
+      <button class="stat warn" aria-pressed="false" onclick="toggleStat(this)"><span class="num">1</span><span class="lbl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3Z"/><path d="M12 9v4M12 17h.01"/></svg>Quá hạn</span></button>
+    </div>
+
+    <div class="toolbar">
+      <div data-el="5" class="field">
+        <label for="fStatus">Trạng thái</label>
+        <select id="fStatus"><option>Tất cả</option><option>Cần làm</option><option>Đang làm</option><option>Đang duyệt</option><option>Hoàn thành</option><option>Đã huỷ</option></select>
+      </div>
+      <div data-el="6" class="field">
+        <label for="fPriority">Ưu tiên</label>
+        <select id="fPriority"><option>Tất cả</option><option>Khẩn cấp</option><option>Cao</option><option>Trung bình</option><option>Thấp</option></select>
+      </div>
+      <div data-el="7" class="field search">
+        <label for="fSearch">Tìm kiếm</label>
+        <input id="fSearch" type="search" placeholder="Tìm theo tiêu đề…" maxlength="200">
+      </div>
+    </div>
+
+    <div data-el="8" class="task-card">
+      <table aria-label="Danh sách công việc — sắp theo deadline gần nhất">
+        <thead><tr><th>Tiêu đề</th><th>Người thực hiện</th><th>Deadline</th><th>Ưu tiên</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <tr tabindex="0" aria-label="Mở chi tiết: Viết tài liệu API">
+            <td data-th="Tiêu đề" class="t-title">Viết tài liệu API</td>
+            <td data-th="Người thực hiện"><span class="assignee"><span class="avatar">LC</span> Lê C</span></td>
+            <td data-th="Deadline"><span class="deadline overdue"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3Z"/><path d="M12 9v4M12 17h.01"/></svg>12/06 09:00<span class="sr-only"> (quá hạn)</span></span></td>
+            <td data-th="Ưu tiên"><span class="badge pr-urgent"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h12l-2 4 2 4H5"/></svg>Khẩn cấp</span></td>
+            <td data-th="Trạng thái"><span class="badge st-todo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>Cần làm</span></td>
+          </tr>
+          <tr tabindex="0" aria-label="Mở chi tiết: Thiết kế trang chủ">
+            <td data-th="Tiêu đề" class="t-title">Thiết kế trang chủ</td>
+            <td data-th="Người thực hiện"><span class="assignee"><span class="avatar">TB</span> Trần B</span></td>
+            <td data-th="Deadline"><span class="deadline">14/06 17:00</span></td>
+            <td data-th="Ưu tiên"><span class="badge pr-high"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h12l-2 4 2 4H5"/></svg>Cao</span></td>
+            <td data-th="Trạng thái"><span class="badge st-doing"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg>Đang làm</span></td>
+          </tr>
+          <tr tabindex="0" aria-label="Mở chi tiết: Sửa lỗi đăng nhập">
+            <td data-th="Tiêu đề" class="t-title">Sửa lỗi đăng nhập</td>
+            <td data-th="Người thực hiện"><span class="assignee"><span class="avatar">NA</span> Nguyễn Văn A</span></td>
+            <td data-th="Deadline"><span class="deadline">20/06 17:00</span></td>
+            <td data-th="Ưu tiên"><span class="badge pr-medium"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h12l-2 4 2 4H5"/></svg>Trung bình</span></td>
+            <td data-th="Trạng thái"><span class="badge st-review"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Đang duyệt</span></td>
+          </tr>
+          <tr tabindex="0" aria-label="Mở chi tiết: Chuẩn bị demo khách hàng">
+            <td data-th="Tiêu đề" class="t-title">Chuẩn bị demo khách hàng</td>
+            <td data-th="Người thực hiện"><span class="assignee"><span class="avatar">PH</span> Phan H</span></td>
+            <td data-th="Deadline"><span class="deadline">24/06 10:00</span></td>
+            <td data-th="Ưu tiên"><span class="badge pr-low"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h12l-2 4 2 4H5"/></svg>Thấp</span></td>
+            <td data-th="Trạng thái"><span class="badge st-done"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Hoàn thành</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <button data-el="9" class="btn btn-secondary load-more">Tải thêm</button>
+    </div>
+  </div>
+
+  <!-- ══ LOADING ══ -->
+  <div id="state-loading" hidden>
+    <div data-el="4" class="stats" aria-hidden="true">
+      <div class="skeleton sk-stat"></div><div class="skeleton sk-stat"></div><div class="skeleton sk-stat"></div><div class="skeleton sk-stat"></div><div class="skeleton sk-stat"></div>
+    </div>
+    <div data-el="8" class="task-card" aria-label="Đang tải danh sách công việc">
+      <div class="skeleton sk-row"></div><div class="skeleton sk-row"></div><div class="skeleton sk-row"></div><div class="skeleton sk-row"></div><div class="skeleton sk-row"></div>
+    </div>
+  </div>
+
+  <!-- ══ EMPTY ══ -->
+  <div id="state-empty" hidden>
+    <div data-el="8" class="task-card state-block empty">
+      <div class="state-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div>
+      <h2>Chưa có công việc nào</h2>
+      <!-- gợi ý "Tạo công việc đầu tiên" + nút chỉ hiện với Team Lead / Org Admin -->
+      <p>Tạo công việc đầu tiên cho nhóm của bạn</p>
+      <button data-el="3" class="btn btn-primary" onclick="openModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Tạo công việc</button>
+    </div>
+  </div>
+
+  <!-- ══ ERROR ══ -->
+  <div id="state-error" hidden>
+    <div class="task-card state-block is-error" role="alert">
+      <div class="state-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3Z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+      <h2 style="color:var(--tint-err-tx)">Không tải được dữ liệu</h2>
+      <p>Đã có lỗi khi tải Dashboard. Vui lòng thử lại.</p>
+      <button class="btn btn-secondary" onclick="setState('default'); document.querySelector('.demo-btn').classList.add('active')">Thử lại</button>
+    </div>
+  </div>
+</main>
+
+<!-- ══ (CR-01) Modal chọn định dạng xuất báo cáo ══ -->
+<div class="backdrop" id="exportBackdrop" onclick="if(event.target===this) closeExport()">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="exportTitle">
+    <div class="modal-head">
+      <h2 id="exportTitle">Xuất báo cáo tiến độ</h2>
+      <button class="close-btn" aria-label="Đóng" onclick="closeExport()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <p class="modal-lead">
+      Báo cáo lấy <strong>đúng bộ lọc bạn đang xem</strong> và phạm vi công việc theo vai trò của bạn.
+    </p>
+    <!-- hai định dạng ngang hàng → cùng một cấp nút -->
+    <div class="export-choices">
+      <button class="btn btn-secondary" onclick="doExport('PDF')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg>PDF</button>
+      <button class="btn btn-secondary" onclick="doExport('Excel')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>Excel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Modal Tạo công việc ══ -->
+<div class="backdrop" id="modalBackdrop">
+  <div data-el="10" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <h2 id="modalTitle">Tạo công việc mới</h2>
+      <button class="close-btn" aria-label="Đóng" onclick="closeModal()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="form-group">
+      <label for="taskTitle">Tiêu đề <span class="req" aria-hidden="true">*</span></label>
+      <input id="taskTitle" type="text" maxlength="201" aria-required="true" placeholder="Vd: Viết tài liệu API" onblur="checkTitle(this)">
+      <p class="field-error" id="errTitle" role="alert">Vui lòng nhập tiêu đề</p>
+    </div>
+    <div class="form-group">
+      <label for="taskDesc">Mô tả</label>
+      <textarea id="taskDesc" maxlength="5000" placeholder="Mô tả chi tiết (tuỳ chọn, tối đa 5000 ký tự)"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="taskAssignee">Người thực hiện <span class="req" aria-hidden="true">*</span></label>
+        <select id="taskAssignee" aria-required="true">
+          <option value="">— Chọn thành viên —</option>
+          <option>Lê C</option><option>Trần B</option><option>Phan H</option><option>Nguyễn Văn A (tôi)</option>
+        </select>
+        <p class="field-error" id="errAssignee" role="alert">Vui lòng chọn người thực hiện</p>
+      </div>
+      <div class="form-group">
+        <label for="taskDeadline">Deadline <span class="req" aria-hidden="true">*</span></label>
+        <input id="taskDeadline" type="datetime-local" aria-required="true" value="2026-06-20T17:00">
+        <p class="field-error" id="errDeadline" role="alert">Deadline không được ở quá khứ</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <fieldset>
+        <legend>Mức ưu tiên</legend>
+        <div class="radio-row">
+          <label><input type="radio" name="prio" value="LOW"> Thấp</label>
+          <label><input type="radio" name="prio" value="MEDIUM" checked> Trung bình</label>
+          <label><input type="radio" name="prio" value="HIGH"> Cao</label>
+          <label><input type="radio" name="prio" value="URGENT"> Khẩn cấp</label>
+        </div>
+      </fieldset>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Huỷ</button>
+      <button class="btn btn-primary" onclick="submitTask()">Tạo công việc</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite">Đã tạo công việc</div>
+
+<p class="doc-footer">Bản dựng html-design cho tài liệu BA — dữ liệu mẫu tĩnh · TeamTasks v0.1</p>
+
+<script>
+  // ── Demo state switcher ──
+  function setState(s) {
+    ['default','loading','empty','error'].forEach(function (k) {
+      document.getElementById('state-' + k).hidden = (k !== s);
+    });
+    document.querySelectorAll('.demo-btn').forEach(function (b) { b.classList.remove('active'); });
+    if (event && event.target.classList.contains('demo-btn')) event.target.classList.add('active');
+  }
+
+  // ── Dropdown menu + panel thông báo ──
+  function toggleMenu() {
+    var m = document.getElementById('userMenu'), b = document.getElementById('avatarBtn');
+    var open = m.classList.toggle('open');
+    b.setAttribute('aria-expanded', open);
+    document.getElementById('notifPanel').classList.remove('open');
+  }
+  function togglePanel() {
+    var p = document.getElementById('notifPanel'), b = document.getElementById('bellBtn');
+    var open = p.classList.toggle('open');
+    b.setAttribute('aria-expanded', open);
+    document.getElementById('userMenu').classList.remove('open');
+  }
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.header-tools')) {
+      document.getElementById('userMenu').classList.remove('open');
+      document.getElementById('notifPanel').classList.remove('open');
+    }
+  });
+
+  // ── Thông báo: đọc 1 / đọc tất cả ──
+  function updateBadge() {
+    var n = document.querySelectorAll('.notif-item.unread').length;
+    var badge = document.getElementById('notifBadge');
+    badge.textContent = n > 99 ? '99+' : n;
+    badge.style.display = n === 0 ? 'none' : 'grid';
+    document.getElementById('bellBtn').setAttribute('aria-label', n + ' thông báo chưa đọc');
+  }
+  function readOne(el) { el.classList.remove('unread'); updateBadge(); }
+  function readAll() {
+    document.querySelectorAll('.notif-item.unread').forEach(function (el) { el.classList.remove('unread'); });
+    updateBadge();
+  }
+
+  // ── Thẻ thống kê: click để lọc (demo visual) ──
+  function toggleStat(el) {
+    var was = el.classList.contains('selected');
+    document.querySelectorAll('.stat').forEach(function (s) { s.classList.remove('selected'); s.setAttribute('aria-pressed', 'false'); });
+    if (!was) { el.classList.add('selected'); el.setAttribute('aria-pressed', 'true'); }
+  }
+
+  // ── (CR-01) Xuất báo cáo ──
+  function openExport() { document.getElementById('exportBackdrop').classList.add('open'); }
+  function closeExport() { document.getElementById('exportBackdrop').classList.remove('open'); }
+  function doExport(fmt) {
+    closeExport();
+    var status = document.getElementById('fStatus') ? document.getElementById('fStatus').value : '';
+    var t = document.getElementById('toast');
+    t.textContent = 'Đã xuất báo cáo ' + fmt + (status ? ' (lọc: ' + status + ')' : '') + ' — demo';
+    t.classList.add('show');
+    setTimeout(function () { t.classList.remove('show'); }, 4000);
+  }
+
+  // ── Modal tạo công việc ──
+  function openModal() { document.getElementById('modalBackdrop').classList.add('open'); document.getElementById('taskTitle').focus(); }
+  function isDirty() {
+    return document.getElementById('taskTitle').value.trim() !== '' || document.getElementById('taskDesc').value.trim() !== '';
+  }
+  function closeModal() {
+    if (isDirty() && !confirm('Bỏ nội dung đã nhập?')) return;
+    document.getElementById('modalBackdrop').classList.remove('open');
+    resetForm();
+  }
+  function resetForm() {
+    ['taskTitle','taskDesc'].forEach(function (id) { document.getElementById(id).value = ''; });
+    document.getElementById('taskAssignee').value = '';
+    document.querySelectorAll('.field-error').forEach(function (e) { e.classList.remove('show'); });
+    document.querySelectorAll('.modal .invalid').forEach(function (e) { e.classList.remove('invalid'); });
+  }
+  function checkTitle(input) {
+    var v = input.value.trim(), err = document.getElementById('errTitle');
+    if (v === '') { err.textContent = 'Vui lòng nhập tiêu đề'; err.classList.add('show'); input.classList.add('invalid'); }
+    else if (v.length > 200) { err.textContent = 'Tiêu đề tối đa 200 ký tự'; err.classList.add('show'); input.classList.add('invalid'); }
+    else { err.classList.remove('show'); input.classList.remove('invalid'); }
+  }
+  function submitTask() {
+    var ok = true;
+    var title = document.getElementById('taskTitle'); checkTitle(title);
+    if (title.value.trim() === '' || title.value.trim().length > 200) ok = false;
+    var asg = document.getElementById('taskAssignee');
+    if (asg.value === '') { document.getElementById('errAssignee').classList.add('show'); asg.classList.add('invalid'); ok = false; }
+    else { document.getElementById('errAssignee').classList.remove('show'); asg.classList.remove('invalid'); }
+    var dl = document.getElementById('taskDeadline');
+    if (dl.value && new Date(dl.value) < new Date()) { document.getElementById('errDeadline').classList.add('show'); dl.classList.add('invalid'); ok = false; }
+    else if (dl.value) { document.getElementById('errDeadline').classList.remove('show'); dl.classList.remove('invalid'); }
+    if (!ok) return;
+    resetForm();
+    document.getElementById('modalBackdrop').classList.remove('open');
+    var t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(function () { t.classList.remove('show'); }, 4000);
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      document.getElementById('userMenu').classList.remove('open');
+      document.getElementById('notifPanel').classList.remove('open');
+      var mb = document.getElementById('modalBackdrop');
+      if (mb.classList.contains('open')) closeModal();
+    }
+  });
+
+function toggleNav(btn){
+  const h = btn.closest('.app-header');
+  const open = h.getAttribute('data-nav') !== 'open';
+  h.setAttribute('data-nav', open ? 'open' : 'closed');
+  btn.setAttribute('aria-expanded', String(open));
+}
+
+function statebarToggle(btn){
+  const box = btn.closest('.statebar');
+  const open = box.dataset.open !== 'true';
+  box.dataset.open = String(open);
+  btn.setAttribute('aria-expanded', String(open));
+}
+</script>
+</body>
+</html>

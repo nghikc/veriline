@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TeamTasks — Đăng nhập</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      color: #111827;
+    }
+
+    /* ── Branding ── */
+    .brand {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      background: #4f46e5;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    .brand-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: #111827;
+    }
+    .brand-tagline {
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      padding: 32px 32px 24px;
+      width: 100%;
+      max-width: 420px;
+    }
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      color: #111827;
+      text-align: center;
+    }
+
+    /* ── Form ── */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+    label .req {
+      color: #ef4444;
+      margin-left: 4px;
+    }
+    .input-wrap {
+      position: relative;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 15px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.15s;
+      background: #fff;
+      color: #111827;
+    }
+    input:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
+    }
+    input.error {
+      border-color: #ef4444;
+    }
+    input:disabled {
+      background: #f9fafb;
+      color: #9ca3af;
+      cursor: not-allowed;
+    }
+    .toggle-pw {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #6b7280;
+      padding: 4px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+    }
+    .toggle-pw:hover { color: #374151; }
+    input[type="password"] { padding-right: 40px; }
+    input[type="text"].pw-field { padding-right: 40px; }
+
+    /* ── Inline error ── */
+    .field-error {
+      font-size: 12px;
+      color: #ef4444;
+      margin-top: 4px;
+      display: none;
+    }
+    .field-error.visible { display: block; }
+
+    /* ── Alert banner ── */
+    .alert {
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .alert.visible { display: flex; }
+    .alert-icon { flex-shrink: 0; display: flex; }
+    .alert-text { line-height: 1.4; }
+
+    .alert-warning {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #92400e;
+    }
+    .alert-error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+    }
+    .alert-locked {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+    }
+
+    .countdown {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .countdown-bar {
+      margin-top: 8px;
+      background: #fecaca;
+      border-radius: 4px;
+      height: 4px;
+      overflow: hidden;
+    }
+    .countdown-fill {
+      height: 100%;
+      background: #ef4444;
+      border-radius: 4px;
+      transition: width 1s linear;
+    }
+
+    /* ── Submit button ── */
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .btn-primary:hover:not(:disabled) { background: #4338ca; }
+    .btn-primary:active:not(:disabled) { background: #3730a3; }
+    .btn-primary:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+      opacity: 0.75;
+    }
+    .btn-primary.loading { background: #6366f1; cursor: not-allowed; }
+
+    /* Spinner */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Snackbar ── */
+    .snackbar {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1f2937;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      transition: transform 0.25s ease;
+      z-index: 100;
+      white-space: nowrap;
+    }
+    .snackbar.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 24px;
+      font-size: 12px;
+      color: #9ca3af;
+      text-align: center;
+    }
+
+  
+/* `body.auth-shell` = vùng CHƯA đăng nhập (canon: ba-html-design/shell.md §1.5).
+   Không có app-header/app-nav là ĐÚNG, không phải thiếu. Layout căn giữa đã nằm ở rule `body` trên. */
+/* ── Thanh trạng thái UI (canon: ba-html-design/shell.md §2.3) ────────────── */
+.statebar{position:static;z-index:40;background:var(--surface-app,#f9fafb);
+  border-bottom:1px dashed var(--border,#e5e7eb);font-size:12px}
+.statebar__toggle{display:block;width:100%;text-align:left;padding:6px 16px;background:none;
+  border:0;color:var(--text-placeholder,#9ca3af);cursor:pointer;font-size:11px;letter-spacing:.02em}
+.statebar__body{display:none;padding:0 16px 8px;flex-direction:column;gap:6px}
+.statebar[data-open="true"] .statebar__body{display:flex}
+.statebar__group{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.statebar__label{flex:0 0 104px;color:var(--text-placeholder,#9ca3af);font-size:11px}
+.statebar__btn{padding:4px 10px;border:1px solid var(--border,#d1d5db);border-radius:999px;
+  background:var(--surface-card,#fff);color:var(--text-secondary,#4b5563);font-size:12px;cursor:pointer}
+.statebar__btn.active,.statebar__btn.is-active{background:var(--brand-primary,#4f46e5);
+  border-color:var(--brand-primary,#4f46e5);color:#fff}
+@media (max-width:767px){.statebar__label{flex-basis:100%}}
+/* 07 §10: tôn trọng prefers-reduced-motion — bỏ chuyển động trượt/chuyển màu, spinner giữ để còn tín hiệu đang tải */
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{transition:none!important}}
+</style>
+</head>
+<body class="auth-shell">
+
+  <!-- Demo state switcher (cho tài liệu BA, không có trong production) -->
+  <!-- ▼ UI-STATE-BAR — chỉ có trong html-design, KHÔNG có trong production -->
+<div class="statebar" id="statebar" data-open="true">
+  <button class="statebar__toggle" aria-expanded="true" aria-controls="statebarBody" onclick="statebarToggle(this)">◆ Trạng thái giao diện (bản đặc tả BA — không có trong production) <span aria-hidden="true">▾</span></button>
+  <div class="statebar__body" id="statebarBody">
+    <div class="statebar__group" data-group="ui">
+      <span class="statebar__label">Trạng thái UI</span>
+      <button class="statebar__btn is-active" onclick="setState('idle')">Mặc định</button>
+      <button class="statebar__btn" onclick="setState('loading')">Đang tải</button>
+    </div>
+    <div class="statebar__group" data-group="error">
+      <span class="statebar__label">Ca lỗi</span>
+      <button data-trace="E-S01-05" class="statebar__btn" onclick="setState('error-wrong')">Sai MK (lần 3)</button>
+      <button data-trace="E-S01-06" class="statebar__btn" onclick="setState('error-locked-temp')">Khoá tạm</button>
+      <button data-trace="E-S01-07" class="statebar__btn" onclick="setState('error-locked-perm')">Khoá vĩnh viễn</button>
+      <button data-trace="E-S01-08" class="statebar__btn" onclick="setState('error-network')">Mất mạng</button>
+    </div>
+    <div class="statebar__group" data-group="biz">
+      <span class="statebar__label">Trạng thái nghiệp vụ</span>
+      <button data-trace="E-S01-11" class="statebar__btn" onclick="setState('force-change')">Buộc đổi MK (CR-02)</button>
+    </div>
+  </div>
+</div>
+<!-- ▲ UI-STATE-BAR -->
+
+  <!-- ── Branding ── -->
+  <div data-el="1" class="brand" role="banner">
+    <div class="brand-logo">
+      <div class="brand-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <span class="brand-name">TeamTasks</span>
+    </div>
+    <p class="brand-tagline">Quản lý công việc nhóm</p>
+  </div>
+
+  <!-- ── Login Card ── -->
+  <main>
+    <div class="card">
+      <h1 class="card-title">Đăng nhập vào tài khoản</h1>
+
+      <!-- Alert: sai thông tin -->
+      <div data-el="5" class="alert alert-warning" id="alert-wrong" role="alert" aria-live="assertive">
+        <span class="alert-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span>
+        <span class="alert-text" id="alert-wrong-text">Sai email hoặc mật khẩu. Còn 2 lần thử.</span>
+      </div>
+
+      <!-- Alert: khoá tạm -->
+      <div data-el="7" class="alert alert-locked" id="alert-locked-temp" role="alert" aria-live="assertive">
+        <span class="alert-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        <div class="alert-text">
+          Tài khoản đang bị khoá. Vui lòng thử lại sau
+          <span class="countdown" id="countdown-text">14 phút 59 giây</span>.
+          <div class="countdown-bar">
+            <div class="countdown-fill" id="countdown-fill" style="width: 99%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert: khoá vĩnh viễn -->
+      <div data-el="8" class="alert alert-error" id="alert-locked-perm" role="alert">
+        <span class="alert-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        <span class="alert-text">Tài khoản của bạn bị khoá vĩnh viễn. Liên hệ quản trị viên để được hỗ trợ.</span>
+      </div>
+
+      <form id="login-form" novalidate onsubmit="return false;">
+
+        <!-- Email -->
+        <div data-el="2" class="form-group">
+          <label for="email">Email<span class="req" aria-hidden="true">*</span></label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="ten@cty.vn"
+            autocomplete="email"
+            required
+            aria-required="true"
+            aria-describedby="email-error"
+            value="an.nguyen@cty.vn"
+          />
+          <p class="field-error" id="email-error" role="alert">Vui lòng nhập địa chỉ email hợp lệ.</p>
+        </div>
+
+        <!-- Mật khẩu -->
+        <div data-el="3" class="form-group">
+          <label for="password">Mật khẩu<span class="req" aria-hidden="true">*</span></label>
+          <div class="input-wrap">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              autocomplete="current-password"
+              required
+              aria-required="true"
+              aria-describedby="password-error"
+              value="••••••••••"
+            />
+            <button data-el="4"
+              type="button"
+              class="toggle-pw"
+              id="toggle-pw-btn"
+              aria-label="Hiện mật khẩu"
+              onclick="togglePassword()"
+            ><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg></button>
+          </div>
+          <p class="field-error" id="password-error" role="alert">Vui lòng nhập mật khẩu.</p>
+        </div>
+
+        <!-- Submit -->
+        <button data-el="6" type="submit" class="btn btn-primary" id="submit-btn">
+          <span id="btn-text">Đăng nhập</span>
+        </button>
+
+      </form>
+    </div>
+
+    <!-- ── (CR-02) Màn buộc đổi mật khẩu tạm — hiện thay cho form đăng nhập ── -->
+    <div class="card" id="force-change-card" style="display:none">
+      <h1 class="card-title">Đổi mật khẩu trước khi tiếp tục</h1>
+      <div class="alert alert-warning visible" role="alert" style="position:static">
+        <span class="alert-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></svg></span>
+        <span class="alert-text">Bạn đang dùng mật khẩu tạm. Hãy đặt mật khẩu riêng để tiếp tục — bạn sẽ không vào được màn nào khác cho tới khi đổi xong.</span>
+      </div>
+      <p style="font-size:12px;color:var(--text-placeholder);margin:0 0 16px">
+        Bộ trường và luật dưới đây <strong>dùng lại form "Đổi mật khẩu" của S04</strong> (cùng thanh đo độ mạnh, cùng ràng buộc <code>R-S04-N02</code>). Đây là mockup rút gọn.
+      </p>
+      <form novalidate onsubmit="return false;">
+        <div class="form-group">
+          <label for="fc-new">Mật khẩu mới<span class="req" aria-hidden="true">*</span></label>
+          <input type="password" id="fc-new" autocomplete="new-password" placeholder="Tối thiểu 8 ký tự, gồm chữ và số">
+        </div>
+        <div class="form-group">
+          <label for="fc-confirm">Xác nhận mật khẩu mới<span class="req" aria-hidden="true">*</span></label>
+          <input type="password" id="fc-confirm" autocomplete="new-password">
+        </div>
+        <button type="submit" class="btn btn-primary">Đổi mật khẩu</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Snackbar mất mạng -->
+  <div class="snackbar" id="snackbar" role="status" aria-live="polite">
+    Lỗi kết nối. Vui lòng thử lại.
+  </div>
+
+  <footer data-el="9">
+    Phiên bản 1.0 &nbsp;·&nbsp; © 2026 TeamTasks
+  </footer>
+
+  <script>
+    // Icon hiện/ẩn mật khẩu — inline SVG kiểu Lucide (07 §5), không emoji
+    const SVG_OPEN = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+    const ICON_EYE = SVG_OPEN + '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>';
+    const ICON_EYE_OFF = SVG_OPEN + '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>';
+    let countdownInterval = null;
+    let remaining = 899; // giây (14:59)
+
+    function setState(state) {
+      // reset tất cả
+      clearInterval(countdownInterval);
+      document.querySelectorAll('.alert').forEach(el => el.classList.remove('visible'));
+      document.querySelectorAll('.field-error').forEach(el => el.classList.remove('visible'));
+      document.getElementById('snackbar').classList.remove('show');
+
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('password');
+      const submitBtn = document.getElementById('submit-btn');
+      const btnText = document.getElementById('btn-text');
+
+      // remove spinner nếu có
+      const oldSpinner = submitBtn.querySelector('.spinner');
+      if (oldSpinner) oldSpinner.remove();
+
+      emailInput.disabled = false;
+      passwordInput.disabled = false;
+      emailInput.classList.remove('error');
+      passwordInput.classList.remove('error');
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('loading');
+      btnText.textContent = 'Đăng nhập';
+
+      // cập nhật active button
+      document.querySelectorAll('.statebar__btn').forEach(b => b.classList.toggle('is-active', b.getAttribute('onclick') === `setState('${state}')`));
+
+      // (CR-02) mặc định: hiện form đăng nhập, ẩn card buộc đổi mật khẩu
+      document.querySelector('#login-form').closest('.card').style.display = '';
+      document.getElementById('force-change-card').style.display = 'none';
+
+      switch (state) {
+        case 'force-change':
+          // Buộc đổi mật khẩu: ẩn hẳn form đăng nhập, chỉ còn card đổi mật khẩu
+          document.querySelector('#login-form').closest('.card').style.display = 'none';
+          document.getElementById('force-change-card').style.display = '';
+          break;
+
+        case 'idle':
+          emailInput.value = '';
+          passwordInput.value = '';
+          break;
+
+        case 'loading':
+          emailInput.disabled = true;
+          passwordInput.disabled = true;
+          submitBtn.disabled = true;
+          submitBtn.classList.add('loading');
+          btnText.textContent = 'Đang đăng nhập...';
+          const spinner = document.createElement('span');
+          spinner.className = 'spinner';
+          submitBtn.insertBefore(spinner, btnText);
+          break;
+
+        case 'error-wrong':
+          document.getElementById('alert-wrong').classList.add('visible');
+          document.getElementById('alert-wrong-text').textContent = 'Sai email hoặc mật khẩu. Còn 2 lần thử.';
+          passwordInput.value = '';
+          emailInput.value = 'an.nguyen@cty.vn';
+          break;
+
+        case 'error-locked-temp':
+          document.getElementById('alert-locked-temp').classList.add('visible');
+          submitBtn.disabled = true;
+          emailInput.value = 'an.nguyen@cty.vn';
+          passwordInput.value = '';
+          remaining = 899;
+          startCountdown();
+          break;
+
+        case 'error-locked-perm':
+          document.getElementById('alert-locked-perm').classList.add('visible');
+          submitBtn.disabled = true;
+          emailInput.value = 'an.nguyen@cty.vn';
+          passwordInput.value = '';
+          break;
+
+        case 'error-network':
+          emailInput.value = 'an.nguyen@cty.vn';
+          const snackbar = document.getElementById('snackbar');
+          snackbar.classList.add('show');
+          setTimeout(() => snackbar.classList.remove('show'), 3500);
+          break;
+      }
+    }
+
+    function startCountdown() {
+      updateCountdownDisplay();
+      countdownInterval = setInterval(() => {
+        remaining--;
+        if (remaining <= 0) {
+          clearInterval(countdownInterval);
+          document.getElementById('alert-locked-temp').classList.remove('visible');
+          document.getElementById('submit-btn').disabled = false;
+          document.getElementById('email').value = '';
+          document.getElementById('password').value = '';
+          return;
+        }
+        updateCountdownDisplay();
+      }, 1000);
+    }
+
+    function updateCountdownDisplay() {
+      const min = Math.floor(remaining / 60);
+      const sec = remaining % 60;
+      document.getElementById('countdown-text').textContent =
+        `${min} phút ${String(sec).padStart(2, '0')} giây`;
+      const pct = (remaining / 900) * 100;
+      document.getElementById('countdown-fill').style.width = pct + '%';
+    }
+
+    function togglePassword() {
+      const input = document.getElementById('password');
+      const btn = document.getElementById('toggle-pw-btn');
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.setAttribute('aria-label', 'Ẩn mật khẩu');
+        btn.innerHTML = ICON_EYE_OFF;
+      } else {
+        input.type = 'password';
+        btn.setAttribute('aria-label', 'Hiện mật khẩu');
+        btn.innerHTML = ICON_EYE;
+      }
+    }
+
+    // Email blur validation
+    document.getElementById('email').addEventListener('blur', function() {
+      const val = this.value.trim();
+      const errEl = document.getElementById('email-error');
+      if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+        this.classList.add('error');
+        errEl.classList.add('visible');
+      } else {
+        this.classList.remove('error');
+        errEl.classList.remove('visible');
+      }
+    });
+  
+function statebarToggle(btn){
+  const box = btn.closest('.statebar');
+  const open = box.dataset.open !== 'true';
+  box.dataset.open = String(open);
+  btn.setAttribute('aria-expanded', String(open));
+}
+</script>
+</body>
+</html>

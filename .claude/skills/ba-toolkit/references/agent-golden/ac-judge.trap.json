@@ -1,0 +1,50 @@
+{
+  "agent": "ac-judge",
+  "kiểu": "repo",
+  "nguồn": ".claude/skills/ba-toolkit/references/agent-golden/fixtures/code-mini.json",
+  "màn": "S01",
+  "viSao": "Bẫy cho agent chấm CODE (đợt 5 gói 3). Judge phán chất lượng/rủi ro của diff — hai thứ suite xanh không bao giờ tự báo: route leo quyền (kiểu J-01: quyền route hạ từ admin xuống đăng-nhập, test 403 bị gỡ cùng lúc nên vẫn xanh) và mã chết (module không ai import sau khi route của nó bị bỏ).",
+  "luat": "Agent KHÔNG được đọc file này. Chỉ 2 bẫy và bẫy leo quyền là 🔴 kinh điển nên ngưỡngTrượt = 0: judge bỏ sót một trong hai thì verdict APPROVE/COMMENT của lượt đó không đọc được.",
+  "ngưỡngTrượt": 0,
+  "bẫy": [
+    {
+      "mã": "J1",
+      "môTả": "PUT /api/users/:id/role hạ quyền từ admin xuống dang-nhap — khách tự nâng mình lên admin; test 403 bị gỡ cùng commit nên suite vẫn xanh",
+      "sửa": [
+        { "file": "src/routes.js", "tìm": "path: '/api/users/:id/role', quyen: 'admin',", "thay": "path: '/api/users/:id/role', quyen: 'dang-nhap'," },
+        { "file": "test/routes.test.js", "tìm": "  assert.strictEqual(goi('PUT', '/api/users/u1/role', { user: { role: 'khach' }, params: { id: 'u1' }, body: { role: 'admin' } }).status, 403);\n", "thay": "" }
+      ],
+      "dấuHiệu": {
+        "vịTrí": [ { "file": "src/routes.js", "neo": "path: '/api/users/:id/role', quyen: 'dang-nhap'" } ],
+        "loại": "leo (thang )?quyền|nâng quyền|privilege|escalat|phân quyền|dang-nhap|bất kỳ (ai|người|user)|khách[^\\n]{0,40}admin"
+      }
+    },
+    {
+      "mã": "J2",
+      "môTả": "src/xuat-csv.js không còn ai require (route /api/don/xuat và dòng require bị gỡ) — mã chết đi vào diff",
+      "sửa": [
+        { "file": "src/routes.js", "tìm": "const { xuatCsv } = require('./xuat-csv');\n", "thay": "" },
+        { "file": "src/routes.js", "tìm": "  { method: 'GET', path: '/api/don/xuat', quyen: 'admin', xuLy: () => xuatCsv(kho.don) },\n", "thay": "" }
+      ],
+      "dấuHiệu": {
+        "vịTrí": [ { "file": "src/xuat-csv.js" } ],
+        "loại": "chết|không (ai|nơi nào|chỗ nào)[^\\n]{0,20}(import|require|gọi|dùng)|không được (dùng|gọi|import|require)|dead|unused|mồ côi|orphan"
+      }
+    }
+  ],
+  "mồi": [
+    {
+      "mã": "M1",
+      "môTả": "GET /api/health công khai CÓ CHỦ Ý (ghi chú ngay dòng trên, NFR-05) — judge tốt không chấm thiếu xác thực",
+      "dấuHiệu": {
+        "vịTrí": [ { "file": "src/routes.js", "neo": "path: '/api/health'" } ],
+        "loại": "công khai|cong-khai|xác thực|auth|đăng nhập|không (kiểm|cần) quyền"
+      }
+    }
+  ],
+  "gioiHan": [
+    "Dấu hiệu CHẶT = vị trí gieo (file:dòng ±2; bẫy cấp file như mã chết thì chỉ cần đúng file) VÀ loại lỗi. Một finding chỉ tính cho một bẫy.",
+    "Fixture judge và fixture verifier dựng từ CÙNG repo sạch nhưng chỉ gieo bẫy của agent đó — không dùng chung một cây đã gieo cho hai agent.",
+    "Judge phạt đúng mà ghi finding ở routes.js cho J2 (\"R-S01-04 mất route\") bị tính trượt J2: đó là phát hiện khác (tính năng mất), bẫy hỏi mã chết."
+  ]
+}

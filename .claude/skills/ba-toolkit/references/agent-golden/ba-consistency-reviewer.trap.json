@@ -1,0 +1,58 @@
+{
+  "agent": "ba-consistency-reviewer",
+  "mode": "project",
+  "nguồn": "example/docs",
+  "viSao": "Golden kiểm được 'agent có ĐỔI không', không kiểm được 'agent có CÒN TÌM RA không'. Bẫy cài sẵn là mặt còn lại: gieo lỗi CÓ ĐÁP ÁN vào bản sao tài liệu mẫu rồi đếm agent tìm lại được mấy cái. Mọi bẫy chọn ở vùng mà golden 14/09/2026 KHÔNG có finding (NFR-01, NFR-02, F05, S03/S04) — trùng vùng thì không phân biệt được bẫy với phát hiện thật.",
+  "luat": "Agent KHÔNG được đọc file này. Trượt > 1 bẫy ⇒ lượt đó KHÔNG merge vào 00-gaps.md (kết quả không đáng tin, không phải tài liệu sạch).",
+  "bẫy": [
+    {
+      "mã": "P1",
+      "môTả": "10-architecture nới ngân sách hiệu năng lên 5s trong khi NFR-01 của 01-requirements vẫn đòi ≤ 2 giây p95",
+      "sửa": {
+        "file": "10-architecture.md",
+        "tìm": "| Phản hồi p95 ≤ 2s @200 đồng thời | NFR-01 |",
+        "thay": "| Phản hồi p95 ≤ 5s @200 đồng thời | NFR-01 |"
+      },
+      "dấuHiệu": "NFR-01|p95|hieu-nang|hiệu năng|2s|5s|2 giây"
+    },
+    {
+      "mã": "P2",
+      "môTả": "10-architecture hạ bcrypt xuống ≥8 trong khi NFR-02 đòi cost ≥ 12",
+      "sửa": {
+        "file": "10-architecture.md",
+        "tìm": "| Mật khẩu bcrypt ≥12, JWT RS256, HTTPS | NFR-02 |",
+        "thay": "| Mật khẩu bcrypt ≥8, JWT RS256, HTTPS | NFR-02 |"
+      },
+      "dấuHiệu": "NFR-02|bcrypt|mat-khau|mật khẩu|bao-mat|bảo mật"
+    },
+    {
+      "mã": "P3",
+      "môTả": "02-functions nói F05 chốt tại S04 trong khi 03-overview và folder màn đặt F05 ở S03",
+      "sửa": {
+        "file": "02-functions.md",
+        "tìm": "FR-07 — đã chốt tại S03: mở trong toàn tổ chức",
+        "thay": "FR-07 — đã chốt tại S04: mở trong toàn tổ chức"
+      },
+      "dấuHiệu": "F05",
+      "ghiChú": "Dấu hiệu ban đầu `F05|S03|S04|màn` quá lỏng: lần chạy thật 20/09/2026 có một finding khác về điều hướng S04 (CR-02) khớp nhầm, chấm thành \"tìm ra\" trong khi agent không hề chạm chỗ bị sửa. Dấu hiệu phải chứa mã bị GIEO, không phải mã hàng xóm."
+    }
+  ],
+  "mồi": [
+    {
+      "mã": "M1",
+      "môTả": "Khác biệt CÓ CHỦ Ý và đã nêu lý do ngay tại chỗ — agent tốt không được coi là mâu thuẫn",
+      "sửa": {
+        "file": "10-architecture.md",
+        "tìm": "| Cache/khoá | Redis |",
+        "thay": "| Cache/khoá | Redis *(staging chạy 50 đồng thời thay vì 200 của NFR-01 — cố ý thu nhỏ môi trường, không phải hạ yêu cầu)* |"
+      },
+      "dấuHiệu": "staging|50 đồng thời|moi-truong|môi trường"
+    }
+  ],
+  "gioiHan": [
+    "`dấuHiệu` so trên `ids` + `chu_de` của khối findings — agent mô tả đúng vấn đề mà dùng từ khác vẫn bị tính trượt. Sửa dấu hiệu khi gặp ca đó, đừng nới luật.",
+    "Mồi là HEURISTIC: flag mồi chỉ ghi cảnh báo, không tính FAIL. Bẫy mới quyết định.",
+    "Dấu hiệu lỏng sinh DƯƠNG TÍNH GIẢ cho chính phép chấm (đo 20/09/2026, bẫy P3). Mỗi dấu hiệu phải gắn với mã thật sự bị sửa.",
+    "KHÔNG dùng lượt chạy trên fixture có bẫy để `check` golden: golden ghi trên tài liệu SẠCH, tài liệu đã gieo lỗi thì lệch là đương nhiên."
+  ]
+}

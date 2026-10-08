@@ -1,0 +1,14 @@
+{
+  "name": "teamtasks-e2e",
+  "private": true,
+  "description": "Bộ E2E của TeamTasks — package RIÊNG, cùng repo với code sản phẩm.",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "report": "playwright show-report",
+    "codegen": "playwright codegen $E2E_BASE_URL"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}

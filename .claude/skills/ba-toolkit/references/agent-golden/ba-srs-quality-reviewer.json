@@ -1,0 +1,52 @@
+{
+  "agent": "ba-srs-quality-reviewer",
+  "mode": "screen",
+  "sốFinding": 19,
+  "ids": [
+    "BRule-S01-03",
+    "BRule-S01-05",
+    "BRule-S01-06",
+    "BRule-S01-07",
+    "BRule-S01-08",
+    "E-S01-07",
+    "R-S01-01",
+    "R-S01-02",
+    "R-S01-04",
+    "R-S01-07",
+    "R-S01-08",
+    "R-S01-09",
+    "R-S01-10",
+    "R-S01-11",
+    "R-S01-N01",
+    "R-S01-N02",
+    "R-S01-N03",
+    "R-S01-N04",
+    "R-S01-N05"
+  ],
+  "chủĐề": [
+    "chua-chot-tbd-complete",
+    "gop-nhieu-viec-singular",
+    "khong-kiem-chung-duoc-verifiable",
+    "lech-khuon-conforming",
+    "mau-thuan-noi-bo-unambiguous",
+    "mo-ho-unambiguous",
+    "nguon-khong-day-du-correct",
+    "nguon-vong-tron-correct",
+    "sai-tam-appropriate",
+    "thieu-dieu-kien-loai-tru-complete",
+    "thieu-du-lieu-luu-complete",
+    "thieu-du-nghia-complete",
+    "thieu-nhanh-complete",
+    "thieu-phuong-phap-kiem-chung-verifiable"
+  ],
+  "mức": {
+    "🔴": 1,
+    "🟡": 14,
+    "🟢": 4
+  },
+  "ghiLúc": "2026-09-11",
+  "gioiHan": [
+    "golden = TẬP mã + chủ đề + phân bố mức của MỘT lần chạy; không phải \"đáp án đúng\", chỉ là \"lần trước agent thấy gì\"",
+    "ngưỡng trôi 0,6 là ước lượng, chưa đo trên nhiều lần chạy cùng prompt — chỉnh khi có số"
+  ]
+}
