@@ -231,6 +231,16 @@ else {
 gioiHan.push('tần suất skill chỉ là thói quen TRÊN MÁY NÀY; "chưa gọi" ≠ "vô dụng" — đừng xoá skill theo con số này');
 gioiHan.push('báo cáo này ĐẾM, không phán: nó không biết tài liệu đúng hay sai, chỉ biết có hay không');
 
+// Vào cửa (M7): số phút từ lúc cài tới portal demo / portal dự án thật — đo tiêu chí "người lạ ≤ 15 phút" (docs/decisions/32).
+// Sổ do ba-start ghi (.claude/ba-start.json); không có sổ → null (dự án không đi qua ba-start, hoặc cài trước khi có nó).
+const vàoCửa = (() => {
+  let s = null; try { s = JSON.parse(đọc(path.join(ROOT, '.claude', 'ba-start.json'))); } catch { return null; }
+  if (!s || typeof s !== 'object') return null;
+  const mốc0 = (nguồn && nguồn.càiLúc) || s.batĐầu || null;
+  const phút = (t) => (mốc0 && t ? Math.round((Date.parse(t) - Date.parse(mốc0)) / 60000) : null);
+  return { tính: nguồn && nguồn.càiLúc ? 'từ lúc cài' : 'từ lần đầu chạy ba-start', phútTớiDemoPortal: phút(s.demoPortalAt), phútTớiPortalThật: phút(s.firstPortalAt), loại: s.loại || null, hồSơ: s.hồSơ || null };
+})();
+
 const out = {
   schema: 1,
   ngày: new Date().toISOString().slice(0, 10),
@@ -243,6 +253,7 @@ const out = {
   sổ: sổSách,
   baseline,
   skill,
+  vàoCửa,
   gioiHan,
 };
 
@@ -267,6 +278,7 @@ if (sổSách.cr) console.log(`CR: ${sổSách.cr.mở}/${sổSách.cr.tổng} m
 if (sổSách.wi) console.log(`WI: ${sổSách.wi.mở}/${sổSách.wi.tổng} mở`);
 if (sổSách.pdTreo) console.log(`PD treo (chờ người quyết): ${sổSách.pdTreo}`);
 console.log(`Baseline bị sửa: ${baseline.lượtGhi} lượt ghi · ${baseline.idBịChạm} mã ID bị chạm`);
+if (vàoCửa) console.log(`Vào cửa (${vàoCửa.tính}): portal demo ${vàoCửa.phútTớiDemoPortal ?? '—'} phút · portal dự án ${vàoCửa.phútTớiPortalThật ?? '—'} phút · loại ${vàoCửa.loại || '?'} · hồ sơ ${vàoCửa.hồSơ || '?'}`);
 if (skill) console.log(`Skill: ${skill.đãGọi}/${skill.tổngSkill} từng gọi · ${skill.tổngLượt} lượt · ${skill.chưaGọi} chưa gọi (${skill.sốPhiên} phiên)`);
 console.log(`\nGiới hạn:\n${gioiHan.map((g) => '  · ' + g).join('\n')}`);
 console.log(`\n→ ${path.relative(ROOT, OUT)}`);

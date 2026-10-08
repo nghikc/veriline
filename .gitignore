@@ -32,3 +32,6 @@ _ref/
 
 # output harness-eval (tech-leads-club) — sinh ra, ~3 MB/lần chạy
 .harness-eval/
+
+# demo của ba-start (ba-start/scripts/demo.js)
+veriline-demo/

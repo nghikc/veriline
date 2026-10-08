@@ -156,6 +156,7 @@ Mặc định toolkit chạy **đầy đủ**: mỗi màn 9 tài liệu, cộng 
 | `ac-audit-web` | soát giao diện người dùng thấy theo WCAG 2.1 AA · UX · Core Web Vitals, ra `AU-nn` có `file:line` |
 | `ac-ci` | PR đã mở mà CI đỏ: cắt log, đoán loại, lô sửa cho `ac-builder`, canh tới xanh |
 | `ba-atlassian` ⚗️ *thử nghiệm* | sổ WI/CR ↔ Jira (push khoá, pull trạng thái) và đẩy `.md` lên Confluence qua Atlassian MCP |
+| `ba-start` | lần đầu dùng Veriline hay chưa biết bắt đầu từ đâu |
 
 ---
 

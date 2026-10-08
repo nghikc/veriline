@@ -38,7 +38,7 @@ hoso.docs = removed 00-vision.md 00-personas.md 00-process.md 00-urd.md 00-brain
 # Skill BẮT BUỘC có "Cổng phương án" (mục cùng tên ở trên). lint.js soát: mỗi skill dưới đây
 # phải có chuỗi "Cổng phương án" trong SKILL.md. Thêm orchestrator/skill ghi-nhiều-file mới
 # thì thêm vào đây, không thì lint không bắt được lúc nó quên cổng.
-gate.plan.skills = ac-po ba-threat-model ba-migration ba-atlassian ac-agent ac-team ac-eval ac-memory ac-jury ba-onepager ba-auto ba-init ba-discover ba-add-screen ba-add-feature ba-remove ba-batch ba-accept ba-release ba-reverse ba-reverse-doc ba-sitemap ba-prototype ba-meet ba-change-request ba-task ba-screen-spec ba-requirements ba-screens ba-architecture ba-userguide ba-conformance ba-new-skill ba-proto-first ba-proto-html ba-userguide-video
+gate.plan.skills = ac-po ba-threat-model ba-migration ba-atlassian ac-agent ac-team ac-eval ac-memory ac-jury ba-onepager ba-auto ba-init ba-discover ba-add-screen ba-add-feature ba-remove ba-batch ba-accept ba-release ba-reverse ba-reverse-doc ba-sitemap ba-prototype ba-meet ba-change-request ba-task ba-screen-spec ba-requirements ba-screens ba-architecture ba-userguide ba-conformance ba-new-skill ba-proto-first ba-proto-html ba-userguide-video ba-start
 # Tập con của gate.plan.skills ĐƯỢC ORCHESTRATOR GỌI XUỐNG → phải có điều khoản miễn trừ
 # "gọi từ orchestrator đã qua cổng → không hỏi duyệt lại" (xem "Cổng cha bao phủ cổng con").
 # Thiếu điều khoản = người dùng bị hỏi duyệt 2 lần cho cùng một việc. lint.js soát.
@@ -63,7 +63,7 @@ profile.mini.files = ascii-screen srs html-design test plan
 # api-integration/dashboard/userguide/figma/prototype… — ít skill thì agent chọn đúng hơn.
 # `ba-toolkit` và TOÀN BỘ `dev-*` luôn được cài kèm — dev-run trỏ tới 8 skill dev-* khác nên
 # framework đó không chia nhỏ được. Không cần liệt kê chúng ở đây; install.js tự thêm.
-profile.mini.skills = ba-toolkit ba-next ba-requirements ba-functions ba-screens ba-screen-spec ba-test ba-html-design ba-build ba-review ba-track ba-trace ba-change-request ba-add-screen ba-remove ba-portal ba-export dev-run
+profile.mini.skills = ba-toolkit ba-next ba-requirements ba-functions ba-screens ba-screen-spec ba-test ba-html-design ba-build ba-review ba-track ba-trace ba-change-request ba-add-screen ba-remove ba-portal ba-export dev-run ba-start
 # PHẠM VI dự án — trục thứ hai, độc lập với hồ sơ (xem conv-gates.md → "Hồ sơ dự án" → "Phạm vi").
 # Hồ sơ = đầu tư bao nhiêu vào tài liệu; phạm vi = có DEV hay không. Khai cùng dòng trong
 # 00-tracking.md: `Phạm vi: `docs``. Không khai = full. Đọc qua profile.js `readScope()`.
@@ -163,7 +163,7 @@ devserver.states = của-dự-án:0 lạ:3 không-thấy:1
 # `chỉ-test-dùng` (export chỉ file test nhắc — setter `dat*` làm đường nối cho test) in ra 🟢, KHÔNG tính exit.
 judge.wiring.labels = chỉ-nhắc-tên mồ-côi export-mồ-côi chỉ-test-dùng
 # Skill/script phải tôn trọng hồ sơ (đọc qua ba-toolkit/profile.js, và nói ra khi bỏ qua).
-profile.aware = ba-next ba-accept ba-review ba-task ba-changelog ba-conformance ba-screens ba-screen-spec ba-test ba-html-design ba-uat ba-checklist ba-track ba-export ba-trace ba-build ba-proto-first ba-proto-html ba-flow ac-verify ac-team ac-judge ac-eval ba-migration ba-atlassian ac-ci ac-audit-web ba-threat-model ac-po
+profile.aware = ba-next ba-accept ba-review ba-task ba-changelog ba-conformance ba-screens ba-screen-spec ba-test ba-html-design ba-uat ba-checklist ba-track ba-export ba-trace ba-build ba-proto-first ba-proto-html ba-flow ac-verify ac-team ac-judge ac-eval ba-migration ba-atlassian ac-ci ac-audit-web ba-threat-model ac-po ba-start
 # Skill là MỐC của gap 🟠 ("Nợ có hạn", xem "Quy ước gate") → phải có CỔNG THU NỢ trong SKILL.md
 # (chuỗi "thu nợ 🟠"). Thiếu cổng này thì 🟠 không bao giờ bị thu, tức là biến thành gap bị lờ đi
 # vĩnh viễn — đúng thứ mức 🟠 sinh ra để chống. Thêm mốc mới ở ba-review thì thêm skill vào đây.

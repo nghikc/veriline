@@ -4,7 +4,7 @@ group: tien-ich
 updated: 2026-07-15
 ---
 
-# Nhóm tiện ích — 23 skill giữ tài liệu sạch, chia sẻ được, và cài đặt
+# Nhóm tiện ích — 24 skill giữ tài liệu sạch, chia sẻ được, và cài đặt
 
 > Những skill này **không sinh tài liệu nghiệp vụ mới**; chúng **rà soát, đồng bộ, xuất bản** tài liệu đã có, hoặc mang cả toolkit sang dự án khác. Dùng xen kẽ bất cứ lúc nào trong pipeline.
 
@@ -350,6 +350,16 @@ Hai điều làm nó khác một bản in hồ sơ:
 **Đầu ra.** `docs/Ho-so/00-onepager.md` + `docs/Ho-so/00-onepager.html`. Đây là bản **sinh ra**, không phải nguồn sự thật — sửa nội dung thì sửa ở `docs/` rồi chạy lại, đừng vá tay vào bản đã sinh.
 
 **Khác skill gần kề.** `ba-portal` render cả bộ tài liệu nhưng **giữ ranh giới file** (sidebar, đọc như hồ sơ); `ba-onepager` **xoá ranh giới file** (một mạch, đọc như bản trình bày). `ba-dashboard` nói **tình trạng** dự án; `ba-onepager` nói **nội dung**, không mang số tiến độ nào. `ba-release` gộp **một phase**; `ba-onepager` gộp **cả dự án**.
+
+## ba-start — Cửa vào cho người mới: xem demo rồi vào đúng cửa
+
+**Làm gì.** Nhìn dự án bạn đang mở (đã có code chưa, có tài liệu khách gửi như Word/PDF/ảnh không, hay chỉ có ý tưởng) → cho xem **demo 10 phút** trên app mẫu TeamTasks: một cổng tài liệu thật mở bằng trình duyệt, rồi tận mắt thấy AI đặc tả một màn (mô tả nghiệp vụ, ca sử dụng, test case, thiết kế) → hỏi bạn chọn mức tài liệu (`lite` khuyến nghị / `mini` / `full`) → dẫn vào đúng skill bắt đầu cho dự án của bạn.
+
+**Khi nào dùng.** Vừa cài bộ skill, chưa biết gõ gì; hoặc muốn cho đồng nghiệp xem bộ skill làm được gì trước khi dùng thật. Demo nằm riêng trong `veriline-demo/` (tự thêm vào `.gitignore`), không đụng `docs/` của bạn.
+
+**Đầu vào.** Thư mục dự án (không cần gì thêm). **Đầu ra.** `veriline-demo/` + cổng tài liệu demo · sổ vào cửa `.claude/ba-start.json` (lựa chọn + mốc thời gian) · skill bắt đầu được chạy.
+
+**Khác skill gần kề.** `ba-next` đọc `docs/` đã có để chỉ bước kế — dùng sau khi dự án đã có tài liệu (ba-start tự chuyển sang nó khi thấy `docs/`); `ba-toolkit` là bản đồ cả pipeline, ba-start dẫn đi một đường.
 
 ## Xem thêm
 

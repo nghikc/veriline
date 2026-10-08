@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chi tiết công việc — TeamTasks (html-design)</title>
+<style>
+  /* ══ Design tokens — docs/07-design-system.md ══ */
+  :root {
+    --brand-primary: #4F46E5;
+    --brand-primary-hover: #4338CA;
+    --brand-primary-active: #3730A3;
+    --brand-primary-loading: #6366F1;
+    --surface-bg: #F0F2F5;
+    --surface-card: #FFFFFF;
+    --surface-disabled: #F9FAFB;
+    --border: #D1D5DB;
+    --text-primary: #111827;
+    --text-secondary: #6B7280;
+    --text-label: #374151;
+    --text-placeholder: #9CA3AF;
+    --danger: #EF4444;
+    --warning: #F59E0B;
+    --warning-strong: #D97706;
+    --success-strong: #059669;
+    /* token bổ sung 6b */
+    --brand-tint: #EEF2FF; --border-subtle: #E5E7EB; --surface-hover: #F3F4F6;
+    --overlay-dark: #1F2937;
+    --focus-ring: 0 0 0 3px rgba(79,70,229,.12);
+    --shadow-card: 0 4px 24px rgba(0,0,0,.08);
+    --shadow-overlay: 0 4px 16px rgba(0,0,0,.25);
+    /* alert tints (DS mục 2) */
+    --tint-warn-bg:#FFF7ED; --tint-warn-bd:#FED7AA; --tint-warn-tx:#92400E;
+    --tint-err-bg:#FEF2F2;  --tint-err-bd:#FECACA;  --tint-err-tx:#991B1B;
+    --tint-ok-bg:#ECFDF5;
+    /* CHỮ badge "Hoàn thành" dùng text/label, icon tích dùng success-strong:
+       #059669/#ECFDF5 chỉ đạt ~3.6:1, dưới ngưỡng AA 4.5:1 mà R-S03-N05 đòi; 07 chưa có xanh đậm đạt AA. */
+    /* Motion token — DS §10.1 */
+    --t-page-enter: 200ms; --t-page-quick: 150ms; --t-page-exit: 100ms;
+    --t-section: 150ms; --t-overlay: 250ms; --t-modal: 200ms; --t-cross: 150ms;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--surface-bg);
+    color: var(--text-primary);
+    min-height: 100dvh;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  button { font: inherit; cursor: pointer; }
+  /* [hidden] phải thắng mọi display của class (banner/khối lỗi có display:flex riêng) */
+  [hidden] { display: none !important; }
+  svg { flex: none; }
+  :focus-visible { outline: none; box-shadow: var(--focus-ring), 0 0 0 1.5px var(--brand-primary); border-radius: 8px; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; /* sr-only chuẩn: kẹp vùng 1px ra khỏi luồng */
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+
+  /* ══ Demo state switcher (cho tài liệu BA, không có trong production) ══ */
+  .demo-btn {
+    border: 1px solid var(--border); background: var(--surface-card); border-radius: 20px;
+    padding: 4px 12px; font-size: 12px; color: var(--text-label); transition: background var(--t-cross), color var(--t-cross), border-color var(--t-cross);
+  }
+  .demo-btn:hover, .demo-btn.active { background: var(--brand-primary); border-color: var(--brand-primary); color: #fff; }
+
+  /* ══ Header ══ */
+  .app-header {
+    background: var(--surface-card); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; position: sticky; top: 0; z-index: 50;
+  }
+  .brand { display: flex; align-items: center; gap: 8px; font-size: 22px; font-weight: 700; text-decoration: none; color: var(--text-primary); }
+  .brand-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--brand-primary); color: #fff; display: grid; place-items: center; }
+  .header-tools { display: flex; align-items: center; gap: 8px; }
+  .icon-btn {
+    position: relative; width: 44px; height: 44px; border: none; background: transparent;
+    border-radius: 8px; font-size: 20px; color: var(--text-secondary); display: grid; place-items: center;
+  }
+  .icon-btn:hover { background: var(--surface-bg); }
+  .badge-count {
+    position: absolute; top: 4px; right: 2px; min-width: 18px; height: 18px; padding: 0 5px;
+    background: var(--danger); color: #fff; font-size: 11px; font-weight: 700;
+    border-radius: 20px; display: grid; place-items: center; font-variant-numeric: tabular-nums;
+  }
+  .avatar-btn { display: flex; align-items: center; gap: 6px; border: none; background: transparent; border-radius: 8px; padding: 6px 8px; min-height: 44px; }
+  .avatar-btn:hover { background: var(--surface-bg); }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--brand-primary); color: #fff; font-size: 13px; font-weight: 700; display: grid; place-items: center; flex: none; }
+  .avatar--sm { width: 28px; height: 28px; font-size: 12px; }
+
+  /* ══ Thanh quay lại ══ */
+  .backbar { padding: 8px 16px; max-width: 1160px; margin: 0 auto; width: 100%; }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 8px; min-height: 44px;
+    color: var(--brand-primary); text-decoration: none; font-size: 14px; font-weight: 600;
+  }
+  .back-link:hover { text-decoration: underline; }
+
+  /* ══ Trang ══ */
+  .page { max-width: 1160px; margin: 0 auto; width: 100%; padding: 0 16px 32px; }
+  .card { background: var(--surface-card); border-radius: 16px; box-shadow: var(--shadow-card); padding: 20px; }
+  @media (min-width: 768px) { .card { padding: 24px; } }
+
+  /* ══ Khối công việc ══ */
+  .task-head { display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+  .task-title {
+    font-size: 20px; font-weight: 700; line-height: 1.35; flex: 1 1 320px; min-width: 0;
+    overflow-wrap: anywhere;
+    /* Tiêu đề dài: xuống dòng đầy đủ, giới hạn 3 dòng rồi thu gọn (design-spec §6) */
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  @media (min-width: 768px) { .task-title { font-size: 22px; } }
+  .badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px; border-radius: 999px;
+    padding: 4px 12px; font-size: 12px; font-weight: 600; border: 1px solid transparent;
+    transition: opacity var(--t-cross) ease;
+  }
+  /* Badge theo 07 §6b STATUS — KHÔNG chỉ phân biệt bằng màu: luôn icon SVG + chữ (R-S03-N05).
+     Chữ lấy màu đạt AA 4.5:1 trên nền tint; icon mang token màu 6b. */
+  .badge.st-todo      { background: var(--surface-disabled); border-color: var(--border); color: var(--text-secondary); }
+  .badge.st-doing     { background: var(--brand-tint); color: var(--brand-primary); }
+  .badge.st-review    { background: var(--tint-warn-bg); border-color: var(--tint-warn-bd); color: var(--tint-warn-tx); }
+  .badge.st-review svg { color: var(--warning-strong); }
+  .badge.st-done      { background: var(--tint-ok-bg); color: var(--text-label); }
+  .badge.st-done svg  { color: var(--success-strong); }
+  .badge.st-cancelled { background: var(--tint-err-bg); border-color: var(--tint-err-bd); color: var(--tint-err-tx); }
+  .badge.pr-low       { background: var(--surface-disabled); border-color: var(--border); color: var(--text-secondary); }
+  .badge.pr-medium    { background: var(--surface-disabled); border-color: var(--border); color: var(--text-label); }
+  .badge.pr-medium svg { color: var(--warning); }
+  .badge.pr-high      { background: var(--tint-warn-bg); border-color: var(--tint-warn-bd); color: var(--tint-warn-tx); }
+  .badge.pr-high svg  { color: var(--warning-strong); }
+  .badge.pr-urgent    { background: var(--tint-err-bg); border-color: var(--tint-err-bd); color: var(--tint-err-tx); }
+  .badge.pr-urgent svg { color: var(--danger); }
+  .badge.flash { animation: highlightOnce 2s ease-out 1; }
+  @keyframes highlightOnce {
+    0%   { box-shadow: 0 0 0 0 rgba(79,70,229,.45); }
+    100% { box-shadow: 0 0 0 12px rgba(79,70,229,0); }
+  }
+
+  .banner {
+    display: flex; align-items: flex-start; gap: 8px; border-radius: 8px; padding: 12px 16px;
+    font-size: 14px; margin-bottom: 16px;
+    background: var(--tint-err-bg); border: 1px solid var(--tint-err-bd); color: var(--tint-err-tx);
+    animation: sectionIn var(--t-section) ease-out;
+  }
+  @keyframes sectionIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .attrs { display: grid; gap: 12px 24px; margin-top: 20px; }
+  @media (min-width: 768px) { .attrs { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  .attr { display: flex; align-items: center; gap: 12px; font-size: 14px; min-width: 0; }
+  .attr dt { color: var(--text-secondary); flex: none; width: 108px; font-size: 13px; }
+  .attr dd { color: var(--text-primary); font-weight: 600; display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .attr dd .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .overdue { color: var(--tint-err-tx); font-weight: 700; }
+  .overdue svg { vertical-align: -3px; margin-right: 4px; color: var(--danger); }
+
+  .desc-box { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
+  .desc-box h2 { font-size: 13px; font-weight: 600; color: var(--text-label); margin-bottom: 8px; }
+  .desc-body { font-size: 15px; white-space: pre-wrap; overflow-wrap: anywhere; transition: max-height var(--t-section) ease-out; }
+  .desc-body.clamped { display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+  .desc-empty { color: var(--text-placeholder); font-style: italic; }
+  .link-btn { border: none; background: transparent; color: var(--brand-primary); font-size: 14px; font-weight: 600; padding: 8px 0; }
+  .link-btn:hover { text-decoration: underline; }
+
+  /* ══ Thanh hành động ══ */
+  .actionbar {
+    margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px;
+    display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+    transition: opacity var(--t-cross) ease;
+  }
+  .actionbar.fading { opacity: 0; }
+  .actionbar .spacer { flex: 1 1 auto; }
+  .actionbar[hidden] { display: none; }
+  .waiting { font-size: 14px; color: var(--text-secondary); font-style: italic; }
+  .btn {
+    border-radius: 8px; padding: 12px 20px; font-size: 15px; font-weight: 600;
+    border: 1.5px solid transparent; min-height: 44px; transition: background var(--t-cross), color var(--t-cross), border-color var(--t-cross);
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-primary { background: var(--brand-primary); color: #fff; }
+  .btn-primary:hover { background: var(--brand-primary-hover); }
+  .btn-primary:active { background: var(--brand-primary-active); }
+  .btn-secondary { background: var(--surface-card); color: var(--text-label); border-color: var(--border); }
+  .btn-secondary:hover { background: var(--surface-bg); }
+  .btn-ghost { background: transparent; color: var(--brand-primary); }
+  .btn-ghost:hover { background: var(--surface-hover); }
+  /* btn-danger: viền + chữ đỏ đậm (trắng trên #EF4444 chỉ ~3.8:1, không đạt AA) */
+  .btn-danger { background: var(--surface-card); color: var(--tint-err-tx); border-color: var(--tint-err-bd); }
+  .btn-danger:hover { background: var(--tint-err-bg); }
+  .btn:disabled { background: var(--surface-disabled); color: var(--text-placeholder); border-color: var(--border); opacity: .75; cursor: not-allowed; }
+  .spinner {
+    width: 16px; height: 16px; border: 2.5px solid rgba(255,255,255,.45);
+    border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ══ Tầng dưới: lịch sử + bình luận ══ */
+  .lower { margin-top: 20px; display: grid; gap: 20px; }
+  @media (min-width: 992px) { .lower { grid-template-columns: 5fr 7fr; align-items: start; } }
+  .panel-title { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+
+  /* Tab (chỉ mobile <992px) */
+  .tabs { display: flex; gap: 8px; margin-bottom: 4px; }
+  @media (min-width: 992px) { .tabs { display: none; } }
+  .tab {
+    flex: 1; border: 1px solid var(--border); background: var(--surface-card); color: var(--text-label);
+    border-radius: 999px; padding: 8px 12px; font-size: 13px; font-weight: 600; min-height: 44px;
+    transition: background var(--t-cross), color var(--t-cross);
+  }
+  .tab[aria-selected="true"] { background: var(--brand-primary); border-color: var(--brand-primary); color: #fff; }
+  @media (max-width: 991.98px) {
+    .pane[hidden] { display: none; }
+    .pane { animation: crossFade var(--t-cross) ease; }
+  }
+  @keyframes crossFade { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Timeline */
+  .timeline { list-style: none; position: relative; padding-left: 20px; }
+  .timeline::before { content: ''; position: absolute; left: 5px; top: 6px; bottom: 6px; width: 2px; background: var(--border); }
+  .tl-item { position: relative; padding-bottom: 16px; font-size: 14px; }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-item::before {
+    content: ''; position: absolute; left: -19px; top: 6px; width: 10px; height: 10px;
+    border-radius: 50%; background: var(--brand-primary); border: 2px solid var(--surface-card);
+  }
+  .tl-meta { color: var(--text-secondary); font-size: 12px; }
+  .tl-field { font-weight: 600; margin-top: 4px; }
+  .tl-change { color: var(--text-label); }
+  .tl-change .old { color: var(--text-secondary); text-decoration: line-through; }
+  .tl-new { animation: tlIn var(--t-section) ease-out, highlightBg 2s ease-out 1; }
+  @keyframes tlIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+  @keyframes highlightBg { 0% { background: var(--brand-tint); } 100% { background: transparent; } }
+
+  /* Bình luận */
+  .comment-list { list-style: none; display: grid; gap: 16px; }
+  .comment { display: flex; gap: 12px; }
+  .cm-body { min-width: 0; flex: 1; }
+  .cm-meta { font-size: 12px; color: var(--text-secondary); }
+  .cm-meta strong { color: var(--text-primary); font-size: 13px; }
+  .cm-text { font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 4px; }
+  .cm-new { animation: cmIn var(--t-section) ease-out, highlightBg 2s ease-out 1; border-radius: 8px; }
+  @keyframes cmIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .composer { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px; }
+  label.field-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-label); margin-bottom: 8px; }
+  textarea, input[type="text"], input[type="datetime-local"], select {
+    width: 100%; font: inherit; font-size: 15px; color: var(--text-primary);
+    padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--surface-card);
+    transition: border-color var(--t-cross), box-shadow var(--t-cross);
+  }
+  input[type="text"], input[type="datetime-local"], select { min-height: 44px; }
+  textarea { resize: vertical; min-height: 84px; }
+  textarea:focus, input:focus, select:focus { outline: none; border-color: var(--brand-primary); box-shadow: var(--focus-ring); }
+  textarea:disabled, input:disabled { background: var(--surface-disabled); color: var(--text-placeholder); cursor: not-allowed; }
+  .invalid { border-color: var(--danger) !important; }
+  .counter { font-size: 12px; color: var(--text-secondary); text-align: right; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .counter.over { color: var(--danger); font-weight: 700; }
+  .helper { font-size: 12px; color: var(--text-secondary); margin-top: 8px; }
+  .helper svg { vertical-align: -3px; margin-right: 4px; color: var(--warning-strong); }
+  .field-error {
+    font-size: 12px; color: var(--danger); margin-top: 4px; display: none;
+    animation: sectionIn var(--t-section) ease-out;
+  }
+  .field-error.show { display: block; }
+  .composer-row { display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px; }
+
+  /* Empty / lỗi cục bộ / skeleton */
+  .empty { text-align: center; padding: 32px 12px; color: var(--text-secondary); }
+  .empty .glyph { display: block; margin: 0 auto 8px; color: var(--text-placeholder); }
+  .local-error {
+    background: var(--tint-err-bg); border: 1px solid var(--tint-err-bd); color: var(--tint-err-tx);
+    border-radius: 8px; padding: 12px 16px; font-size: 14px; text-align: center;
+    animation: sectionIn var(--t-section) ease-out;
+  }
+  /* Skeleton: nền phẳng + nhấp nháy opacity (không gradient shimmer) */
+  .sk { background: var(--border-subtle); animation: skPulse 1.4s ease-in-out infinite; border-radius: 8px; }
+  @keyframes skPulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+  .sk-line { height: 12px; margin-bottom: 8px; }
+  .sk-title { height: 26px; width: 65%; margin-bottom: 16px; }
+  .sk-badge { height: 24px; width: 96px; border-radius: 999px; display: inline-block; margin-right: 8px; }
+
+  /* Trạng thái toàn màn: lỗi 5xx / 404 */
+  .fullstate { text-align: center; padding: 40px 16px; }
+  .fullstate .glyph {
+    color: var(--text-secondary); width: 72px; height: 72px; border-radius: 50%; background: var(--surface-bg);
+    display: grid; place-items: center; margin: 0 auto 16px;
+  }
+  .fullstate h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .fullstate p { color: var(--text-secondary); font-size: 14px; margin-bottom: 20px; }
+
+  /* ══ Modal ══ */
+  .backdrop {
+    position: fixed; inset: 0; background: rgba(17,24,39,.55); display: none;
+    align-items: center; justify-content: center; padding: 16px; z-index: 100;
+  }
+  .backdrop.open { display: flex; animation: sectionIn var(--t-modal) ease-out; }
+  .modal {
+    background: var(--surface-card); border-radius: 16px; box-shadow: var(--shadow-overlay);
+    width: 100%; max-width: 480px; padding: 20px; max-height: 90dvh; overflow-y: auto;
+    animation: modalIn var(--t-modal) ease-out;
+  }
+  .modal.wide { max-width: 560px; }
+  @keyframes modalIn { from { opacity: 0; transform: scale(.98); } to { opacity: 1; transform: none; } }
+  .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+  .modal-head h2 { font-size: 20px; font-weight: 700; }
+  .modal-desc { font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; }
+  .modal-foot { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+  .form-group { margin-bottom: 16px; }
+  .req { color: var(--danger); }
+  .grid-2 { display: grid; gap: 16px; }
+  @media (min-width: 560px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+
+  /* ══ Toast ══ */
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 24px);
+    background: var(--overlay-dark); color: #fff; border-radius: 8px; padding: 12px 20px;
+    font-size: 14px; box-shadow: var(--shadow-overlay); opacity: 0; pointer-events: none;
+    transition: transform var(--t-overlay) ease, opacity var(--t-overlay) ease; z-index: 200; max-width: calc(100vw - 32px);
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .toast.err { background: var(--tint-err-tx); }
+
+  /* ══ Chuyển cảnh trang (DS §10.1) ══ */
+  #app { animation: pageEnter var(--t-page-enter) ease-out; }
+  @keyframes pageEnter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  #app.leaving { animation: pageExit var(--t-page-exit) ease-in forwards; }
+  @keyframes pageExit { to { opacity: 0; } }
+
+  /* ══ prefers-reduced-motion: mọi dịch chuyển/scale rút về fade thuần; highlight tắt hẳn ══ */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    #app, .modal, .tl-new, .cm-new, .pane { animation: sectionIn var(--t-section) ease-out !important; }
+    .badge.flash, .tl-new, .cm-new { animation: none !important; }
+    .toast { transform: translate(-50%, 0); }
+    .sk { animation: none !important; opacity: 1; }
+  }
+
+/* ── Khung dùng chung (canon: ba-html-design/shell.md §1.4) ───────────────── */
+.app-nav{display:flex;gap:4px;flex:1 1 auto;margin-left:8px}
+.app-nav__link{padding:8px 12px;border-radius:8px;font-size:14px;text-decoration:none;color:var(--text-secondary,#4b5563)}
+.app-nav__link:hover{background:var(--surface-hover,#f3f4f6)}
+.app-nav__link[aria-current="page"]{color:var(--brand-primary,#4f46e5);background:var(--surface-hover,#f3f4f6);font-weight:600}
+.app-nav__toggle{display:none;background:none;border:0;font-size:20px;cursor:pointer;padding:4px 8px}
+@media (max-width:767px){
+  .app-nav__toggle{display:block}
+  .app-nav{position:absolute;left:0;right:0;top:100%;flex-direction:column;gap:0;padding:8px;margin:0;
+    background:var(--surface-card,#fff);border-bottom:1px solid var(--border,#e5e7eb);
+    transform:translateY(-8px);opacity:0;pointer-events:none;
+    transition:transform .18s ease-out,opacity .18s ease-out;z-index:60}
+  .app-header[data-nav="open"] .app-nav{transform:none;opacity:1;pointer-events:auto}
+}
+@media (prefers-reduced-motion:reduce){.app-nav{transition:none}}
+
+/* ── Thanh trạng thái UI (canon: ba-html-design/shell.md §2.3) ────────────── */
+.statebar{position:static;z-index:40;background:var(--surface-app,#f9fafb);
+  border-bottom:1px dashed var(--border,#e5e7eb);font-size:12px}
+.statebar__toggle{display:block;width:100%;text-align:left;padding:6px 16px;background:none;
+  border:0;color:var(--text-placeholder,#9ca3af);cursor:pointer;font-size:11px;letter-spacing:.02em}
+.statebar__body{display:none;padding:0 16px 8px;flex-direction:column;gap:6px}
+.statebar[data-open="true"] .statebar__body{display:flex}
+.statebar__group{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.statebar__label{flex:0 0 104px;color:var(--text-placeholder,#9ca3af);font-size:11px}
+.statebar__btn{padding:4px 10px;border:1px solid var(--border,#d1d5db);border-radius:999px;
+  background:var(--surface-card,#fff);color:var(--text-secondary,#4b5563);font-size:12px;cursor:pointer}
+.statebar__btn.active,.statebar__btn.is-active{background:var(--brand-primary,#4f46e5);
+  border-color:var(--brand-primary,#4f46e5);color:#fff}
+@media (max-width:767px){.statebar__label{flex-basis:100%}}
+</style>
+</head>
+<body>
+
+<!-- ▼ UI-STATE-BAR — chỉ có trong html-design, KHÔNG có trong production -->
+<div class="statebar" id="statebar" data-open="true">
+  <button class="statebar__toggle" aria-expanded="true" aria-controls="statebarBody" onclick="statebarToggle(this)">◆ Trạng thái giao diện (bản đặc tả BA — không có trong production) <span aria-hidden="true">▾</span></button>
+  <div class="statebar__body" id="statebarBody">
+    <div class="statebar__group" data-group="ui">
+      <span class="statebar__label">Trạng thái UI</span>
+      <button class="statebar__btn demo-btn active is-active" data-group="ui" onclick="setState('default', this)">Mặc định</button>
+      <button class="statebar__btn demo-btn" data-group="ui" onclick="setState('loading', this)">Đang tải</button>
+      <button class="statebar__btn demo-btn" data-group="ui" onclick="setState('empty', this)">Rỗng</button>
+      <button class="statebar__btn demo-btn" data-group="ui" onclick="setState('error', this)">Lỗi</button>
+    </div>
+    <div class="statebar__group" data-group="error">
+      <span class="statebar__label">Ca lỗi</span>
+      <button data-trace="E-S03-05" class="statebar__btn demo-btn" data-group="ui" onclick="setState('cmerror', this)">Lỗi cục bộ (bình luận)</button>
+      <button data-trace="E-S03-01" class="statebar__btn demo-btn" data-group="ui" onclick="setState('notfound', this)">Không tìm thấy</button>
+    </div>
+    <div class="statebar__group" data-group="role">
+      <span class="statebar__label">Vai trò</span>
+      <button class="statebar__btn demo-btn" data-group="role" onclick="setView('IN_PROGRESS','other', this)">Member khác (chỉ đọc)</button>
+    </div>
+    <div class="statebar__group" data-group="biz">
+      <span class="statebar__label">Trạng thái nghiệp vụ</span>
+      <button class="statebar__btn demo-btn active is-active" data-group="role" onclick="setView('IN_PROGRESS','assignee', this)">Đang làm · người thực hiện</button>
+      <button class="statebar__btn demo-btn" data-group="role" onclick="setView('TODO','assignee', this)">Cần làm · người thực hiện</button>
+      <button class="statebar__btn demo-btn" data-group="role" onclick="setView('IN_REVIEW','approver', this)">Chờ duyệt · người duyệt</button>
+      <button class="statebar__btn demo-btn" data-group="role" onclick="setView('IN_REVIEW','assignee', this)">Chờ duyệt · người thực hiện</button>
+      <button class="statebar__btn demo-btn" data-group="role" onclick="setView('DONE','approver', this)">Hoàn thành</button>
+      <button class="statebar__btn demo-btn" data-group="role" onclick="setView('CANCELLED','approver', this)">Đã huỷ</button>
+      <button class="statebar__btn demo-btn" data-group="role" onclick="toggleOverdue(this)">Bật/tắt quá hạn</button>
+    </div>
+  </div>
+</div>
+<!-- ▲ UI-STATE-BAR -->
+
+
+<div id="app">
+
+  <header class="app-header">
+    <a class="brand" href="#" onclick="return false;">
+      <span class="brand-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="brand-name">TeamTasks</span>
+    </a>
+    
+    <button class="app-nav__toggle" aria-label="Mở menu" aria-expanded="false" aria-controls="appNav" onclick="toggleNav(this)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <nav class="app-nav" id="appNav" aria-label="Điều hướng chính">
+      <a class="app-nav__link" href="#" aria-current="page">Dashboard</a>
+      <a class="app-nav__link" href="#">Tổ chức</a>
+      <a class="app-nav__link" href="#">Hồ sơ</a>
+    </nav>
+<div class="header-tools">
+      <button class="icon-btn" aria-label="Thông báo, 3 chưa đọc">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="badge-count">3</span>
+      </button>
+      <button class="avatar-btn" aria-label="Menu tài khoản của Lê C">
+        <span class="avatar" aria-hidden="true">LC</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="backbar">
+    <!-- R-S03-18: quay lại Dashboard giữ nguyên bộ lọc trước đó -->
+    <a data-el="1" class="back-link" href="#" onclick="goBack(); return false;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Quay lại Dashboard</a>
+  </div>
+
+  <main class="page">
+
+    <!-- ══ 🔄 LOADING — skeleton theo từng khối, hiện dần (design-spec §4) ══ -->
+    <div id="skeleton" hidden>
+      <section class="card">
+        <div class="sk sk-title"></div>
+        <div><span class="sk sk-badge"></span><span class="sk sk-badge"></span></div>
+        <div style="margin-top:20px">
+          <div class="sk sk-line" style="width:52%"></div>
+          <div class="sk sk-line" style="width:44%"></div>
+          <div class="sk sk-line" style="width:48%"></div>
+          <div class="sk sk-line" style="width:38%"></div>
+        </div>
+      </section>
+      <div class="lower">
+        <section class="card">
+          <div class="sk sk-line" style="width:40%;height:16px"></div>
+          <div class="sk sk-line" style="width:90%"></div>
+          <div class="sk sk-line" style="width:75%"></div>
+          <div class="sk sk-line" style="width:85%"></div>
+        </section>
+        <section class="card">
+          <div class="sk sk-line" style="width:34%;height:16px"></div>
+          <div class="sk sk-line" style="width:95%"></div>
+          <div class="sk sk-line" style="width:80%"></div>
+          <div class="sk sk-line" style="width:88%"></div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ══ 🔴 LỖI TẢI CHI TIẾT (5xx) — khối lỗi giữa trang, header vẫn còn ══ -->
+    <section class="card fullstate" id="errBlock" hidden>
+      <span class="glyph"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3Z"/><path d="M12 9v4M12 17h.01"/></svg></span>
+      <h2>Không tải được công việc</h2>
+      <p>Lỗi kết nối — thử lại</p>
+      <button class="btn btn-primary" onclick="retryLoad()">Thử lại</button>
+    </section>
+
+    <!-- ══ 🚫 KHÔNG TÌM THẤY (R-S03-17: 404 / khác tổ chức / đã xoá — cùng một giao diện) ══ -->
+    <section class="card fullstate" id="notFound" hidden>
+      <span class="glyph"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+      <h2>Không tìm thấy công việc</h2>
+      <p>Công việc không tồn tại hoặc bạn không có quyền truy cập.</p>
+      <button class="btn btn-primary" onclick="goBack()">Về Dashboard</button>
+    </section>
+
+    <!-- ══ 🟢 NỘI DUNG ══ -->
+    <div id="content">
+
+      <section class="card" aria-labelledby="taskTitleH">
+        <div class="banner" id="cancelBanner" hidden>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m5.7 5.7 12.6 12.6"/></svg>
+          <span><strong>Công việc đã huỷ.</strong> Vẫn xem được lịch sử và bình luận, nhưng không thao tác thêm được.</span>
+        </div>
+
+        <div class="task-head">
+          <h1 data-el="2" class="task-title" id="taskTitleH">Viết tài liệu API cho module thanh toán</h1>
+          <button data-el="7" class="btn btn-secondary" id="btnEdit" onclick="openEdit()">Sửa thông tin</button>
+        </div>
+
+        <div class="badges">
+          <span data-el="3" class="badge st-doing" id="statusBadge"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg>Đang làm</span>
+          <span data-el="4" class="badge pr-high" id="prioBadge"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h12l-2 4 2 4H5"/></svg>Ưu tiên: Cao</span>
+          <span class="badge pr-urgent" id="overdueBadge" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3Z"/><path d="M12 9v4M12 17h.01"/></svg>Quá hạn</span>
+        </div>
+
+        <dl data-el="5" class="attrs">
+          <div class="attr"><dt>Người giao</dt><dd><span class="avatar avatar--sm" aria-hidden="true">NA</span><span class="name">Nguyễn A (Team Lead)</span></dd></div>
+          <div class="attr"><dt>Người thực hiện</dt><dd><span class="avatar avatar--sm" aria-hidden="true">LC</span><span class="name">Lê C</span></dd></div>
+          <div class="attr"><dt>Deadline</dt><dd><span class="name" id="deadlineVal">20/06/2026 17:00</span></dd></div>
+          <div class="attr"><dt>Tạo lúc</dt><dd><span class="name">12/06/2026 09:15</span></dd></div>
+          <div class="attr"><dt>Cập nhật lúc</dt><dd><span class="name" id="updatedVal">14/06/2026 10:02</span></dd></div>
+        </dl>
+
+        <div data-el="6" class="desc-box">
+          <h2>Mô tả</h2>
+          <p class="desc-body clamped" id="descBody">Viết tài liệu mô tả toàn bộ endpoint của module thanh toán, kèm ví dụ request/response cho từng mã lỗi.
+
+Phạm vi bao gồm: khởi tạo giao dịch, truy vấn trạng thái, hoàn tiền một phần và hoàn tiền toàn phần. Mỗi endpoint cần nêu rõ tham số bắt buộc, tham số tuỳ chọn và giới hạn tần suất gọi.
+
+Với phần mã lỗi, liệt kê đủ nhóm 4xx (client) và 5xx (server), mỗi mã kèm một ví dụ phản hồi thật đã che dữ liệu nhạy cảm. Riêng mã 409 cần mô tả kỹ tình huống đua giao dịch vì đội tích hợp hay vướng nhất ở đây.
+
+Bản nháp gửi review trước ngày 18/06 để còn kịp chỉnh trước hạn cuối.</p>
+          <button class="link-btn" id="descToggle" onclick="toggleDesc()">Xem thêm</button>
+        </div>
+
+        <!-- Thanh hành động — chỉ render nút HỢP LỆ (R-S03-07): nút không hợp lệ KHÔNG có trong DOM -->
+        <div data-el="8" class="actionbar" id="actionBar"></div>
+        <p class="sr-only" id="liveRegion" role="status" aria-live="polite"></p>
+      </section>
+
+      <div class="lower">
+
+        <div class="tabs" role="tablist" aria-label="Lịch sử và bình luận">
+          <button class="tab" role="tab" id="tabComments" aria-selected="true" aria-controls="paneComments" onclick="switchTab('comments')">Bình luận</button>
+          <button class="tab" role="tab" id="tabHistory" aria-selected="false" aria-controls="paneHistory" onclick="switchTab('history')">Lịch sử</button>
+        </div>
+
+        <!-- ── Lịch sử thay đổi: mới → cũ, dòng cuối luôn là "Tạo công việc" (R-S03-03) ── -->
+        <section data-el="9" class="card pane" id="paneHistory" role="tabpanel" aria-labelledby="tabHistory">
+          <h2 class="panel-title">Lịch sử thay đổi</h2>
+          <ul class="timeline" id="timeline">
+            <li class="tl-item">
+              <div class="tl-meta">14/06/2026 10:02 · Lê C</div>
+              <div class="tl-field">Trạng thái</div>
+              <div class="tl-change"><span class="old">Cần làm</span> → Đang làm</div>
+            </li>
+            <li class="tl-item">
+              <div class="tl-meta">12/06/2026 09:18 · Nguyễn A</div>
+              <div class="tl-field">Deadline</div>
+              <div class="tl-change"><span class="old">18/06/2026 17:00</span> → 20/06/2026 17:00</div>
+            </li>
+            <li class="tl-item">
+              <div class="tl-meta">12/06/2026 09:15 · Nguyễn A</div>
+              <div class="tl-field">Tạo công việc</div>
+            </li>
+          </ul>
+        </section>
+
+        <!-- ── Bình luận: cũ → mới, ô nhập dưới cùng (R-S03-04, R-S03-05) ── -->
+        <section data-el="10" class="card pane" id="paneComments" role="tabpanel" aria-labelledby="tabComments">
+          <h2 class="panel-title" id="commentTitle">Bình luận (4)</h2>
+
+          <div id="cmLoadOlder"><button class="link-btn" onclick="loadOlder()">Xem bình luận cũ hơn</button></div>
+
+          <div class="local-error" id="cmError" hidden>
+            Không tải được bình luận. <button class="link-btn" onclick="setState('default')">Thử lại</button>
+          </div>
+
+          <div class="empty" id="cmEmpty" hidden>
+            <span class="glyph"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+            Chưa có bình luận nào. Hãy là người đầu tiên trao đổi về công việc này.
+          </div>
+
+          <ul class="comment-list" id="commentList">
+            <li class="comment">
+              <span class="avatar avatar--sm" aria-hidden="true">NA</span>
+              <div class="cm-body">
+                <div class="cm-meta"><strong>Nguyễn A</strong> · 12/06/2026 09:20</div>
+                <div class="cm-text">Ưu tiên làm trước phần lỗi, đội tích hợp đang chờ.</div>
+              </div>
+            </li>
+            <li class="comment">
+              <span class="avatar avatar--sm" aria-hidden="true">LC</span>
+              <div class="cm-body">
+                <div class="cm-meta"><strong>Lê C</strong> · 13/06/2026 14:30</div>
+                <div class="cm-text">Đã xong phần endpoint chính, còn phần mã lỗi.</div>
+              </div>
+            </li>
+            <li class="comment">
+              <span class="avatar avatar--sm" aria-hidden="true">TB</span>
+              <div class="cm-body">
+                <div class="cm-meta"><strong>Trần B</strong> · 13/06/2026 16:05</div>
+                <div class="cm-text">Nhớ ghi cả ví dụ &lt;response&gt; cho mã 409 nhé, hôm trước có bạn hỏi.</div>
+              </div>
+            </li>
+            <li class="comment">
+              <span class="avatar avatar--sm" aria-hidden="true">LC</span>
+              <div class="cm-body">
+                <div class="cm-meta"><strong>Lê C</strong> · 14/06/2026 10:05</div>
+                <div class="cm-text">Ok, đang viết nốt. Chiều nay gửi bản nháp.</div>
+              </div>
+            </li>
+          </ul>
+
+          <div class="composer" id="composer">
+            <label class="field-label" for="cmInput">Viết bình luận</label>
+            <textarea id="cmInput" placeholder="Viết bình luận..." maxlength="1200"
+                      aria-describedby="cmCounter cmHelper" oninput="onCommentInput()"></textarea>
+            <div class="counter" id="cmCounter">0/1000</div>
+            <p class="field-error" id="cmInlineError" role="alert"></p>
+            <p class="helper" id="cmHelper">Nhấn Gửi để đăng. Bình luận đã đăng không sửa hoặc xoá được.</p>
+            <div class="composer-row">
+              <button class="btn btn-primary" id="cmSend" onclick="sendComment()" disabled>Gửi</button>
+            </div>
+          </div>
+
+          <p class="helper" id="composerDisabledNote" hidden>Công việc đã huỷ — không thể bình luận thêm.</p>
+        </section>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ══ Modal: Từ chối (bắt buộc lý do — BRule-S03-05) ══ -->
+<div class="backdrop" id="rejectBackdrop" onclick="if(event.target===this) closeReject()">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rejectTitle">
+    <div class="modal-head">
+      <h2 id="rejectTitle">Từ chối công việc</h2>
+      <button class="icon-btn" aria-label="Đóng" onclick="closeReject()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <p class="modal-desc">Công việc sẽ quay lại trạng thái Đang làm.</p>
+    <div class="form-group">
+      <label class="field-label" for="rejectReason">Lý do từ chối <span class="req" aria-hidden="true">*</span></label>
+      <textarea id="rejectReason" aria-required="true" maxlength="1200" aria-describedby="rjCounter"
+                oninput="onRejectInput()" placeholder="Ví dụ: Thiếu ví dụ cho mã lỗi 409."></textarea>
+      <div class="counter" id="rjCounter">0/1000</div>
+      <p class="field-error" id="rjError" role="alert"></p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeReject()">Huỷ bỏ</button>
+      <button class="btn btn-primary" id="rjConfirm" onclick="confirmReject()" disabled>Xác nhận từ chối</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Hộp xác nhận: Huỷ công việc (R-S03-12) ══ -->
+<div class="backdrop" id="cancelBackdrop" onclick="if(event.target===this) closeCancel()">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cancelTitle">
+    <div class="modal-head">
+      <h2 id="cancelTitle">Huỷ công việc này?</h2>
+      <button class="icon-btn" aria-label="Đóng" onclick="closeCancel()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <p class="modal-desc">Thao tác không hoàn tác được. Người thực hiện sẽ nhận được thông báo.</p>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeCancel()">Không</button>
+      <button class="btn btn-danger" onclick="confirmCancel()">Huỷ công việc</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Modal: Sửa thông tin — bộ trường y hệt modal tạo việc ở S02 (R-S03-14) ══ -->
+<div class="backdrop" id="editBackdrop" onclick="if(event.target===this) closeEdit()">
+  <div class="modal wide" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+    <div class="modal-head">
+      <h2 id="editTitle">Sửa thông tin công việc</h2>
+      <button class="icon-btn" aria-label="Đóng" onclick="closeEdit()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="form-group">
+      <label class="field-label" for="edTitle">Tiêu đề <span class="req" aria-hidden="true">*</span></label>
+      <input type="text" id="edTitle" aria-required="true" value="Viết tài liệu API cho module thanh toán" oninput="checkEdTitle()">
+      <p class="field-error" id="edTitleErr" role="alert"></p>
+    </div>
+    <div class="form-group">
+      <label class="field-label" for="edDesc">Mô tả</label>
+      <textarea id="edDesc">Viết tài liệu mô tả toàn bộ endpoint của module thanh toán, kèm ví dụ request/response cho từng mã lỗi.</textarea>
+      <p class="field-error" id="edDescErr" role="alert"></p>
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="field-label" for="edAssignee">Người thực hiện <span class="req" aria-hidden="true">*</span></label>
+        <select id="edAssignee" aria-required="true">
+          <option value="u3" selected>Lê C</option>
+          <option value="u2">Trần B</option>
+          <option value="u4">Phạm D</option>
+        </select>
+        <p class="field-error" id="edAssigneeErr" role="alert"></p>
+      </div>
+      <div class="form-group">
+        <label class="field-label" for="edPriority">Ưu tiên</label>
+        <select id="edPriority">
+          <option value="LOW">Thấp</option>
+          <option value="MEDIUM">Trung bình</option>
+          <option value="HIGH" selected>Cao</option>
+          <option value="URGENT">Khẩn cấp</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="field-label" for="edDeadline">Deadline <span class="req" aria-hidden="true">*</span></label>
+      <input type="datetime-local" id="edDeadline" aria-required="true" value="2026-06-20T17:00">
+      <!-- Khi SỬA, deadline quá khứ chỉ CẢNH BÁO chứ không chặn (srs §Validation) -->
+      <p class="helper" id="edDeadlineWarn" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3Z"/><path d="M12 9v4M12 17h.01"/></svg>Deadline ở quá khứ — công việc sẽ hiển thị là quá hạn.</p>
+      <p class="field-error" id="edDeadlineErr" role="alert"></p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeEdit()">Huỷ bỏ</button>
+      <button class="btn btn-primary" onclick="submitEdit()">Lưu thay đổi</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  /* ═══════════════ Trạng thái demo ═══════════════ */
+  var view = { status: 'IN_PROGRESS', role: 'assignee', overdue: false };
+  var commentCount = 4;
+
+  // Icon SVG nét (07 §5) — trang trí, aria-hidden; nhãn nằm ở chữ
+  function ic(paths) {
+    return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + paths + '</svg>';
+  }
+  var ICON_ALERT = ic('<path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3Z"/><path d="M12 9v4M12 17h.01"/>');
+
+  // Bảng STATUS — 07 §6b (mã · nhãn · icon)
+  var STATUS_META = {
+    TODO:        { cls: 'st-todo',      label: 'Cần làm',    icon: ic('<circle cx="12" cy="12" r="9"/>') },
+    IN_PROGRESS: { cls: 'st-doing',     label: 'Đang làm',   icon: ic('<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>') },
+    IN_REVIEW:   { cls: 'st-review',    label: 'Chờ duyệt',  icon: ic('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>') },
+    DONE:        { cls: 'st-done',      label: 'Hoàn thành', icon: ic('<path d="M20 6 9 17l-5-5"/>') },
+    CANCELLED:   { cls: 'st-cancelled', label: 'Đã huỷ',     icon: ic('<circle cx="12" cy="12" r="9"/><path d="m5.7 5.7 12.6 12.6"/>') }
+  };
+
+  /* ═══════════════ Demo switcher ═══════════════ */
+  function markActive(btn) {
+    if (!btn) return;
+    var g = btn.getAttribute('data-group');
+    document.querySelectorAll('.demo-btn[data-group="' + g + '"]').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+
+  function setState(s, btn) {
+    markActive(btn);
+    var show = function (id, on) { document.getElementById(id).hidden = !on; };
+    show('skeleton', s === 'loading');
+    show('errBlock', s === 'error');
+    show('notFound', s === 'notfound');
+    show('content', s === 'default' || s === 'empty' || s === 'cmerror');
+
+    // Trạng thái riêng của khu bình luận
+    var isEmpty = (s === 'empty'), isCmErr = (s === 'cmerror');
+    show('cmEmpty', isEmpty);
+    show('cmError', isCmErr);
+    document.getElementById('commentList').hidden = isEmpty || isCmErr;
+    document.getElementById('cmLoadOlder').hidden = isEmpty || isCmErr;
+    document.getElementById('composer').hidden = isCmErr;
+    commentCount = isEmpty ? 0 : 4;
+    updateCommentTitle();
+  }
+
+  function setView(status, role, btn) {
+    markActive(btn);
+    view.status = status;
+    view.role = role;
+    render();
+  }
+
+  function toggleOverdue(btn) {
+    view.overdue = !view.overdue;
+    if (btn) btn.classList.toggle('active', view.overdue);
+    render();
+  }
+
+  /* ═══════════════ Render theo trạng thái × vai trò ═══════════════ */
+  function render() {
+    var meta = STATUS_META[view.status];
+    var badge = document.getElementById('statusBadge');
+    badge.className = 'badge ' + meta.cls;
+    badge.innerHTML = meta.icon + meta.label;
+
+    // Quá hạn: deadline < hiện tại VÀ trạng thái ∉ {DONE, CANCELLED} — BRule-S03-06
+    var isOverdue = view.overdue && view.status !== 'DONE' && view.status !== 'CANCELLED';
+    document.getElementById('overdueBadge').hidden = !isOverdue;
+    var dl = document.getElementById('deadlineVal');
+    dl.className = 'name' + (isOverdue ? ' overdue' : '');
+    dl.innerHTML = (isOverdue ? ICON_ALERT : '') + '20/06/2026 17:00';
+
+    document.getElementById('cancelBanner').hidden = view.status !== 'CANCELLED';
+
+    // "Sửa thông tin": chỉ người duyệt, không còn ý nghĩa ở trạng thái cuối
+    document.getElementById('btnEdit').hidden =
+      !(view.role === 'approver' && view.status !== 'DONE' && view.status !== 'CANCELLED');
+
+    // Ô bình luận: công việc đã huỷ thì vô hiệu hoá kèm chú thích (design-spec §6)
+    var cancelled = view.status === 'CANCELLED';
+    document.getElementById('cmInput').disabled = cancelled;
+    document.getElementById('cmSend').disabled = cancelled || !isCommentValid();
+    document.getElementById('composerDisabledNote').hidden = !cancelled;
+
+    renderActionBar();
+  }
+
+  function btnHtml(cls, label, fn) {
+    return '<button class="btn ' + cls + '" onclick="' + fn + '">' + label + '</button>';
+  }
+
+  function renderActionBar() {
+    var bar = document.getElementById('actionBar');
+    var html = '';
+    var s = view.status, r = view.role;
+
+    if (s === 'DONE' || s === 'CANCELLED' || r === 'other') {
+      // Ẩn HẲN — không render nút xám disable (R-S03-07, design-spec §8)
+      bar.hidden = true;
+      bar.innerHTML = '';
+      return;
+    }
+
+    if (r === 'assignee') {
+      if (s === 'TODO')             html = btnHtml('btn-primary', 'Bắt đầu làm', 'doTransition(\'IN_PROGRESS\')');
+      else if (s === 'IN_PROGRESS') html = btnHtml('btn-primary', 'Gửi duyệt', 'doTransition(\'IN_REVIEW\')');
+      else if (s === 'IN_REVIEW')   html = '<span class="waiting">Đang chờ duyệt</span>';
+    } else if (r === 'approver') {
+      if (s === 'IN_REVIEW') {
+        html = btnHtml('btn-primary', 'Duyệt hoàn thành', 'doTransition(\'DONE\')')
+             + btnHtml('btn-secondary', 'Từ chối', 'openReject()');
+      }
+      html += '<span class="spacer"></span>' + btnHtml('btn-danger', 'Huỷ công việc', 'openCancel()');
+    }
+
+    // motion.crossfade — bộ nút cũ mờ đi, bộ mới hiện TẠI CHỖ (không trượt)
+    bar.classList.add('fading');
+    setTimeout(function () {
+      bar.hidden = false;
+      bar.innerHTML = html;
+      bar.classList.remove('fading');
+    }, 150);
+  }
+
+  /* ═══════════════ Chuyển trạng thái ═══════════════ */
+  function doTransition(next, quietToast) {
+    var bar = document.getElementById('actionBar');
+    var pressed = bar.querySelector('.btn-primary');
+    if (pressed) {
+      // Nhấn kép: khoá nút đang xử lý + disable các nút còn lại (design-spec §6)
+      pressed.innerHTML = '<span class="spinner" aria-hidden="true"></span> Đang xử lý';
+      bar.querySelectorAll('.btn').forEach(function (b) { b.disabled = true; });
+    }
+    var from = STATUS_META[view.status].label;
+    setTimeout(function () {
+      view.status = next;
+      render();
+      document.getElementById('statusBadge').classList.add('flash');
+      addHistory('Trạng thái', from, STATUS_META[next].label);
+      document.getElementById('updatedVal').textContent = 'vừa xong';
+      var msg = { IN_PROGRESS: 'Đã chuyển sang Đang làm', IN_REVIEW: 'Đã gửi duyệt',
+                  DONE: 'Đã duyệt hoàn thành', CANCELLED: 'Đã huỷ công việc' }[next];
+      announce(msg);
+      if (!quietToast) showToast(msg);
+    }, 450);
+  }
+
+  function addHistory(field, oldV, newV) {
+    var li = document.createElement('li');
+    li.className = 'tl-item tl-new';
+    li.innerHTML = '<div class="tl-meta">vừa xong · Lê C</div>'
+                 + '<div class="tl-field">' + field + '</div>'
+                 + '<div class="tl-change"><span class="old">' + oldV + '</span> → ' + newV + '</div>';
+    var tl = document.getElementById('timeline');
+    tl.insertBefore(li, tl.firstChild);
+  }
+
+  function announce(msg) { document.getElementById('liveRegion').textContent = msg; }
+
+  /* ═══════════════ Bình luận ═══════════════ */
+  function updateCommentTitle() {
+    document.getElementById('commentTitle').textContent = 'Bình luận (' + commentCount + ')';
+  }
+
+  function isCommentValid() {
+    var v = document.getElementById('cmInput').value;
+    return v.trim().length >= 1 && v.length <= 1000;
+  }
+
+  function onCommentInput() {
+    var el = document.getElementById('cmInput'), c = document.getElementById('cmCounter');
+    var n = el.value.length;
+    c.textContent = n + '/1000';
+    c.classList.toggle('over', n > 1000);
+    el.classList.toggle('invalid', n > 1000);
+    var err = document.getElementById('cmInlineError');
+    if (n > 1000) { err.textContent = 'Bình luận tối đa 1000 ký tự'; err.classList.add('show'); }
+    else { err.classList.remove('show'); }
+    document.getElementById('cmSend').disabled = !isCommentValid() || view.status === 'CANCELLED';
+  }
+
+  function sendComment() {
+    var el = document.getElementById('cmInput');
+    var text = el.value;
+    if (!isCommentValid()) {
+      var err = document.getElementById('cmInlineError');
+      err.textContent = text.trim() === '' ? 'Vui lòng nhập nội dung bình luận' : 'Bình luận tối đa 1000 ký tự';
+      err.classList.add('show');
+      return;
+    }
+    var btn = document.getElementById('cmSend');
+    btn.innerHTML = '<span class="spinner" aria-hidden="true"></span> Đang gửi';
+    btn.disabled = true;
+    setTimeout(function () {
+      var li = document.createElement('li');
+      li.className = 'comment cm-new';
+      // textContent (không innerHTML) — bình luận chứa thẻ HTML hiển thị nguyên văn, không thực thi
+      var av = document.createElement('span'); av.className = 'avatar avatar--sm'; av.setAttribute('aria-hidden', 'true'); av.textContent = 'LC';
+      var body = document.createElement('div'); body.className = 'cm-body';
+      var meta = document.createElement('div'); meta.className = 'cm-meta';
+      meta.innerHTML = '<strong>Lê C</strong> · vừa xong';
+      var txt = document.createElement('div'); txt.className = 'cm-text'; txt.textContent = text;
+      body.appendChild(meta); body.appendChild(txt);
+      li.appendChild(av); li.appendChild(body);
+      document.getElementById('commentList').appendChild(li);
+
+      document.getElementById('commentList').hidden = false;
+      document.getElementById('cmEmpty').hidden = true;
+      commentCount++;
+      updateCommentTitle();
+
+      el.value = '';
+      onCommentInput();
+      el.focus();               // giữ focus để gõ tiếp (design-spec §4 Success)
+      btn.textContent = 'Gửi';
+    }, 500);
+  }
+
+  function loadOlder() { showToast('Đã tải thêm bình luận cũ hơn (demo)'); }
+
+  /* ═══════════════ Modal Từ chối ═══════════════ */
+  var lastFocused = null;
+  function openReject() {
+    lastFocused = document.activeElement;
+    document.getElementById('rejectBackdrop').classList.add('open');
+    document.getElementById('rejectReason').focus();
+  }
+  function closeReject() {
+    document.getElementById('rejectBackdrop').classList.remove('open');
+    document.getElementById('rejectReason').value = '';
+    onRejectInput();
+    if (lastFocused) lastFocused.focus();
+  }
+  function onRejectInput() {
+    var el = document.getElementById('rejectReason'), c = document.getElementById('rjCounter');
+    var n = el.value.length;
+    c.textContent = n + '/1000';
+    c.classList.toggle('over', n > 1000);
+    el.classList.toggle('invalid', n > 1000);
+    var err = document.getElementById('rjError');
+    if (n > 1000) { err.textContent = 'Lý do tối đa 1000 ký tự'; err.classList.add('show'); }
+    else { err.classList.remove('show'); }
+    // Lý do rỗng → nút xác nhận disable (R-S03-11)
+    document.getElementById('rjConfirm').disabled = !(el.value.trim().length >= 1 && n <= 1000);
+  }
+  function confirmReject() {
+    var reason = document.getElementById('rejectReason').value;
+    document.getElementById('rejectBackdrop').classList.remove('open');
+    // Lý do lưu thành MỘT BÌNH LUẬN của người từ chối (BRule-S03-05), rồi mới đổi trạng thái
+    document.getElementById('cmInput').value = reason;
+    sendComment();
+    document.getElementById('rejectReason').value = '';
+    onRejectInput();
+    setTimeout(function () { doTransition('IN_PROGRESS', true); showToast('Đã trả lại công việc'); }, 200);
+  }
+
+  /* ═══════════════ Hộp xác nhận Huỷ ═══════════════ */
+  function openCancel() { lastFocused = document.activeElement; document.getElementById('cancelBackdrop').classList.add('open'); }
+  function closeCancel() { document.getElementById('cancelBackdrop').classList.remove('open'); if (lastFocused) lastFocused.focus(); }
+  function confirmCancel() { closeCancel(); doTransition('CANCELLED'); }
+
+  /* ═══════════════ Modal Sửa thông tin ═══════════════ */
+  function openEdit() { lastFocused = document.activeElement; document.getElementById('editBackdrop').classList.add('open'); document.getElementById('edTitle').focus(); }
+  function closeEdit() { document.getElementById('editBackdrop').classList.remove('open'); if (lastFocused) lastFocused.focus(); }
+  function checkEdTitle() {
+    var el = document.getElementById('edTitle'), err = document.getElementById('edTitleErr');
+    var v = el.value.trim();
+    if (v === '') { err.textContent = 'Vui lòng nhập tiêu đề'; err.classList.add('show'); el.classList.add('invalid'); return false; }
+    if (v.length > 200) { err.textContent = 'Tiêu đề tối đa 200 ký tự'; err.classList.add('show'); el.classList.add('invalid'); return false; }
+    err.classList.remove('show'); el.classList.remove('invalid'); return true;
+  }
+  function submitEdit() {
+    var ok = checkEdTitle();
+    var desc = document.getElementById('edDesc'), dErr = document.getElementById('edDescErr');
+    if (desc.value.length > 5000) { dErr.textContent = 'Mô tả tối đa 5000 ký tự'; dErr.classList.add('show'); desc.classList.add('invalid'); ok = false; }
+    else { dErr.classList.remove('show'); desc.classList.remove('invalid'); }
+    var dl = document.getElementById('edDeadline'), dlErr = document.getElementById('edDeadlineErr');
+    if (!dl.value) { dlErr.textContent = 'Vui lòng chọn deadline'; dlErr.classList.add('show'); dl.classList.add('invalid'); ok = false; }
+    else { dlErr.classList.remove('show'); dl.classList.remove('invalid'); }
+    if (!ok) return;
+    var newTitle = document.getElementById('edTitle').value.trim();
+    var oldTitle = document.getElementById('taskTitleH').textContent.trim();
+    closeEdit();
+    if (newTitle !== oldTitle) {
+      document.getElementById('taskTitleH').textContent = newTitle;
+      addHistory('Tiêu đề', oldTitle, newTitle);   // BRule-S03-08: mỗi trường đổi = 1 dòng lịch sử
+    }
+    document.getElementById('updatedVal').textContent = 'vừa xong';
+    showToast('Đã cập nhật thông tin');
+  }
+  document.getElementById('edDeadline').addEventListener('change', function () {
+    document.getElementById('edDeadlineWarn').hidden = !(this.value && new Date(this.value) < new Date());
+  });
+
+  /* ═══════════════ Mô tả: Xem thêm / Thu gọn ═══════════════ */
+  function toggleDesc() {
+    var body = document.getElementById('descBody'), btn = document.getElementById('descToggle');
+    var clamped = body.classList.toggle('clamped');
+    btn.textContent = clamped ? 'Xem thêm' : 'Thu gọn';
+  }
+
+  /* ═══════════════ Tab (mobile) ═══════════════ */
+  function switchTab(which) {
+    var isCm = which === 'comments';
+    document.getElementById('tabComments').setAttribute('aria-selected', isCm);
+    document.getElementById('tabHistory').setAttribute('aria-selected', !isCm);
+    if (window.matchMedia('(max-width: 991.98px)').matches) {
+      document.getElementById('paneComments').hidden = !isCm;
+      document.getElementById('paneHistory').hidden = isCm;
+    }
+  }
+  function applyLayout() {
+    var narrow = window.matchMedia('(max-width: 991.98px)').matches;
+    if (!narrow) {
+      document.getElementById('paneComments').hidden = false;
+      document.getElementById('paneHistory').hidden = false;
+    } else {
+      var isCm = document.getElementById('tabComments').getAttribute('aria-selected') === 'true';
+      document.getElementById('paneComments').hidden = !isCm;
+      document.getElementById('paneHistory').hidden = isCm;
+    }
+  }
+  window.addEventListener('resize', applyLayout);
+
+  /* ═══════════════ Tiện ích ═══════════════ */
+  function showToast(msg, isErr) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.toggle('err', !!isErr);
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function () { t.classList.remove('show'); }, 4000);
+  }
+  function retryLoad() { setState('loading'); setTimeout(function () { setState('default'); }, 900); }
+  function goBack() {
+    // motion.page-exit — fade-out 100ms rồi mới điều hướng
+    var app = document.getElementById('app');
+    app.classList.add('leaving');
+    setTimeout(function () { app.classList.remove('leaving'); showToast('(demo) Về Dashboard, giữ nguyên bộ lọc trước đó'); }, 100);
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (document.getElementById('rejectBackdrop').classList.contains('open')) closeReject();
+    else if (document.getElementById('cancelBackdrop').classList.contains('open')) closeCancel();
+    else if (document.getElementById('editBackdrop').classList.contains('open')) closeEdit();
+  });
+
+  // Khởi tạo
+  applyLayout();
+  render();
+  onCommentInput();
+  updateCommentTitle();
+
+function toggleNav(btn){
+  const h = btn.closest('.app-header');
+  const open = h.getAttribute('data-nav') !== 'open';
+  h.setAttribute('data-nav', open ? 'open' : 'closed');
+  btn.setAttribute('aria-expanded', String(open));
+}
+
+function statebarToggle(btn){
+  const box = btn.closest('.statebar');
+  const open = box.dataset.open !== 'true';
+  box.dataset.open = String(open);
+  btn.setAttribute('aria-expanded', String(open));
+}
+</script>
+</body>
+</html>

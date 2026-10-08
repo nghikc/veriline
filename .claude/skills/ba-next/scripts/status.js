@@ -48,12 +48,13 @@ const readD = (name) => readDoc(DOCS, name);
 
 if (!fs.existsSync(DOCS)) {
   const out = { giaiĐoạn: 'GĐ0', đềXuất: [
+    { skill: 'ba-start', lýDo: 'Lần đầu dùng? Nhận diện dự án (ý tưởng / tài liệu rời / code), xem demo 10 phút rồi vào dự án thật' },
     { skill: 'ba-discover', lýDo: 'Chưa có docs/ — bắt đầu từ đầu: vision → stakeholder → persona → brainstorm → process' },
     { skill: 'ba-reverse-doc', lýDo: 'Nếu đã có tài liệu yêu cầu rời của khách (Word/PDF/ảnh/biên bản) — kiểm kê nguồn rồi seed 01-requirements' },
     { skill: 'ba-reverse', lýDo: 'Nếu đã có codebase — sinh tài liệu ngược từ code rồi dừng' },
     { skill: 'ba-auto', lýDo: 'Nếu đã có codebase VÀ muốn đi thẳng tới MVP — chạy cả chuỗi (reverse → đặc tả → build → dev), chỉ dừng hỏi 2 lần' },
   ] };
-  console.log(JSON_MODE ? JSON.stringify(out) : `Chưa có ${DOCS} — dự án mới.\n👉 Chạy: /ba-discover (GĐ1, từ ý tưởng) · /ba-reverse-doc (đã có tài liệu rời) · /ba-reverse (đã có code, dừng ở tài liệu) · /ba-auto (đã có code, chạy thẳng tới MVP) · /ba-init nếu muốn vào thẳng yêu cầu.`);
+  console.log(JSON_MODE ? JSON.stringify(out) : `Chưa có ${DOCS} — dự án mới.\n👉 Lần đầu dùng: /ba-start (nhận diện dự án + demo 10 phút)\n👉 Hoặc chạy: /ba-discover (GĐ1, từ ý tưởng) · /ba-reverse-doc (đã có tài liệu rời) · /ba-reverse (đã có code, dừng ở tài liệu) · /ba-auto (đã có code, chạy thẳng tới MVP) · /ba-init nếu muốn vào thẳng yêu cầu.`);
   process.exit(0);
 }
 

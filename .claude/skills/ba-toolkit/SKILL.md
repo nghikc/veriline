@@ -137,6 +137,7 @@ Canon `skills.experimental`: `ac-jury` · `ba-atlassian` · `ba-threat-model` ·
 - `ba-index` — cần TRA CỨU tài liệu BA mà không muốn đọc cả file. *(TODO: mô tả kỹ hơn)*
 - `ba-figure` — cần một sơ đồ Mermaid thành HÌNH ĐEM ĐI DÙNG. *(TODO: mô tả kỹ hơn)*
 - `ba-onepager` — cần MỘT tài liệu văn liền mạch về cả dự án, gói trong một trang HTML tự chứa để gửi cho lãnh đạo/khách/đối tác. *(TODO: mô tả kỹ hơn)*
+- `ba-start` — lần đầu dùng Veriline hay chưa biết bắt đầu từ đâu: nhận diện dự án (ý tưởng / tài liệu rời / code), demo 10 phút trên app mẫu, chọn hồ sơ rồi gọi đúng cửa vào. Đã có `docs/` → chuyển sang `ba-next`.
 
 ## Quy tắc
 - Mỗi bước đọc tài liệu cấp trên làm ngữ cảnh để giữ nhất quán.

@@ -293,6 +293,79 @@ try {
     else { fail++; console.log('  ❌ 3vr — ' + lỗi.join(' | ') + ' :: ' + o.split('\n').slice(0, 3).join(' / ')); }
   });
 
+  // 3st. ba-start (M7): detect.js nhận đúng loại trên 8 thư mục giả (kể cả bẫy: PDF trong node_modules, ảnh asset trong src/,
+  // repo nguồn) · demo.js chép + dựng portal + .gitignore một dòng + mốc demoPortalAt, chạy lại không ghi đè bản đã sửa ·
+  // portal docs/ thật đóng firstPortalAt, portal demo KHÔNG · report.js có vàoCửa khi có sổ, null khi không.
+  ca('3st', () => {
+    const lỗi = []; const DT = S('ba-start', 'detect.js');
+    const dựng = (tên, files) => { const R = path.join(TMP, 'st-' + tên); fs.rmSync(R, { recursive: true, force: true }); fs.mkdirSync(R, { recursive: true }); for (const f of files) { const p = path.join(R, f); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, 'x'); } return R; };
+    const loại = (R) => { try { return JSON.parse(run([DT, R, '--json']).stdout); } catch { return {}; } };
+    for (const [tên, files, mong, thêm] of [
+      ['rong', [], 'ý-tưởng'],
+      ['tailieu', ['khach/yeu-cau.docx', 'scan.pdf'], 'tài-liệu-rời'],
+      ['code', ['package.json', 'src/index.js', 'src/assets/logo.png'], 'có-code'],
+      ['ca-hai', ['apps/web/package.json', 'bien-ban/hop-01.pdf'], 'code-và-tài-liệu'],
+      ['docs', ['docs/00-tracking.md', 'khach/a.pdf'], 'có-docs'],
+      ['nm', ['node_modules/x/huong-dan.pdf', '.git/a.pdf'], 'ý-tưởng'],
+      ['nguon', ['example/docs/00-tracking.md'], 'ý-tưởng', (j) => j.nguồnToolkit === true || 'không nhận ra repo nguồn'],
+      ['code-gi', ['go.mod'], 'có-code', (j) => (j.đềXuất || [])[0] && ['ba-reverse', 'ba-init'].includes(j.đềXuất[0].skill) || 'nhánh code không đề xuất ba-reverse/ba-init'],
+    ]) {
+      const j = loại(dựng(tên, files));
+      if (j.loại !== mong) lỗi.push(`${tên}: ra "${j.loại}" ≠ "${mong}"`);
+      const t = thêm && thêm(j); if (typeof t === 'string') lỗi.push(`${tên}: ${t}`);
+    }
+    // demo.js trên một git repo tạm
+    const R = dựng('demo', []); spawnSync('git', ['-C', R, 'init', '-q']);
+    const DM = S('ba-start', 'demo.js'), LG = require(S('ba-start', 'ledger.js'));
+    const d1 = run([DM, '--root', R, '--json']); let j1 = {}; try { j1 = JSON.parse(d1.stdout); } catch { /* dưới báo */ }
+    const portal = path.join(R, 'veriline-demo', 'docs', 'Ho-so', 'portal.html');
+    if (d1.status !== 0 || !j1.chép || !fs.existsSync(portal)) lỗi.push(`demo lần 1: exit ${d1.status}, chép ${j1.chép}, portal ${fs.existsSync(portal)} ${(j1.lỗiPortal || '').slice(0, 80)}`);
+    else if (!/TaskDetail/.test(fs.readFileSync(portal, 'utf8'))) lỗi.push('portal demo không có màn S03 TaskDetail');
+    const m1 = LG.đọc(R).demoPortalAt;
+    if (!m1) lỗi.push('demo không ghi mốc demoPortalAt');
+    if (LG.đọc(R).firstPortalAt) lỗi.push('portal DEMO bị tính là portal dự án thật (firstPortalAt)');
+    const sửa = path.join(R, 'veriline-demo', 'docs', '02-functions.md'); fs.writeFileSync(sửa, 'BAN DA SUA\n');
+    const d2 = run([DM, '--root', R, '--json']); let j2 = {}; try { j2 = JSON.parse(d2.stdout); } catch { /* dưới báo */ }
+    if (!j2.giữNguyên || fs.readFileSync(sửa, 'utf8') !== 'BAN DA SUA\n') lỗi.push('demo lần 2 chép đè file người dùng đã sửa');
+    const gi = fs.readFileSync(path.join(R, '.gitignore'), 'utf8').split('\n').filter((l) => l.trim() === 'veriline-demo/').length;
+    if (gi !== 1) lỗi.push(`.gitignore có ${gi} dòng veriline-demo/ sau 2 lần chạy (phải 1)`);
+    if (LG.đọc(R).demoPortalAt !== m1) lỗi.push('mốc demoPortalAt bị ghi đè ở lần chạy 2');
+    // Chạy thử thật 08/10: (a) `ledger.js set …` KHÔNG kèm --root (đúng như SKILL.md viết) từng exit 2; (b) lần chạy 2 của demo.js
+    // từng in lại "S04 mới có phác thảo" + gợi --reset — người mới làm theo là xoá mất màn vừa trả tiền đặc tả.
+    const lc = spawnSync(process.execPath, [S('ba-start', 'ledger.js'), 'set', 'hồSơ=mini'], { cwd: R, encoding: 'utf8' });
+    if (lc.status !== 0 || LG.đọc(R).hồSơ !== 'mini') lỗi.push(`ledger.js set không --root: exit ${lc.status} ${(lc.stderr || '').slice(0, 80)}`);
+    const d3 = run([DM, '--root', R]).stdout || '';
+    if (!/Đã dựng lại cổng tài liệu/.test(d3) || /mới có phác thảo/.test(d3) || !/XOÁ bản demo hiện có/.test(d3)) lỗi.push('demo.js lần 2 in sai: ' + d3.split('\n').slice(0, 2).join(' / '));
+    // portal của docs/ THẬT đóng firstPortalAt (dự án đã qua ba-start); dự án không có sổ thì build.js không đẻ sổ
+    const R2 = dựng('that', []); fs.cpSync(path.join(R, 'veriline-demo', 'docs'), path.join(R2, 'docs'), { recursive: true }); LG.set(R2, { hồSơ: 'lite', loại: 'ý-tưởng' });
+    const b = run([S('ba-portal', 'build.js'), path.join(R2, 'docs'), path.join(R2, 'docs', 'Ho-so', 'portal.html')]);
+    if (b.status !== 0 || !LG.đọc(R2).firstPortalAt) lỗi.push(`portal docs/ thật không đóng firstPortalAt (exit ${b.status})`);
+    const R3 = dựng('khongso', []); fs.cpSync(path.join(R, 'veriline-demo', 'docs'), path.join(R3, 'docs'), { recursive: true });
+    run([S('ba-portal', 'build.js'), path.join(R3, 'docs'), path.join(R3, 'docs', 'Ho-so', 'portal.html')]);
+    if (LG.có(R3)) lỗi.push('build.js đẻ sổ ba-start ở dự án không đi qua ba-start');
+    // report.js: có sổ → vàoCửa có số phút; không sổ → null
+    const rp = (root) => { try { return JSON.parse(run([S('ba-export', 'report.js'), '--project', root]).stdout); } catch { return {}; } };
+    const v2 = rp(R2).vàoCửa, v3 = rp(R3);
+    if (!v2 || typeof v2.phútTớiPortalThật !== 'number' || v2.hồSơ !== 'lite') lỗi.push('report.js thiếu vàoCửa có số phút: ' + JSON.stringify(v2));
+    if (!('vàoCửa' in v3) || v3.vàoCửa !== null) lỗi.push('report.js không có sổ mà vàoCửa ≠ null: ' + JSON.stringify(v3.vàoCửa));
+    if (!lỗi.length) { pass++; console.log('  ✅ 3st ba-start: detect 8 loại/bẫy đúng · demo chép+portal+.gitignore 1 dòng+mốc, lần 2 giữ bản sửa + lời đúng · ledger không --root · portal thật đóng firstPortalAt, demo không · report vàoCửa'); }
+    else { fail++; console.log('  ❌ 3st — ' + lỗi.join(' | ')); }
+  });
+  // 3st2. Bộ demo không được trôi khỏi example/: --check khớp ở repo thật; bản sao skill có MỘT byte sai trong assets/demo → đỏ đúng file.
+  ca('3st2', () => {
+    const lỗi = []; const BD = S('ba-start', 'build-demo.js');
+    const r0 = run([BD, '--check']);
+    if (r0.status !== 0) lỗi.push('assets/demo lệch example/docs ngay trên repo — chạy build-demo.js --write: ' + (r0.stdout || '').split('\n').slice(0, 3).join(' / '));
+    const R = path.join(TMP, 'st-bd'); fs.rmSync(R, { recursive: true, force: true });
+    cpDir(path.join(ROOT, '.claude', 'skills', 'ba-start'), path.join(R, '.claude', 'skills', 'ba-start'));
+    fs.mkdirSync(path.join(R, 'example'), { recursive: true }); fs.symlinkSync(path.join(ROOT, 'example', 'docs'), path.join(R, 'example', 'docs'), 'dir');
+    const f = path.join(R, '.claude', 'skills', 'ba-start', 'assets', 'demo', 'docs', '01-requirements.md'); fs.appendFileSync(f, 'x');
+    const r1 = run([path.join(R, '.claude', 'skills', 'ba-start', 'scripts', 'build-demo.js'), '--check']);
+    if (!(r1.status > 0) || !/khác\s+01-requirements\.md/.test(r1.stdout || '')) lỗi.push(`một byte sai trong assets/demo mà --check exit ${r1.status}`);
+    if (!lỗi.length) { pass++; console.log('  ✅ 3st2 bộ demo ba-start khớp example/docs · một byte lệch → --check đỏ đúng file'); }
+    else { fail++; console.log('  ❌ 3st2 — ' + lỗi.join(' | ')); }
+  });
+
   // 3d-quater. status.js đếm CR: `|` trong code span không phải ranh giới cột, và `Đã nghiệm thu` là ĐÓNG
   // (upstream từ vá cục bộ dự án desktop 15/09 — vòng phản hồi: file toolkit bị sửa ở dự án đích = mặc định sai).
   ca('3d#5', () => {

@@ -102,3 +102,6 @@
 {"cum":"reverse","cau":"Công ty có hệ thống chạy 5 năm không ai viết tài liệu, chỉ còn mã nguồn","dung":"ba-reverse","khong":["ba-reverse-doc","ba-migration","ba-auto"]}
 {"cum":"discovery","cau":"Trước khi bàn tính năng, mình muốn hiểu từng nhóm người dùng một ngày của họ ra sao, chỗ nào họ bực","dung":"ba-persona","khong":["ba-urd","ba-process"]}
 {"cum":"data","cau":"Bảng khách hàng nên có những cột gì, kiểu gì, index ra sao cho MySQL","dung":"ba-dbschema","khong":["ba-data-model"]}
+{"cum": "vao-cua", "cau": "Mình vừa cài bộ skill này xong, không biết bắt đầu từ đâu, chỉ cho mình với", "dung": "ba-start", "khong": ["ba-next", "ba-toolkit", "ba-init"]}
+{"cum": "vao-cua", "cau": "Cho mình xem thử bộ skill làm ra được cái gì trên một dự án mẫu trước khi dùng thật", "dung": "ba-start", "khong": ["ba-next", "ba-toolkit", "ba-init"]}
+{"cum": "vao-cua", "cau": "Lan dau dung Veriline, du an cua minh co san code va mot dong file Word khach gui, nen vao tu dau", "dung": "ba-start", "khong": ["ba-next", "ba-toolkit", "ba-init"]}

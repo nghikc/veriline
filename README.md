@@ -9,8 +9,8 @@ Veriline là bộ skill cho [Claude Code](https://claude.com/claude-code) làm *
 
 ## Trong bộ có gì
 
-- **77 skill** (62 `ba-*` phân tích nghiệp vụ · 11 `dev-*` kỷ luật code/QA · 4 `ac-*` kiểm chứng và review), **10 agent** review chuyên trách, **92 script** Node không phụ thuộc thư viện ngoài.
-- **Lõi** (29 skill): pipeline BA chính, cổng review, truy vết, change request, portal, cổng kiểm chứng và bộ `dev-*`.
+- **78 skill** (63 `ba-*` phân tích nghiệp vụ · 11 `dev-*` kỷ luật code/QA · 4 `ac-*` kiểm chứng và review), **10 agent** review chuyên trách, **96 script** Node không phụ thuộc thư viện ngoài.
+- **Lõi** (30 skill): pipeline BA chính, cổng review, truy vết, change request, portal, cổng kiểm chứng và bộ `dev-*`.
 - **Mở rộng** (48 skill): discovery (vision, persona, quy trình AS-IS/TO-BE), kiến trúc, API, dữ liệu, prototype, nghiệm thu, cẩm nang… Một số skill gắn nhãn *thử nghiệm* chỉ cài khi bạn chọn.
 - Hook cho Claude Code: chặn đọc file bí mật (`.env`, khoá), nhắc cập nhật ma trận theo dõi, cảnh báo sửa tài liệu đã chốt mà chưa có change request.
 

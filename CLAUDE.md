@@ -4,7 +4,7 @@ Briefing for contributors to **Veriline** (core, MIT). A **briefing**, not a jou
 
 ## What this repo is
 
-**Not an application** — a collection of Claude Code skills: `.claude/skills/`, 77 skills (62 `ba-*` + 11 `dev-*` + 4 `ac-*`) turning a raw idea → Vietnamese BA docs → build plan → real code, with an independent verification gate before anything is called done. "Running" a skill = `/<skill-name>` in a Claude Code session; editing a skill = editing its `SKILL.md` prompt + companion files. Generated docs are **Vietnamese** and land in the consuming project's `docs/`; `example/docs/` (TeamTasks) is the end-to-end fixture every checker runs against.
+**Not an application** — a collection of Claude Code skills: `.claude/skills/`, 78 skills (63 `ba-*` + 11 `dev-*` + 4 `ac-*`) turning a raw idea → Vietnamese BA docs → build plan → real code, with an independent verification gate before anything is called done. "Running" a skill = `/<skill-name>` in a Claude Code session; editing a skill = editing its `SKILL.md` prompt + companion files. Generated docs are **Vietnamese** and land in the consuming project's `docs/`; `example/docs/` (TeamTasks) is the end-to-end fixture every checker runs against.
 
 ## Skill anatomy
 
@@ -47,10 +47,10 @@ Pipeline order and every skill's role: `.claude/skills/ba-toolkit/SKILL.md`. Bus
 
 ## The executable tooling
 
-~92 zero-dependency Node scripts plus shared modules (`docpath.js`, `e2epath.js`, `profile.js`, `testcode.js`, `ledger.js`). Each script states its limits (`gioiHan`) and **counts, never judges** — judgment belongs to the skill and the human.
+~96 zero-dependency Node scripts plus shared modules (`docpath.js`, `e2epath.js`, `profile.js`, `testcode.js`, `ledger.js`). Each script states its limits (`gioiHan`) and **counts, never judges** — judgment belongs to the skill and the human.
 
 ```bash
-node .claude/skills/ba-toolkit/scripts/test.js --public # the toolkit's own suite — 186 checks (self-lint · scripts on example/ · ADVERSARIAL). Exit = failures.
+node .claude/skills/ba-toolkit/scripts/test.js --public # the toolkit's own suite — 188 checks (self-lint · scripts on example/ · ADVERSARIAL). Exit = failures.
 node .claude/skills/ba-toolkit/scripts/lint.js          # structural/content-drift checks against the registry. Exit = error count.
 node .claude/skills/ba-next/scripts/status.js example/docs   # where a project is in the pipeline, what next
 node .claude/skills/ba-portal/scripts/build.js example/docs example/docs/Ho-so/portal.html   # offline docs portal

@@ -1578,6 +1578,17 @@ if (skippedForeign > 0) {
   console.log(`  Bo qua ${skippedForeign} file ngoai bo BA toolkit (folder la nhu superpowers/, session-notes/). Dung --all de gom het.`);
 }
 console.log(`  Output size: ${(fs.statSync(outFile).size / 1024).toFixed(1)} KB`);
+
+// Mốc "portal đầu tiên của dự án thật" (M7, ba-start/scripts/ledger.js): dự án đã đi qua ba-start (có .claude/ba-start.json ở
+// thư mục cha của docs/) và đây không phải bộ demo → đóng firstPortalAt một lần. Thiếu ba-start hay lỗi sổ → im (không chặn portal).
+try {
+  const gốcDựÁn = path.dirname(path.resolve(docsDir));
+  const sổ = path.join(__dirname, '..', '..', 'ba-start', 'scripts', 'ledger.js');
+  if (path.basename(gốcDựÁn) !== 'veriline-demo' && fs.existsSync(sổ)) {
+    const ledger = require(sổ);
+    if (ledger.có(gốcDựÁn)) { const r = ledger.mark(gốcDựÁn, 'firstPortalAt'); if (r.mới) console.log('  Mốc: portal đầu tiên của dự án — đã ghi vào .claude/ba-start.json'); }
+  }
+} catch { /* sổ vào cửa là phụ — không bao giờ làm hỏng lệnh dựng portal */ }
 if (clientMode && !fs.existsSync(path.join(docsDir, '00-introduction.md'))) {
   console.warn('  ⚠️  --client nhưng thiếu docs/00-introduction.md → portal khách KHÔNG có phần Giới thiệu. Hãy tổng hợp 00-introduction.md (gộp brainstorm/vision/personas/process/urd) trước — xem ba-portal/SKILL.md.');
 }

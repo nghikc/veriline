@@ -6,6 +6,11 @@ Bản `0.x`/`1.0.0-beta` còn đổi được hợp đồng (tên lệnh, cột 
 
 ## [Unreleased]
 
+### Thêm
+- **`ba-start` — cửa vào cho người mới.** Skill nhận diện dự án (chỉ có ý tưởng, có tài liệu rời Word/PDF/ảnh, hay đã có code) rồi cho xem demo 10 phút trên app mẫu TeamTasks: một cổng tài liệu thật, sau đó AI đặc tả một màn ngay trước mắt. Tiếp theo nó hỏi mức tài liệu (`lite`/`mini`/`full`) và gọi đúng skill bắt đầu. Demo nằm riêng trong `veriline-demo/` (tự thêm vào `.gitignore`).
+- `report.js` thêm mục `vàoCửa`: số phút từ lúc cài tới portal demo và tới portal dự án thật.
+- `ba-next` gợi `/ba-start` khi dự án chưa có `docs/`.
+
 ## [1.0.0-beta.1] — 2026-10-08
 
 Bản beta công khai đầu tiên. Trước bản này bộ skill chỉ dùng nội bộ (đánh nhãn v3.0/v3.1, không semver).
