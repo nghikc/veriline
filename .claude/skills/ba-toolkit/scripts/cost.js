@@ -93,8 +93,8 @@ if (CMD === 'estimate') {
     process.exit(0);
   }
   const nguồnTxt = r.nguồn === 'lịch sử'
-    ? `nguồn: lịch sử ${r.mẫu} lần (${lịchSử}), trung vị · khoảng p20–p80`
-    : `nguồn: bảng mặc định (cost-defaults.json — ${r.đo})${r.mộtLầnĐo ? ', một lần đo nên khoảng ±30 %' : ''}${r.mẫu ? ` · lịch sử mới ${r.mẫu} lần (<3)` : ''}`;
+    ? `ước theo ${r.mẫu} lần chạy thật ở dự án này — lấy trung vị, khoảng là từ lần nhỏ thứ 20% tới 80% (chi tiết: ${lịchSử})`
+    : `ước theo bảng mặc định (đo: ${r.đo})${r.mộtLầnĐo ? ', mới đo một lần nên có thể lệch khoảng 30%' : ''} — ${r.mẫu ? `mới ${r.mẫu} lần chạy thật` : 'chưa có lần chạy thật nào'}, cần ≥3 lần để ước theo dự án này`;
   const đơn = `${r.n} ${ĐƠN_VỊ[r.đơnVị] || 'đơn vị'}`;
   const ph = r.phút == null ? '? phút (lịch sử không có thời gian)' : `${phút(r.phút)} phút`;
   if (JSON_MODE) { console.log(JSON.stringify({ skill, ...(cũ ? { tênCũ: cũ } : {}), ướcĐược: true, mượn, ...r })); process.exit(0); }
@@ -140,7 +140,7 @@ if (CMD === 'check') {
   const cảnh = [];
   for (const [v, g] of gộp('việc')) if (v !== '—' && g.tokens > trầnViệc) cảnh.push(`việc ${v}: ${M(g.tokens)} > trần ${M(trầnViệc)} — xem lại lô/vòng`);
   const cặp = {}; for (const r of rows) { const kk = `${r.agent}@${r.việc || '—'}`; cặp[kk] = (cặp[kk] || 0) + 1; }
-  for (const [kk, n] of Object.entries(cặp)) if (n > trầnLượt && !/general-purpose|ac-builder/.test(kk)) cảnh.push(`${kk}: phái ${n} lần — luật một verifier/judge mỗi màn mỗi vòng (đo 17/09: 16 judge/màn)`);
+  for (const [kk, n] of Object.entries(cặp)) if (n > trầnLượt && !/general-purpose|ac-builder/.test(kk)) cảnh.push(`${kk}: giao ${n} lần — luật: mỗi màn mỗi vòng chỉ một agent kiểm/chấm (đo 17/09: 16 lần chấm/màn)`);
   if (!cảnh.length) console.log(`cost check: ${rows.length} agent, không vượt trần`);
   else { for (const c of cảnh) console.log('  ⚠️  ' + c); }
   process.exit(cảnh.length ? 1 : 0);

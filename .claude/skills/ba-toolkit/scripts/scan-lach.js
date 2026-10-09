@@ -67,11 +67,11 @@ let gốcRepo = process.cwd();
 let văn = '';
 let nguồn = '';
 if (DIFF) {
-  try { văn = fs.readFileSync(DIFF, 'utf8'); } catch { console.error(`scan-lach: không đọc được ${DIFF}`); process.exit(2); }
+  try { văn = fs.readFileSync(DIFF, 'utf8'); } catch { console.error(`scan-lach: không đọc được ${DIFF}\nSửa: kiểm lại đường dẫn file diff sau --diff.`); process.exit(2); }
   nguồn = `diff ${DIFF}`;
 } else {
   const top = git(['rev-parse', '--show-toplevel']);
-  if (top.status !== 0) { console.error('scan-lach: không phải repo git — dùng --diff <file>'); process.exit(2); }
+  if (top.status !== 0) { console.error('scan-lach: không phải repo git.\nSửa: chạy trong repo git, hoặc truyền sẵn bản diff: --diff <file>.'); process.exit(2); }
   gốcRepo = top.stdout.trim();
   const r = git(['diff', '--no-color', '--no-renames', '--no-ext-diff', '-U3', RANGE || 'HEAD']);
   if (r.status !== 0) { console.error(`scan-lach: git diff ${RANGE || 'HEAD'} lỗi: ${(r.stderr || '').trim().slice(0, 200)}`); process.exit(2); }
@@ -149,8 +149,8 @@ for (const f of files) {
     for (const a of h.add) {
       if (md) for (const m of a.s.matchAll(HEX_TRẦN)) {
         const v = m[2]; if (!làHexMàu(v)) continue;
-        if (bỏHex.has(v.toLowerCase())) đẩy('LACH-HEX', '❌', f.path, a.ln, 'hex mất `#` (cùng hunk vừa bỏ `#<giá trị>`)', 'giữ `#`; checker oan thì oan.js add', v);
-        else if (là07) đẩy('LACH-HEX', '❌', f.path, a.ln, 'hex trần trong 07 — màu ghi không `#` để né DS-HEX?', 'ghi `#` + đặt trong mục nợ/lệch; checker oan thì oan.js add', v);
+        if (bỏHex.has(v.toLowerCase())) đẩy('LACH-HEX', '❌', f.path, a.ln, 'hex mất `#` (cùng hunk vừa bỏ `#<giá trị>`)', 'giữ `#`; bộ kiểm báo sai thì oan.js add', v);
+        else if (là07) đẩy('LACH-HEX', '❌', f.path, a.ln, 'hex trần trong 07 — màu ghi không `#` để né DS-HEX?', 'ghi `#` + đặt trong mục nợ/lệch; bộ kiểm báo sai thì oan.js add', v);
         else if (/màu|colou?r|--[a-z][\w-]*\s*[:=]/i.test(a.s)) đẩy('LACH-HEX', '⚠️', f.path, a.ln, 'hex trần trên dòng nói màu', 'giữ `#` nếu là màu', v);
       }
       const nguyênVăn = md ? a.s.replace(/(`+)[^`]*?\1/g, '') : a.s;   // .md: entity trong `code` là chữ trích, không render
@@ -159,13 +159,13 @@ for (const f of files) {
         if (cp === undefined || cp < 0x20 || (cp >= 0x7f && cp < 0xa0) || MIỄN.has(cp) || (cp >= 0x2000 && cp <= 0x200f) || (md && MIỄN_MD.has(cp))) continue;
         let ch = ''; try { ch = String.fromCodePoint(cp); } catch { continue; }
         const cặp = bỏChữ.includes(ch) ? ' (cùng hunk bỏ ký tự thật)' : '';
-        đẩy('LACH-ENTITY', '❌', f.path, a.ln, `entity thay ký tự in được${cặp}`, 'viết thẳng ký tự (UTF-8); checker oan thì oan.js add', `${m[0]}=${ch}`);
+        đẩy('LACH-ENTITY', '❌', f.path, a.ln, `entity thay ký tự in được${cặp}`, 'viết thẳng ký tự (UTF-8); bộ kiểm báo sai thì oan.js add', `${m[0]}=${ch}`);
       }
       const bỏ = bỏChúThích(a.s);
       if (bỏ !== chuẩn(a.s) && delChuẩn.has(bỏ)) nThêmChúThích++;
-      if (TỰ_THÚ.test(bỏTrích(a.s))) đẩy('LACH-SUPPRESS', '⚠️', f.path, a.ln, 'câu tự thú né checker ("để checker không …")', 'báo oan bằng oan.js thay vì viết vòng');
+      if (TỰ_THÚ.test(bỏTrích(a.s))) đẩy('LACH-SUPPRESS', '⚠️', f.path, a.ln, 'câu tự thú né bộ kiểm ("để checker không …")', 'bộ kiểm báo sai thì ghi bằng oan.js thay vì viết vòng');
     }
-    if (nThêmChúThích > 5) đẩy('LACH-SUPPRESS', '⚠️', f.path, h.start, `${nThêmChúThích} dòng chỉ thêm data-*/chú thích trong một hunk`, 'chú thích cho checker im? báo oan bằng oan.js');
+    if (nThêmChúThích > 5) đẩy('LACH-SUPPRESS', '⚠️', f.path, h.start, `${nThêmChúThích} dòng chỉ thêm data-*/chú thích trong một hunk`, 'chú thích cho bộ kiểm im? bộ kiểm báo sai thì ghi bằng oan.js');
   }
 }
 
@@ -254,7 +254,7 @@ if (chạmTK.length) {
       if (!cfg) { const f = files.find((x) => x.path === p && x.mới); try { cfg = f ? JSON.parse(f.hunks.flatMap((h) => h.add.map((a) => a.s)).join('\n')) : null; } catch { cfg = null; } }   // --diff: file mới đọc từ chính diff
       let mặc = {}; try { mặc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'assets', 'hooks.config.json'), 'utf8')); } catch { /* thiếu */ }
       const khác = cfg ? Object.keys(cfg).filter((k) => !k.startsWith('_') && JSON.stringify(cfg[k]) !== JSON.stringify(k in mặc ? mặc[k] : true)) : [];
-      if (khác.length) đẩy('LACH-TOOLKIT', '❌', p, 1, `ba-hooks.json tắt/đổi luật hook so với mặc định: ${khác.map((k) => `${k}=${JSON.stringify(cfg[k])}`).join(', ')}`, 'bật lại; luật oan → oan.js add, không tắt hook', khác.join(','));
+      if (khác.length) đẩy('LACH-TOOLKIT', '❌', p, 1, `ba-hooks.json tắt/đổi luật hook so với mặc định: ${khác.map((k) => `${k}=${JSON.stringify(cfg[k])}`).join(', ')}`, 'bật lại; luật báo sai → oan.js add, không tắt hook', khác.join(','));
       continue;
     }
     if (!ig) continue;                                 // không kiểm được nguồn → ghi ở "Chưa kiểm", không đoán
@@ -263,7 +263,7 @@ if (chạmTK.length) {
       continue;
     }
     const x = lệchFile.get(p);
-    if (x) đẩy('LACH-TOOLKIT', '❌', p, 1, `file toolkit ${x.loai === 'sua' ? 'bị sửa' : x.loai === 'them' ? 'thêm mới' : 'bị xoá'} lệch nguồn (${ig.nguon === 'source' ? `@${ig.commit}` : 'manifest đã commit'})`, 'checker sai → oan.js add + sửa ở NGUỒN rồi ba-export update; vá có chủ đích → người duyệt ghi ba-toolkit-local.json');
+    if (x) đẩy('LACH-TOOLKIT', '❌', p, 1, `file toolkit ${x.loai === 'sua' ? 'bị sửa' : x.loai === 'them' ? 'thêm mới' : 'bị xoá'} lệch nguồn (${ig.nguon === 'source' ? `@${ig.commit}` : 'manifest đã commit'})`, 'bộ kiểm sai → oan.js add + sửa ở NGUỒN rồi ba-export update; vá có chủ đích → người duyệt ghi ba-toolkit-local.json');
   }
 }
 

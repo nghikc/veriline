@@ -179,7 +179,7 @@ for (const abs of tệp) {
   quét(path.relative(gốc, abs).split(path.sep).join('/'), buf.toString('utf8'), path.extname(abs).toLowerCase());
 }
 // Khối CLAUDE.md do ba-export quản lý (đích) — trong repo nguồn khối nằm cuối CLAUDE.md, đầu khối là tiêu đề.
-const claudeMd = path.join(gốc, '..', 'CLAUDE.md');
+const claudeMd = [path.join(gốc, '..', 'CLAUDE.md'), path.join(gốc, 'CLAUDE.md')].find((f) => fs.existsSync(f)) || path.join(gốc, '..', 'CLAUDE.md');   // gốc = .claude; bản công khai để briefing trong .claude/ (M5)
 if (fs.existsSync(claudeMd)) {
   const t = fs.readFileSync(claudeMd, 'utf8');
   const lines = t.split('\n');

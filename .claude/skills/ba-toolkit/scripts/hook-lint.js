@@ -234,7 +234,7 @@ process.stdin.on('end', () => {
   const h5 = H5(cũ, mới);
   if (h5) {
     đánhDấu('H5', 'ban');
-    process.stderr.write('[ba-toolkit hook · H5] ' + h5 + '\n'
+    process.stderr.write('[Veriline · code bị thay bằng chú thích] ' + h5 + ' (H5)\n'
       + '  Nếu đây là bỏ tính năng thì xoá hẳn; nếu là việc chưa làm xong thì ĐỪNG báo hoàn thành\n'
       + '  và mở một Work Item (`ba-task`) cho phần còn thiếu.\n');
     process.exit(2);
@@ -264,9 +264,9 @@ process.stdin.on('end', () => {
       for (const m of ['H1', 'H2', 'H3']) đánhDấu(m, 'goi');
       for (const x of ra) if (x && x.mã) đánhDấu(String(x.mã), 'ban');
       if (ra.length) {
-        msg.push('[ba-toolkit hook] ' + ra.length + ' phát hiện cơ giới trong ' + rel + ':');
+        msg.push('[Veriline · bảng/sơ đồ markdown hỏng] ' + ra.length + ' chỗ máy phát hiện trong ' + rel + ' (mã đầu mỗi dòng):');
         for (const x of ra) msg.push(`  ${x.mã} · dòng ${x.dòng}: ${x.thông}`);
-        msg.push('  (cố ý thì miễn trừ tại chỗ: <!-- ba-hook: bỏ H1 · lý do --> — bắt buộc ghi lý do)');
+        msg.push('  Sửa: chữa đúng dòng được nêu; cố ý thì miễn trừ tại chỗ: <!-- ba-hook: bỏ H1 · lý do --> — bắt buộc ghi lý do.');
       }
     } catch { đánhDấu('H1', 'hong'); /* thiếu/hỏng check-md.js → không làm hỏng luồng, nhưng bộ đếm ghi HỎNG (hook-review 07/10/2026) */ }
 
@@ -280,7 +280,7 @@ process.stdin.on('end', () => {
       if (r.error || r.status === null) đánhDấu('MER', 'hong');
       else if (r.status) {
         đánhDấu('MER', 'ban');
-        mềm = '[ba-toolkit hook · MER] Gợi ý Mermaid (heuristic, KHÔNG phải lỗi — render thật mới là chân lý; sai thì bỏ qua):\n' + (r.stderr || r.stdout || '').trim();
+        mềm = '[Veriline · gợi ý sơ đồ Mermaid] chỉ là gợi ý, KHÔNG phải lỗi — vẽ thật mới là chuẩn; sai thì bỏ qua (MER):\n' + (r.stderr || r.stdout || '').trim();
       }
     }
 
@@ -290,13 +290,13 @@ process.stdin.on('end', () => {
   }
 
   // 2) Sửa skill/agent/CLAUDE.md trong REPO TOOLKIT → tự kiểm lint.js
-  if ((/^\.claude[\/\\](skills|agents)[\/\\]/.test(rel) || rel === 'CLAUDE.md') && fs.existsSync(path.join('example', 'docs', '00-tracking.md')) && fs.existsSync(path.join(SK, 'ba-toolkit', 'scripts', 'lint.js'))) {
+  if ((/^\.claude[\/\\](skills|agents)[\/\\]/.test(rel) || /^(\.claude[\/\\])?CLAUDE\.md$/.test(rel)) && fs.existsSync(path.join('example', 'docs', '00-tracking.md')) && fs.existsSync(path.join(SK, 'ba-toolkit', 'scripts', 'lint.js'))) {
     cóViệc = true; đánhDấu('LINT', 'goi');
     const r = spawnSync(process.execPath, [path.join(SK, 'ba-toolkit', 'scripts', 'lint.js')], { encoding: 'utf8' });
     if (r.status) {
       đánhDấu('LINT', 'ban');
       const out = (r.stdout || '').split('\n').filter(l => l.includes('❌') || l.includes('KẾT QUẢ')).join('\n');
-      process.stderr.write('[ba-toolkit hook] lint.js phát hiện drift sau khi sửa ' + rel + ':\n' + out + '\n');
+      process.stderr.write('[Veriline · toolkit lệch quy ước] lint.js báo lỗi sau khi sửa ' + rel + ' — sửa: chạy lại `node .claude/skills/ba-toolkit/scripts/lint.js` tới khi 0 lỗi (LINT):\n' + out + '\n');
       process.exit(2);
     }
   }

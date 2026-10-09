@@ -224,7 +224,7 @@ if (require.main === module) {
   const opt = (n) => { const i = argv.indexOf(n); return i >= 0 && argv[i + 1] ? argv[i + 1] : null; };
   if (argv.includes('-h') || argv.includes('--help')) { console.log('Dùng: devserver.js [--root <dự-án>] [--docs <docs>] [--mark "<chữ>"]… [--timeout 500] [--json|--plain]'); process.exit(0); }
   const root = path.resolve(opt('--root') || process.cwd());
-  if (!fs.existsSync(root)) { console.error(`devserver: không có thư mục ${root}`); process.exit(2); }
+  if (!fs.existsSync(root)) { console.error(`devserver: không có thư mục ${root}\nSửa: truyền đúng thư mục gốc dự án (--root <thư mục>).`); process.exit(2); }
   const docs = opt('--docs') ? path.resolve(opt('--docs')) : (fs.existsSync(path.join(root, 'docs')) ? path.join(root, 'docs') : null);
   const marks = argv.flatMap((a, i) => (a === '--mark' && argv[i + 1] ? [argv[i + 1]] : []));
   const timeout = +(opt('--timeout') || 500) || 500;

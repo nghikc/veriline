@@ -59,6 +59,9 @@ function ca(nhãn, fn) {
   try { fn(); } catch (e) { fail++; console.log(`  ❌ ${nhãn} — ca NÉM LỖI: ${String((e && e.stack) || e).split('\n').slice(0, 2).join(' ').slice(0, 240)}`); }
 }
 
+// Briefing CLAUDE.md: gốc (repo phát triển) hoặc .claude/CLAUDE.md (bản công khai — M5 plugin, gốc plugin không được có CLAUDE.md).
+const CLAUDE_MD = [path.join(ROOT, 'CLAUDE.md'), path.join(ROOT, '.claude', 'CLAUDE.md')].find((f) => fs.existsSync(f)) || path.join(ROOT, 'CLAUDE.md');
+const gốcSrc = (x) => (x === 'CLAUDE.md' ? CLAUDE_MD : path.join(ROOT, x));
 const run = (args) => spawnSync(process.execPath, args, { encoding: 'utf8', maxBuffer: 1e8 });
 function cpDir(src, dest) {
   fs.mkdirSync(dest, { recursive: true });
@@ -193,7 +196,7 @@ try {
     const lỗi = [], CO = S('ba-toolkit', 'cost.js'), R = path.join(TMP, 'cost-est'); fs.mkdirSync(R, { recursive: true });
     const est = (...a) => run([CO, 'estimate', ...a, '--root', R]).stdout || '';
     const d = est('ba-html-design', '--man', '2');
-    if (!/^Ước tính: ~430k token \(khoảng 380k–480k\) · ~21 phút — ba-html-design × 2 màn\n  nguồn: bảng mặc định \(cost-defaults\.json/.test(d)) lỗi.push('mặc định 2 màn sai định dạng/số: ' + d.slice(0, 160));
+    if (!/^Ước tính: ~430k token \(khoảng 380k–480k\) · ~21 phút — ba-html-design × 2 màn\n  ước theo bảng mặc định \(đo: /.test(d)) lỗi.push('mặc định 2 màn sai định dạng/số: ' + d.slice(0, 160));
     const u = est('ba-zz-khong-co');
     if (!/^Ước tính: không ước được — ba-zz-khong-co chưa có số \(lịch sử 0 lần, cần ≥3/.test(u) || /~\d/.test(u)) lỗi.push('skill lạ phải "không ước được", không số: ' + u.slice(0, 120));
     if (!/chưa có số — ước theo skill gần nhất ba-html-design/.test(est('ba-screen-spec'))) lỗi.push('ba-screen-spec phải nói mượn skill gần nhất');
@@ -204,7 +207,7 @@ try {
     if (run([CO, 'record', 'ba-zz-khong-co', '--tokens', '5', '--root', R]).status !== 2) lỗi.push('record thiếu --minutes phải exit 2');
     // 4 mẫu/đơn vị: 100k 300k 200k 200k → trung vị 200k, p20 160k, p80 240k (×3 màn); phút 4 12 8 8 → 8 (×3 = 24)
     const h = est('ba-zz-khong-co', '--man', '3');
-    if (!/^Ước tính: ~600k token \(khoảng 480k–720k\) · ~24 phút — ba-zz-khong-co × 3 đơn vị\n  nguồn: lịch sử 4 lần/.test(h)) lỗi.push('lịch sử ≥3 phải ra trung vị + p20–p80: ' + h.slice(0, 160));
+    if (!/^Ước tính: ~600k token \(khoảng 480k–720k\) · ~24 phút — ba-zz-khong-co × 3 đơn vị\n  ước theo 4 lần chạy thật/.test(h)) lỗi.push('lịch sử ≥3 phải ra trung vị + p20–p80: ' + h.slice(0, 160));
     const j = JSON.parse(run([CO, 'estimate', 'ba-zz-khong-co', '--json', '--root', R]).stdout || '{}');
     if (j.nguồn !== 'lịch sử' || j.mẫu !== 4 || j.tokens !== 200000) lỗi.push('--json sai: ' + JSON.stringify(j).slice(0, 120));
     if (!lỗi.length) { pass++; console.log('  ✅ cost.js estimate: bảng mặc định đúng dòng · lịch sử ≥3 lần ra trung vị + p20–p80 · skill lạ "không ước được" · mượn skill gần nhất có nói · record ghi JSONL'); }
@@ -216,7 +219,7 @@ try {
     const R = path.join(TMP, 'repo-cost'), SKR = path.join(R, '.claude', 'skills'); fs.mkdirSync(SKR, { recursive: true }); let linkOk = true;
     for (const sk of fs.readdirSync(path.join(ROOT, '.claude', 'skills'))) { const src = path.join(ROOT, '.claude', 'skills', sk); if (!fs.statSync(src).isDirectory()) continue; if (sk === 'ba-html-design') cpDir(src, path.join(SKR, sk)); else { try { fs.symlinkSync(src, path.join(SKR, sk), 'dir'); } catch { linkOk = false; } } }
     for (const a of ['explain', 'example', '.claude/agents']) { try { fs.symlinkSync(path.join(ROOT, a), path.join(R, a), 'dir'); } catch { linkOk = false; } }
-    for (const x of ['CLAUDE.md', 'README.md']) if (fs.existsSync(path.join(ROOT, x))) fs.copyFileSync(path.join(ROOT, x), path.join(R, x));
+    for (const x of ['CLAUDE.md', 'README.md']) if (fs.existsSync(gốcSrc(x))) fs.copyFileSync(gốcSrc(x), path.join(R, x));
     const f = path.join(SKR, 'ba-html-design', 'SKILL.md'); fs.writeFileSync(f, fs.readFileSync(f, 'utf8').split('\n').filter((l) => !l.includes('cost.js estimate')).join('\n'));
     const r = spawnSync(process.execPath, [S('ba-toolkit', 'lint.js')], { cwd: R, encoding: 'utf8', maxBuffer: 1e8 });
     const báoĐúng = (r.stdout || '').split('\n').some((l) => /❌/.test(l) && /ba-html-design\/SKILL\.md thiếu dòng báo giá/.test(l));
@@ -236,7 +239,7 @@ try {
     for (const rel of [['.claude', 'skills'], ['explain']]) {
       try { fs.symlinkSync(path.join(ROOT, ...rel), path.join(R, ...rel), 'dir'); } catch { linkOk = false; }
     }
-    for (const f of ['CLAUDE.md', 'README.md']) { try { fs.copyFileSync(path.join(ROOT, f), path.join(R, f)); } catch {} }
+    for (const f of ['CLAUDE.md', 'README.md']) { try { fs.copyFileSync(gốcSrc(f), path.join(R, f)); } catch {} }
     try { fs.symlinkSync(path.join(ROOT, 'example'), path.join(R, 'example'), 'dir'); } catch {}
     const AG = path.join(ROOT, '.claude', 'agents');
     for (const f of fs.readdirSync(AG)) fs.copyFileSync(path.join(AG, f), path.join(R, '.claude', 'agents', f));
@@ -263,7 +266,7 @@ try {
   ca('3d#m4', () => {
     const R = path.join(TMP, 'repo-m4'); fs.mkdirSync(path.join(R, '.claude'), { recursive: true }); let linkOk = true;
     for (const rel of [['.claude', 'skills'], ['.claude', 'agents'], ['explain'], ['example']]) { try { fs.symlinkSync(path.join(ROOT, ...rel), path.join(R, ...rel), 'dir'); } catch { linkOk = false; } }
-    if (fs.existsSync(path.join(ROOT, 'CLAUDE.md'))) fs.copyFileSync(path.join(ROOT, 'CLAUDE.md'), path.join(R, 'CLAUDE.md'));
+    if (fs.existsSync(CLAUDE_MD)) fs.copyFileSync(CLAUDE_MD, path.join(R, 'CLAUDE.md'));
     // README tự dựng (không mượn README thật: bản công khai mang dấu so-sinh nên lint bỏ qua nó — ca sẽ xanh giả/đỏ oan theo repo)
     fs.writeFileSync(path.join(R, 'README.md'), '# x\n\n## Đổi gì trong 3.1\n- 76 skill hồi đó (lịch sử, phải im)\n\n## Cài\n- Cài gọn: 28 skill.\n');
     fs.writeFileSync(path.join(R, 'BA-TOOLKIT-README.md'), '<!-- so-sinh: export-public.js -->\n# x\n\nLõi (29 skill).\n');
@@ -286,13 +289,43 @@ try {
     if (!cần('3vr', 'release/export-public.js')) return;
     const D = path.join(TMP, 'quet-repo'); fs.rmSync(D, { recursive: true, force: true }); fs.mkdirSync(D, { recursive: true });
     const repo = JSON.parse(fs.readFileSync(path.join(ROOT, 'release', 'manifest.json'), 'utf8')).public.repo, chủ = repo.replace(/\/[^/]+$/, '');
-    fs.writeFileSync(path.join(D, 'README.md'), `git clone ${repo}.git ~/v\nIssue: ${repo}/issues.\nPro: ${repo}-pro\nDev: ${chủ}/repo-phat-trien\n`);
+    // M8: dạng ngắn `<chủ>/<repo>` (claude plugin marketplace add) cũng được che — nhưng `<chủ>/<repo>-pro` dạng ngắn vẫn rò ten-that.
+    const ngắn = repo.replace(/^https?:\/\/github\.com\//, '');
+    fs.writeFileSync(path.join(D, 'README.md'), `git clone ${repo}.git ~/v\nIssue: ${repo}/issues.\nPro: ${repo}-pro\nDev: ${chủ}/repo-phat-trien\nclaude plugin marketplace add ${ngắn}\nPro ngắn: ${ngắn}-pro\n`);
     const r = run([path.join(ROOT, 'release', 'export-public.js'), '--scan', D]), o = r.stdout || '', lỗi = [];
-    if (!/repo-cong-khai 2\b/.test(o)) lỗi.push('không che đúng 2 URL repo công khai');
+    if (!/repo-cong-khai 3\b/.test(o)) lỗi.push('không che đúng 2 URL + 1 dạng ngắn của repo công khai');
     if (!/url-noi-bo 2\b/.test(o)) lỗi.push('URL -pro/repo phát triển cùng chủ phải là url-noi-bo (2)');
-    if (r.status !== 4) lỗi.push(`exit ${r.status} ≠ 4 (2 URL lạ × url-noi-bo + ten-that) — ngoại lệ nới quá tay hoặc không che`);
+    if (r.status !== 5) lỗi.push(`exit ${r.status} ≠ 5 (2 URL lạ × url-noi-bo + ten-that, + dạng ngắn -pro) — ngoại lệ nới quá tay hoặc không che`);
     if (!lỗi.length) { pass++; console.log('  ✅ 3vr bộ quét rò: URL chính repo công khai được che (cả .git/đường con), -pro và repo phát triển cùng chủ vẫn rò'); }
     else { fail++; console.log('  ❌ 3vr — ' + lỗi.join(' | ') + ' :: ' + o.split('\n').slice(0, 3).join(' / ')); }
+  });
+
+  // 3m8. Lint 45 ngôn ngữ người dùng (M8, docs/decisions/34): script LÕI in "checker oan … TRẢ" → lint ĐỎ đúng file và đúng từ;
+  // in câu sạch (kể cả TÊN lệnh `oan.js add`, `hook-gate.js`, chữ "trả lại" thường, từ nội bộ chỉ trong chú thích) → im;
+  // ngoại lệ lang.internal.allow không còn bắn → đỏ (ngoại lệ thừa). Đối chứng: bản chép chưa phá phải ✓ mục 45.
+  ca('3m8', () => {
+    const lỗi = [];
+    const R = path.join(TMP, 'repo-m8'); fs.rmSync(R, { recursive: true, force: true }); const SKR = path.join(R, '.claude', 'skills'); fs.mkdirSync(SKR, { recursive: true }); let linkOk = true;
+    const CHÉP = new Set(['ba-toolkit', 'ba-next']);   // file bị sửa PHẢI nằm trong bản chép — symlink thì sửa luôn nguồn thật
+    for (const sk of fs.readdirSync(path.join(ROOT, '.claude', 'skills'))) { const src = path.join(ROOT, '.claude', 'skills', sk); if (!fs.statSync(src).isDirectory()) continue; if (CHÉP.has(sk)) cpDir(src, path.join(SKR, sk)); else { try { fs.symlinkSync(src, path.join(SKR, sk), 'dir'); } catch { linkOk = false; } } }
+    for (const [a, b] of [['explain', 'explain'], ['example', 'example'], ['.claude/agents', '.claude/agents']]) { try { fs.symlinkSync(path.join(ROOT, a), path.join(R, b), 'dir'); } catch { linkOk = false; } }
+    for (const x of ['CLAUDE.md', 'README.md']) if (fs.existsSync(gốcSrc(x))) fs.copyFileSync(gốcSrc(x), path.join(R, x));
+    if (!linkOk) { skip++; console.log('  ⏭️  3m8 — BỎ QUA: không tạo được symlink'); return; }
+    const mục45 = () => ((spawnSync(process.execPath, [path.join(SKR, 'ba-toolkit', 'scripts', 'lint.js')], { cwd: R, encoding: 'utf8', maxBuffer: 1e8 }).stdout || '').match(/=== 45\.[\s\S]*?(?=\n\n===|\n=== KẾT)/) || [''])[0];
+    const ST = path.join(SKR, 'ba-next', 'scripts', 'status.js'), gốcST = fs.readFileSync(ST, 'utf8');
+    const REGF = path.join(SKR, 'ba-toolkit', 'references', 'conv-registry.md'), gốcREG = fs.readFileSync(REGF, 'utf8');
+    const m0 = mục45(); if (!/✓ \d+ script lõi/.test(m0)) lỗi.push('đối chứng: bản chép chưa phá mà mục 45 không ✓ — ' + m0.slice(0, 160));
+    fs.writeFileSync(ST, gốcST + "\nif (process.env.M8) console.log(`checker oan — bị TRẢ ${1} lần`);\n");
+    const m1 = mục45();
+    if (!/❌ \.claude\/skills\/ba-next\/scripts\/status\.js:\d+ — chuỗi in ra có từ nội bộ "oan"/.test(m1) || !/từ nội bộ "TRẢ"/.test(m1)) lỗi.push('LỌT: status.js in "checker oan — bị TRẢ" mà mục 45 không đỏ đủ hai từ: ' + m1.slice(0, 200));
+    fs.writeFileSync(ST, gốcST + "\n// console.log('canon gate oan');\nif (process.env.M8) console.log('Bộ kiểm báo sai? `oan.js add` · `hook-gate.js` · bị trả lại 1 lần · cổng còn 🟡');\n");
+    const m2 = mục45(); if (/❌/.test(m2)) lỗi.push('câu sạch (tên lệnh oan.js/hook-gate.js, "trả lại" thường, từ trong chú thích) bị kêu: ' + m2.slice(0, 200));
+    fs.writeFileSync(ST, gốcST);
+    fs.writeFileSync(REGF, gốcREG.replace(/^lang\.internal\.allow =.*$/m, 'lang.internal.allow = ba-next/status:vế'));
+    const m3 = mục45(); if (!/lang\.internal\.allow ba-next\/status:vế không còn bắn/.test(m3)) lỗi.push('ngoại lệ thừa không bị đỏ: ' + m3.slice(0, 160));
+    fs.writeFileSync(REGF, gốcREG);
+    if (!lỗi.length) { pass++; console.log('  ✅ 3m8 lint 45 ngôn ngữ người dùng: script lõi in "checker oan … TRẢ" → đỏ đúng file + từ · tên lệnh/chữ thường/chú thích im · ngoại lệ thừa đỏ'); }
+    else { fail++; console.log('  ❌ 3m8 — ' + lỗi.join(' | ')); }
   });
 
   // 3st. ba-start (M7): detect.js nhận đúng loại trên 8 thư mục giả (kể cả bẫy: PDF trong node_modules, ảnh asset trong src/,
@@ -421,7 +454,7 @@ try {
     const R = path.join(TMP, 'repo-m6'), SKR = path.join(R, '.claude', 'skills'); fs.mkdirSync(SKR, { recursive: true }); let linkOk = true;
     for (const sk of fs.readdirSync(path.join(ROOT, '.claude', 'skills'))) { const src = path.join(ROOT, '.claude', 'skills', sk); if (!fs.statSync(src).isDirectory()) continue; if (sk === 'ba-toolkit') cpDir(src, path.join(SKR, sk)); else { try { fs.symlinkSync(src, path.join(SKR, sk), 'dir'); } catch { linkOk = false; } } }
     for (const a of ['explain', 'example', '.claude/agents', 'release']) { if (!fs.existsSync(path.join(ROOT, a))) continue; try { fs.symlinkSync(path.join(ROOT, a), path.join(R, a), 'dir'); } catch { linkOk = false; } }
-    for (const x of ['CLAUDE.md', 'README.md']) if (fs.existsSync(path.join(ROOT, x))) fs.copyFileSync(path.join(ROOT, x), path.join(R, x));
+    for (const x of ['CLAUDE.md', 'README.md']) if (fs.existsSync(gốcSrc(x))) fs.copyFileSync(gốcSrc(x), path.join(R, x));
     const f = path.join(SKR, 'ba-toolkit', 'references', 'conv-registry.md'); fs.writeFileSync(f, fs.readFileSync(f, 'utf8').replace(/^(profile\.core\.skills = .*)$/m, '$1 dev-run'));
     const r = spawnSync(process.execPath, [S('ba-toolkit', 'lint.js')], { cwd: R, encoding: 'utf8', maxBuffer: 1e8 });
     const báoĐúng = (r.stdout || '').split('\n').some((l) => /❌/.test(l) && /bộ cài: skill vừa ở core vừa thuộc bộ dev: dev-run/.test(l));
@@ -1213,7 +1246,7 @@ try {
     try { fs.symlinkSync(path.join(ROOT, 'explain'), path.join(R2, 'explain'), 'dir'); } catch { linkOk = false; }
     try { fs.symlinkSync(path.join(ROOT, 'example'), path.join(R2, 'example'), 'dir'); } catch {}
     try { fs.symlinkSync(path.join(ROOT, '.claude', 'agents'), path.join(R2, '.claude', 'agents'), 'dir'); } catch {}
-    for (const f of ['CLAUDE.md', 'README.md']) { try { fs.copyFileSync(path.join(ROOT, f), path.join(R2, f)); } catch {} }
+    for (const f of ['CLAUDE.md', 'README.md']) { try { fs.copyFileSync(gốcSrc(f), path.join(R2, f)); } catch {} }
     // Vi phạm cả hai luật cùng lúc, nhưng mỗi luật phải báo bằng DÒNG RIÊNG của nó — đó là thứ
     // phân biệt "check còn sống" với "lint tình cờ đỏ vì lý do khác" (bẫy đã sập ở ca 3d-bis).
     const dài = 'Use when ' + 'x'.repeat(400);
@@ -1517,7 +1550,7 @@ try {
     fs.rmSync(path.join(R, '.claude', 'ba-hook-gate.json'), { force: true });
     đẩy({ ts: '2099-01-01T09:00:00Z', file: 'docs/Screen-spec/Authentication/S01 - Login/srs.md', screen: 'S01', idsChanged: [{ id: 'R-S01-04', trangThai: 'sửa', truong: ['Trace'] }] });
     const rS1 = gọi();
-    if (!/· S1\]/.test(rS1.stdout)) lỗi.push('LỌT: tracking trễ hơn ngày sửa mà S1 im');
+    if (!/\(S1\)/.test(rS1.stdout)) lỗi.push('LỌT: tracking trễ hơn ngày sửa mà S1 im');
 
     // (c) làm gãy ref thật ở S01 → S4 phải nhắc, và phải nêu đúng mã gãy.
     const tf = path.join(R, 'docs', 'Screen-spec', 'Authentication', 'S01 - Login', 'test.md');
@@ -1525,7 +1558,7 @@ try {
     fs.rmSync(path.join(R, '.claude', 'ba-hook-gate.json'), { force: true });
     đẩy({ ts: '2099-01-02T09:00:00Z', file: 'docs/Screen-spec/Authentication/S01 - Login/test.md', screen: 'S01', idsChanged: [{ id: 'TC-S01-07', trangThai: 'sửa', truong: ['Nguồn'] }] });
     const rS4 = gọi();
-    if (!/· S4\]/.test(rS4.stdout)) lỗi.push('LỌT: ref gãy ở màn vừa sửa mà S4 im — hook không thật sự gọi ba-trace');
+    if (!/\(S4\)/.test(rS4.stdout)) lỗi.push('LỌT: ref gãy ở màn vừa sửa mà S4 im — hook không thật sự gọi ba-trace');
     else if (!/R-S01-999/.test(rS4.stdout)) lỗi.push('S4 có nhắc nhưng không nêu mã gãy — nhiều khả năng không đọc kết quả checker');
 
     // (d) CHECKER CHẾT ≠ CHECKER SẠCH (steal B12): thay ba-trace/scan.js bằng bản exit 3. Bản cũ nuốt
@@ -1610,15 +1643,15 @@ try {
     // S6 (TODO mới cuối lượt) ĐÃ BỎ 25/09/2026 — trùng `ac-judge/scan-bypasses` loại `todo-new`; ca 3cg giữ phép "không còn bắn".
     fs.writeFileSync(path.join(R, 'code.ts'), 'a\nb\nc\n// TODO: chua lam xong\n');
     xoáMốc();
-    if (/· S6\]/.test(gọi().stdout)) lỗi.push('S6 vẫn bắn — luật đã bỏ (gộp vào scan-bypasses todo-new)');
+    if (/\(S6\)/.test(gọi().stdout)) lỗi.push('S6 vẫn bắn — luật đã bỏ (gộp vào scan-bypasses todo-new)');
 
     // S3 mặc định TẮT — không được tự chạy lệnh nào dù dev-notes có lệnh đỏ.
     fs.writeFileSync(path.join(R, 'docs', 'Ho-so', 'dev-notes.md'), '# Dev\n\n- Lệnh test: `node -e "process.exit(1)"`\n');
     xoáMốc();
-    if (/· S3\]/.test(gọi().stdout)) lỗi.push('S3 chạy dù mặc định TẮT — đây là phép kiểm đắt nhất, tự bật là sai');
+    if (/\(S3\)/.test(gọi().stdout)) lỗi.push('S3 chạy dù mặc định TẮT — đây là phép kiểm đắt nhất, tự bật là sai');
     fs.writeFileSync(path.join(R, '.claude', 'ba-hooks.json'), '{"S3":true,"S6":true}\n');
     xoáMốc();
-    if (!/· S3\]/.test(gọi().stdout)) lỗi.push('LỌT: bật S3 mà gate đỏ vẫn không được báo');
+    if (!/\(S3\)/.test(gọi().stdout)) lỗi.push('LỌT: bật S3 mà gate đỏ vẫn không được báo');
 
     if (!lỗi.length) { pass++; console.log('  ✅ S6 đã bỏ (thêm TODO không bắn); S3 im khi tắt, báo gate đỏ khi bật (lệnh lấy từ dev-notes.md)'); }
     else { fail++; console.log('  ❌ S6/S3 — ' + lỗi.join(' · ')); }
@@ -1640,7 +1673,7 @@ try {
     try { fs.symlinkSync(path.join(ROOT, '.claude', 'agents'), path.join(R3, '.claude', 'agents'), 'dir'); } catch {}
     fs.copyFileSync(path.join(ROOT, 'README.md'), path.join(R3, 'README.md'));
     fs.writeFileSync(path.join(R3, 'docs', 'decisions', 'README.md'), '# x\n');
-    fs.writeFileSync(path.join(R3, 'CLAUDE.md'), (fs.existsSync(path.join(ROOT, 'CLAUDE.md')) ? fs.readFileSync(path.join(ROOT, 'CLAUDE.md'), 'utf8') : '# briefing\n') + '\n' + 'x'.repeat(20000) + '\n');
+    fs.writeFileSync(path.join(R3, 'CLAUDE.md'), (fs.existsSync(CLAUDE_MD) ? fs.readFileSync(CLAUDE_MD, 'utf8') : '# briefing\n') + '\n' + 'x'.repeat(20000) + '\n');
     if (linkOk) {
       const r = spawnSync(process.execPath, [S('ba-toolkit', 'lint.js')], { cwd: R3, encoding: 'utf8', maxBuffer: 1e8 });
       if (!(r.stdout || '').split('\n').some((l) => /❌/.test(l) && /CLAUDE\.md/.test(l) && /trần/.test(l))) lỗi.push('CLAUDE.md phình 20 KB mà check 28 im — trần chỉ là trang trí');
@@ -2876,8 +2909,8 @@ try {
     const có = require(PL).render([{ rule: 'DS-HEX', lv: '❌', file: 'a.html', line: 3, msg: 'hex lạ' }], { oan: 'ba-html-design/check-design' });
     const rỗng = require(PL).render([], { oan: 'ba-html-design/check-design' });
     const tắt = require(PL).render([{ rule: 'X', lv: '⚠️', file: 'a', msg: 'm' }], { oanHint: false });
-    if (!/\nBáo oan \(checker sai, đừng lách\): node \.claude\/skills\/ba-toolkit\/scripts\/oan\.js add --checker ba-html-design\/check-design --code/.test(có) || !/Báo oan[^\n]*$/.test(có)) lỗi.push('plist có mục phải in dòng CUỐI "Báo oan … --checker ba-html-design/check-design"');
-    if (/Báo oan/.test(rỗng) || /Báo oan/.test(tắt)) lỗi.push('plist 0 mục / oanHint:false không được in "Báo oan"');
+    if (!/\nBộ kiểm báo sai\? Ghi lại thay vì sửa tài liệu để qua mặt: node \.claude\/skills\/ba-toolkit\/scripts\/oan\.js add --checker ba-html-design\/check-design --code/.test(có) || !/Bộ kiểm báo sai[^\n]*$/.test(có)) lỗi.push('plist có mục phải in dòng CUỐI "Bộ kiểm báo sai … --checker ba-html-design/check-design"');
+    if (/Bộ kiểm báo sai/.test(rỗng) || /Bộ kiểm báo sai/.test(tắt)) lỗi.push('plist 0 mục / oanHint:false không được in "Bộ kiểm báo sai"');
     // scan-lach: fixture lách 3 kiểu thật + chú thích hàng loạt
     const capSrc = fs.readFileSync(path.join(ROOT, '.claude', 'skills', 'ba-accept', 'scripts', 'engine', 'capture.mjs'), 'utf8').split('\n').slice(0, 60);
     const capCopy = capSrc.map((l) => l.replace(/networkidle/g, 'load'));
@@ -2897,13 +2930,13 @@ try {
     if (!sh || !sh.items.some((i) => i.rule === 'LACH-SUPPRESS' && i.lv === '⚠️')) lỗi.push('câu "để checker không coi" phải ⚠️ LACH-SUPPRESS');
     const rsup = run([SL, '--diff', supD]);
     if (!ss || rsup.status !== 0 || !ss.items.some((i) => i.rule === 'LACH-SUPPRESS' && /6 dòng/.test(i.msg))) lỗi.push(`6 dòng chỉ thêm data-* phải ⚠️ LACH-SUPPRESS (exit 0, ⚠️ không chặn), được exit=${rsup.status}`);
-    if (!/\nBáo oan[^\n]*--checker ba-toolkit\/scan-lach/.test(rsup.stdout || '')) lỗi.push('scan-lach có mục phải in dòng "Báo oan … --checker ba-toolkit/scan-lach"');
+    if (!/\nBộ kiểm báo sai[^\n]*--checker ba-toolkit\/scan-lach/.test(rsup.stdout || '')) lỗi.push('scan-lach có mục phải in dòng "Bộ kiểm báo sai … --checker ba-toolkit/scan-lach"');
     // diff sạch: hex giữ #, ký tự thật, script mới không phải bản sao, 5 dòng data-* (dưới ngưỡng) → im
     const sạch = D('sach', 'diff --git a/docs/07-design-system.md b/docs/07-design-system.md\n--- a/docs/07-design-system.md\n+++ b/docs/07-design-system.md\n@@ -20,2 +20,5 @@\n | `primary` | `#2563eb` |\n+| `primary-hover` | `#1d4ed8` — đậm hơn primary, dùng khi rê |\n+Trích lối lách cũ: `bước 1&#8594;2` (entity trong code span không render)\n+Tài liệu nói về lách: câu "để checker không coi là màu đã duyệt" là tự thú (trích, không phải tự thú)\n | x | y |\n'
       + 'diff --git a/docs/Ho-so/wireframe.html b/docs/Ho-so/wireframe.html\n--- a/docs/Ho-so/wireframe.html\n+++ b/docs/Ho-so/wireframe.html\n@@ -1,2 +1,3 @@\n <p>a</p>\n+<p>Bước 1 → Bước 2 &amp; &lt;b&gt; &nbsp; &#39;x&#39;</p>\n <p>b</p>\n'
       + hunkMới('tools/dem-dong.js', ['#!/usr/bin/env node', "'use strict';", "const fs = require('fs');", "console.log(fs.readFileSync(process.argv[2], 'utf8').split('\\n').length);"]));
     const rc = run([SL, '--diff', sạch]);
-    if (rc.status !== 0 || /^P\d/m.test(rc.stdout || '') || /Báo oan/.test(rc.stdout || '')) lỗi.push(`diff sạch phải im (exit 0, 0 mục, không "Báo oan"), được exit=${rc.status} ${(rc.stdout || '').split('\n').filter((l) => /^P\d/.test(l)).join(' | ').slice(0, 200)}`);
+    if (rc.status !== 0 || /^P\d/m.test(rc.stdout || '') || /Bộ kiểm báo sai/.test(rc.stdout || '')) lỗi.push(`diff sạch phải im (exit 0, 0 mục, không "Bộ kiểm báo sai"), được exit=${rc.status} ${(rc.stdout || '').split('\n').filter((l) => /^P\d/.test(l)).join(' | ').slice(0, 200)}`);
     // example im: mọi .md + html tay viết của example/docs như FILE MỚI → 0 mục (kể cả ⚠️)
     const exFiles = []; (function đi(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) đi(p); else if (/\.md$|(html-design|wireframe[\w-]*|prototype[\w-]*)\.html$/.test(e.name)) exFiles.push(p); } })(EX);
     const exD = D('example', exFiles.map((p) => hunkMới('docs/' + path.relative(EX, p).split(path.sep).join('/'), fs.readFileSync(p, 'utf8').replace(/\n$/, '').split('\n'))).join(''));
@@ -3189,7 +3222,7 @@ try {
     const R3 = path.join(TMP, 'repo-po'); const SK3 = path.join(R3, '.claude', 'skills'); fs.rmSync(R3, { recursive: true, force: true }); fs.mkdirSync(SK3, { recursive: true }); let linkOk = true;
     for (const sk of fs.readdirSync(path.join(ROOT, '.claude', 'skills'))) { const src = path.join(ROOT, '.claude', 'skills', sk); if (!fs.statSync(src).isDirectory()) continue; if (sk === 'ac-po' || sk === 'ba-toolkit') cpDir(src, path.join(SK3, sk)); else { try { fs.symlinkSync(src, path.join(SK3, sk), 'dir'); } catch { linkOk = false; } } }
     for (const [a, b] of [['explain', 'explain'], ['example', 'example'], ['.claude/agents', '.claude/agents']]) { try { fs.symlinkSync(path.join(ROOT, a), path.join(R3, b), 'dir'); } catch { linkOk = false; } }
-    for (const x of ['CLAUDE.md', 'README.md']) if (fs.existsSync(path.join(ROOT, x))) fs.copyFileSync(path.join(ROOT, x), path.join(R3, x));
+    for (const x of ['CLAUDE.md', 'README.md']) if (fs.existsSync(gốcSrc(x))) fs.copyFileSync(gốcSrc(x), path.join(R3, x));
     const skf = path.join(SK3, 'ac-po', 'SKILL.md'); fs.writeFileSync(skf, fs.readFileSync(skf, 'utf8').replace('đổi phase · ', ''));
     const l = spawnSync(process.execPath, [S('ba-toolkit', 'lint.js')], { cwd: R3, encoding: 'utf8', maxBuffer: 1e8 });
     if (linkOk && !/❌ ac-po\/SKILL\.md: bảng "Quyền của PO" thiếu nguyên văn "đổi phase"/.test(l.stdout || '')) lỗi.push('lint 33 LỌT: bỏ "đổi phase" khỏi SKILL mà không đỏ');
@@ -3525,7 +3558,7 @@ console.log(JSON.stringify({ is_error: false, result, total_cost_usd: 0.42, mode
     const gọi = (p) => spawnSync(process.execPath, [HG], { cwd: R, input: JSON.stringify({ transcript_path: p }), encoding: 'utf8', maxBuffer: 1e8 });
     const xoáMốc = () => fs.rmSync(path.join(R, '.claude', 'ba-hook-gate.json'), { force: true });
     const lỗi = [];
-    const a = gọi(rời); if (a.status !== 2 || !/· S8\] 1\.00 tool\/lượt trên 160 lượt/.test(a.stderr || '')) lỗi.push('không kêu với 160 lượt × 1 tool: ' + (a.stderr || '').slice(0, 120));
+    const a = gọi(rời); if (a.status !== 2 || !/trung bình 1\.00 lệnh mỗi lượt trên 160 lượt[^\n]*\(S8\)/.test(a.stderr || '')) lỗi.push('không kêu với 160 lượt × 1 tool: ' + (a.stderr || '').slice(0, 120));
     const b = gọi(rời); if (b.status !== 0) lỗi.push('kêu lại cùng nấc — lải nhải mỗi lượt');
     xoáMốc();
     const c = gọi(gộp); if (c.status !== 0) lỗi.push('kêu oan với phiên ĐÃ GỘP 3 tool/lượt: ' + (c.stderr || '').slice(0, 120));
@@ -3533,7 +3566,7 @@ console.log(JSON.stringify({ is_error: false, result, total_cost_usd: 0.42, mode
     // vế số lượt (giữ từ S7, bỏ MB): 320 lượt × 3 tool — gộp tốt nhưng vẫn 320 lần nạp → kêu "mở phiên mới"; compact_boundary
     // ở giữa → chỉ đếm sau đó (150 lượt) → im. Hai nấc riêng: kêu ratio rồi kêu lượt cùng lúc được, mỗi cái một lần.
     xoáMốc(); const dài = path.join(R, 'dai.jsonl'); fs.writeFileSync(dài, mộtLượt(3).repeat(320));
-    const e = gọi(dài); if (e.status !== 2 || !/phiên đã ~320 lượt/.test(e.stderr || '') || /tool\/lượt trên/.test(e.stderr || '')) lỗi.push('320 lượt gộp tốt phải kêu vế lượt, không kêu ratio: ' + (e.stderr || '').slice(0, 160));
+    const e = gọi(dài); if (e.status !== 2 || !/phiên đã ~320 lượt[^\n]*\(S8\)/.test(e.stderr || '') || /lệnh mỗi lượt trên/.test(e.stderr || '')) lỗi.push('320 lượt gộp tốt phải kêu vế lượt, không kêu ratio: ' + (e.stderr || '').slice(0, 160));
     const e2 = gọi(dài); if (e2.status !== 0) lỗi.push('vế lượt kêu lại cùng nấc');
     xoáMốc(); fs.writeFileSync(dài, mộtLượt(3).repeat(170) + JSON.stringify({ type: 'system', subtype: 'compact_boundary' }) + '\n' + mộtLượt(3).repeat(150));
     const f = gọi(dài); if (f.status !== 0) lỗi.push('sau compact chỉ 150 lượt phải im: ' + (f.stderr || '').slice(0, 120));
@@ -3562,7 +3595,7 @@ console.log(JSON.stringify({ is_error: false, result, total_cost_usd: 0.42, mode
     run([CO, 'add', '--root', R, '--agent', 'general-purpose', '--role', 'spec', '--tokens', '300000', '--viec', 'S02', '--skill', 'ba-batch']);
     const rp = JSON.parse(run([CO, 'report', '--root', R, '--json']).stdout || '{}');
     if (rp.tokens !== 700000 || !(rp.theoSkill || []).some(([k, v]) => k === 'ba-batch' && v.tokens === 300000)) lỗi.push('cost report gộp sai: ' + JSON.stringify(rp).slice(0, 120));
-    const ck = run([CO, 'check', '--root', R]); if (ck.status !== 1 || !/ac-judge@S01: phái 4 lần/.test(ck.stdout || '')) lỗi.push('cost check không bắt 4 judge một màn: ' + (ck.stdout || '').slice(0, 120));
+    const ck = run([CO, 'check', '--root', R]); if (ck.status !== 1 || !/ac-judge@S01: giao 4 lần/.test(ck.stdout || '')) lỗi.push('cost check không bắt 4 judge một màn: ' + (ck.stdout || '').slice(0, 120));
     // state.js spawn
     const R2 = path.join(TMP, 'spawn'); fs.mkdirSync(path.join(R2, '.claude'), { recursive: true });
     const sp = (...a) => spawnSync(process.execPath, [ST, 'spawn', ...a], { cwd: R2, encoding: 'utf8' });
@@ -4230,7 +4263,7 @@ console.log(JSON.stringify({ is_error: false, result, total_cost_usd: 0.42, mode
     const R = path.join(TMP, 'repo-strict'); const SKR = path.join(R, '.claude', 'skills'); fs.mkdirSync(SKR, { recursive: true }); let linkOk = true;
     for (const sk of fs.readdirSync(path.join(ROOT, '.claude', 'skills'))) { const src = path.join(ROOT, '.claude', 'skills', sk); if (!fs.statSync(src).isDirectory()) continue; if (sk === 'ba-toolkit') cpDir(src, path.join(SKR, sk)); else { try { fs.symlinkSync(src, path.join(SKR, sk), 'dir'); } catch { linkOk = false; } } }
     for (const [a, b] of [['explain', 'explain'], ['example', 'example'], ['.claude/agents', '.claude/agents']]) { try { fs.symlinkSync(path.join(ROOT, a), path.join(R, b), 'dir'); } catch { linkOk = false; } }
-    for (const x of ['CLAUDE.md', 'README.md']) if (fs.existsSync(path.join(ROOT, x))) fs.copyFileSync(path.join(ROOT, x), path.join(R, x));
+    for (const x of ['CLAUDE.md', 'README.md']) if (fs.existsSync(gốcSrc(x))) fs.copyFileSync(gốcSrc(x), path.join(R, x));
     const reg = path.join(SKR, 'ba-toolkit', 'references', 'conv-registry.md');
     fs.writeFileSync(reg, fs.readFileSync(reg, 'utf8').replace(/^agents\.sonnet\.roles\s*=.*\n/m, ''));
     fs.writeFileSync(path.join(SKR, 'ba-toolkit', 'scripts', 'check-cites.js'), "console.log(JSON.stringify({ files: 0, cites: 0, lỗi: [] })); process.exit(3);\n");
@@ -4437,7 +4470,7 @@ console.log(JSON.stringify({ is_error: false, result, total_cost_usd: 0.42, mode
     const CHÉP = new Set(['ba-toolkit', 'ac-po', 'ac-verify', 'ac-judge', 'ba-feasible', 'ba-next']);   // file bị sửa() PHẢI nằm trong bản chép — symlink thì sửa luôn nguồn thật
     for (const sk of fs.readdirSync(path.join(ROOT, '.claude', 'skills'))) { const src = path.join(ROOT, '.claude', 'skills', sk); if (!fs.statSync(src).isDirectory()) continue; if (CHÉP.has(sk)) cpDir(src, path.join(SKR, sk)); else { try { fs.symlinkSync(src, path.join(SKR, sk), 'dir'); } catch { linkOk = false; } } }
     for (const [a, b] of [['explain', 'explain'], ['example', 'example'], ['.claude/agents', '.claude/agents']]) { try { fs.symlinkSync(path.join(ROOT, a), path.join(R, b), 'dir'); } catch { linkOk = false; } }
-    for (const x of ['CLAUDE.md', 'README.md']) if (fs.existsSync(path.join(ROOT, x))) fs.copyFileSync(path.join(ROOT, x), path.join(R, x));
+    for (const x of ['CLAUDE.md', 'README.md']) if (fs.existsSync(gốcSrc(x))) fs.copyFileSync(gốcSrc(x), path.join(R, x));
     const lint = () => spawnSync(process.execPath, [path.join(SKR, 'ba-toolkit', 'scripts', 'lint.js'), '--strict'], { cwd: R, encoding: 'utf8', maxBuffer: 1e8 }).stdout || '';
     const sửa = (rel, từ, thành) => { const f = path.join(SKR, rel); const t = fs.readFileSync(f, 'utf8'); if (!(từ instanceof RegExp ? từ.test(t) : t.includes(từ))) lỗi.push(`fixture: ${rel} không còn "${từ}" để phá`); fs.writeFileSync(f, t.replace(từ, thành)); };
     if (linkOk) {
@@ -5082,7 +5115,7 @@ ca('3hr', () => {
     fs.appendFileSync(path.join(D, CTL), '\n// vá\n');
     ghiMf(D, (j) => { j.files[CTL] = require('crypto').createHash('sha256').update(fs.readFileSync(path.join(D, CTL))).digest('hex').slice(0, 16); });
     const r = hs('SessionStart', 's2');
-    if (r.status !== 0 || !/hook · SI\][\s\S]*check-tc-layer/.test(r.stdout)) lỗi.push(`SessionStart phải nhắc SI kèm file (exit 0), được ${r.status} «${r.stdout.slice(0, 120)}»`);
+    if (r.status !== 0 || !/\(SI\)[\s\S]*check-tc-layer/.test(r.stdout)) lỗi.push(`SessionStart phải nhắc SI kèm file (exit 0), được ${r.status} «${r.stdout.slice(0, 120)}»`);
     if (/SI\]/.test(hs('UserPromptSubmit', 's2').stdout)) lỗi.push('UserPromptSubmit không được chạy integrity (chỉ SessionStart)');
     const rp = run([S('ba-export', 'report.js'), '--project', D, '--out', path.join(TMP, 'i-report.json')]);
     let j = {}; try { j = JSON.parse(rp.stdout); } catch { /* báo dưới */ }
@@ -5373,7 +5406,7 @@ ca('3hr', () => {
     const CHÉP = new Set(['ba-toolkit', 'ac-verify', 'ba-track']);
     for (const sk of fs.readdirSync(path.join(ROOT, '.claude', 'skills'))) { const src = path.join(ROOT, '.claude', 'skills', sk); if (!fs.statSync(src).isDirectory()) continue; if (CHÉP.has(sk)) cpDir(src, path.join(SKR, sk)); else { try { fs.symlinkSync(src, path.join(SKR, sk), 'dir'); } catch { linkOk = false; } } }
     for (const [a, b] of [['explain', 'explain'], ['example', 'example'], ['.claude/agents', '.claude/agents']]) { try { fs.symlinkSync(path.join(ROOT, a), path.join(R, b), 'dir'); } catch { linkOk = false; } }
-    for (const x of ['CLAUDE.md', 'README.md']) if (fs.existsSync(path.join(ROOT, x))) fs.copyFileSync(path.join(ROOT, x), path.join(R, x));
+    for (const x of ['CLAUDE.md', 'README.md']) if (fs.existsSync(gốcSrc(x))) fs.copyFileSync(gốcSrc(x), path.join(R, x));
     const lint = () => spawnSync(process.execPath, [path.join(SKR, 'ba-toolkit', 'scripts', 'lint.js'), '--strict'], { cwd: R, encoding: 'utf8', maxBuffer: 1e8 }).stdout || '';
     const sửa = (rel, từ, thành) => { const f = path.join(SKR, rel); const t = fs.readFileSync(f, 'utf8'); if (!(từ instanceof RegExp ? từ.test(t) : t.includes(từ))) lỗi.push(`fixture: ${rel} không còn "${từ}" để phá`); fs.writeFileSync(f, t.replace(từ, thành)); };
     if (linkOk) {
@@ -5547,7 +5580,7 @@ ca('3hr', () => {
     fs.writeFileSync(path.join(R, '.claude', 'spec-changes.jsonl'), JSON.stringify({ ts: '2026-09-25T10:00:00Z', file: 'docs/x/srs.md', screen: 'S01', idsChanged: [{ id: 'R-S01-01', trangThai: 'sửa', truong: ['Trace'] }] }) + '\n');
     fs.writeFileSync(path.join(R, '.claude', 'ba-hooks.json'), '{"S6": true}\n');
     const c = spawnSync(process.execPath, [S('ba-toolkit', 'hook-gate.js'), '--check'], { cwd: R, encoding: 'utf8' });
-    if (/· S6\]|TODO\/FIXME mới/.test((c.stdout || '') + (c.stderr || ''))) lỗi.push('S6 vẫn bắn — luật đã bỏ (scan-bypasses todo-new giữ nó)');
+    if (/\(S6\)|TODO\/FIXME mới/.test((c.stdout || '') + (c.stderr || ''))) lỗi.push('S6 vẫn bắn — luật đã bỏ (scan-bypasses todo-new giữ nó)');
     if (/function S6\b/.test(fs.readFileSync(S('ba-toolkit', 'hook-gate.js'), 'utf8'))) lỗi.push('hook-gate.js còn hàm S6');
     const HL = path.join(R, '.claude', 'skills', 'ba-toolkit', 'scripts', 'hook-lint.js');
     const doc = path.join(fs.realpathSync(R), 'docs', 'a.md');   // cwd của hook là realpath (macOS: /var → /private/var)
@@ -5555,12 +5588,12 @@ ca('3hr', () => {
     fs.writeFileSync(doc, '# A\n\n```mermaid\nflowchart TD\n  A[Đăng nhập] --> B[Một hai; ba]\n```\n');
     const m1 = sửa(); let ctx = ''; try { ctx = JSON.parse(m1.stdout).hookSpecificOutput.additionalContext; } catch { /* dưới báo */ }
     if (m1.status !== 0) lỗi.push(`Mermaid heuristic một mình phải exit 0 (gợi ý mềm), nhận ${m1.status}`);
-    if (!/· MER\]/.test(ctx) || !/;/.test(ctx)) lỗi.push('gợi ý Mermaid phải về agent qua additionalContext (có nhãn · MER và nội dung cảnh báo): ' + (m1.stdout || '').slice(0, 120));
+    if (!/\(MER\)/.test(ctx) || !/;/.test(ctx)) lỗi.push('gợi ý Mermaid phải về agent qua additionalContext (có nhãn · MER và nội dung cảnh báo): ' + (m1.stdout || '').slice(0, 120));
     fs.writeFileSync(doc, '# A\n\n```mermaid\nflowchart TD\n  A[Đăng nhập] --> B[Xong]\n```\n');
     const m0 = sửa(); if (m0.status !== 0 || (m0.stdout || '').trim()) lỗi.push('sơ đồ sạch phải im hoàn toàn (exit 0, stdout rỗng)');
     fs.writeFileSync(doc, '# A\n\n| a | b |\n|---|---|\n| 1 | 2 | 3 |\n\n```mermaid\nflowchart TD\n  A[Một; hai] --> B[Xong]\n```\n');
     const m2 = sửa();
-    if (m2.status !== 2 || !/H1/.test(m2.stderr || '') || !/· MER\]/.test(m2.stderr || '')) lỗi.push(`bảng gãy (H1) vẫn exit 2 và gợi ý Mermaid đi kèm cùng thông điệp: exit ${m2.status} ${(m2.stderr || '').slice(0, 160)}`);
+    if (m2.status !== 2 || !/H1/.test(m2.stderr || '') || !/\(MER\)/.test(m2.stderr || '')) lỗi.push(`bảng gãy (H1) vẫn exit 2 và gợi ý Mermaid đi kèm cùng thông điệp: exit ${m2.status} ${(m2.stderr || '').slice(0, 160)}`);
     if (!lỗi.length) { pass++; console.log('  ✅ 3cm: S6 không còn bắn (kể cả cấu hình cũ "S6": true); Mermaid hook là gợi ý mềm — exit 0 + additionalContext, H1 vẫn exit 2 kèm gợi ý'); }
     else { fail++; for (const x of lỗi) console.log('  ❌ 3cm ' + x); }
   });
@@ -5873,11 +5906,11 @@ console.log(JSON.stringify({ is_error: false, result: 'Đây:\\n\`\`\`json\\n' +
     if (r0.status !== 0 || r0.stdout.trim()) lỗi.push(`đăng ký lần đầu phải im: exit ${r0.status} «${r0.stdout.trim().slice(0, 80)}»`);
     g('switch', '-q', '-c', 'main2');                                                  // "phiên khác" đổi nhánh dưới chân A
     const r1 = A(), r2 = A();
-    if (r1.status !== 0 || !/· S9a\] nhánh đổi từ `x` sang `main2`/.test(r1.stdout)) lỗi.push(`S9a phải nhắc khi nhánh đổi dưới chân: «${r1.stdout.slice(0, 120)}»`);
+    if (r1.status !== 0 || !/\] nhánh đổi từ `x` sang `main2`[^\n]*\(S9a\)/.test(r1.stdout)) lỗi.push(`S9a phải nhắc khi nhánh đổi dưới chân: «${r1.stdout.slice(0, 120)}»`);
     if (/S9a/.test(r2.stdout)) lỗi.push('S9a nhắc lần hai cho CÙNG một lần đổi nhánh');
     const r3 = B(), r4 = A(), r5 = A();
     if (/S9b/.test(r3.stdout) === false) lỗi.push('phiên B mở khi A còn sống: B cũng phải thấy A (S9b)');
-    if (r4.status !== 0 || !/· S9b\] 1 phiên Claude khác/.test(r4.stdout) || !/phien-B/.test(r4.stdout) || !/git worktree add \.\.\/w7-phien-/.test(r4.stdout)) lỗi.push(`S9b phải nhắc A về B kèm gợi ý worktree: «${r4.stdout.slice(0, 160)}»`);
+    if (r4.status !== 0 || !/\] 1 phiên Claude khác[^\n]*\(S9b\)/.test(r4.stdout) || !/phien-B/.test(r4.stdout) || !/git worktree add \.\.\/w7-phien-/.test(r4.stdout)) lỗi.push(`S9b phải nhắc A về B kèm gợi ý worktree: «${r4.stdout.slice(0, 160)}»`);
     if (/S9b/.test(r5.stdout)) lỗi.push('S9b nhắc lần hai về CÙNG phiên B');
     // A tự đổi nhánh: transcript có `git switch -c tu-doi` sau lần thấy cuối → không nhắc S9a
     const TR = path.join(R, 'transcript.jsonl');
@@ -6089,7 +6122,7 @@ console.log(JSON.stringify({ is_error: false, result: 'Đây:\\n\`\`\`json\\n' +
     const R = path.join(TMP, 'repo-l43'); fs.rmSync(R, { recursive: true, force: true }); const SKR = path.join(R, '.claude', 'skills'); fs.mkdirSync(SKR, { recursive: true }); let linkOk = true;
     for (const sk of fs.readdirSync(path.join(ROOT, '.claude', 'skills'))) { const src = path.join(ROOT, '.claude', 'skills', sk); if (!fs.statSync(src).isDirectory()) continue; if (sk === 'ba-toolkit') cpDir(src, path.join(SKR, sk)); else { try { fs.symlinkSync(src, path.join(SKR, sk), 'dir'); } catch { linkOk = false; } } }
     for (const a of ['explain', 'example', '.claude/agents']) { try { fs.symlinkSync(path.join(ROOT, a), path.join(R, a), 'dir'); } catch { linkOk = false; } }
-    for (const x of ['CLAUDE.md', 'README.md']) if (fs.existsSync(path.join(ROOT, x))) fs.copyFileSync(path.join(ROOT, x), path.join(R, x));
+    for (const x of ['CLAUDE.md', 'README.md']) if (fs.existsSync(gốcSrc(x))) fs.copyFileSync(gốcSrc(x), path.join(R, x));
     if (linkOk) {
       const lint = () => spawnSync(process.execPath, [path.join(SKR, 'ba-toolkit', 'scripts', 'lint.js')], { cwd: R, encoding: 'utf8', maxBuffer: 1e8 }).stdout || '';
       const gốc = lint(); const m43 = (gốc.match(/=== 43[\s\S]*?(?=\n===)/) || [''])[0];
@@ -6279,7 +6312,7 @@ console.log(JSON.stringify({ is_error: false, result: 'Đây:\\n\`\`\`json\\n' +
     fs.rmSync(path.join(G, '07-design-system.md')); if (!/(^| )07:-/.test(ký(j(G)))) lỗi.push('thiếu 07 phải bắn khoá 07: ' + ký(j(G)));
     const trk = path.join(G, '00-tracking.md'); fs.writeFileSync(trk, '> Phạm vi: `docs`\n' + fs.readFileSync(trk, 'utf8'));
     if (/plan-trace|verification-cu|cach-chay/.test(ký(j(G))) || !/bang-phan-tu/.test(ký(j(G)))) lỗi.push('phạm vi docs: ' + ký(j(G)));
-    const st = run([S('ba-next', 'status.js'), G]).stdout; if (!/⚙️ Tính năng đang tắt[\s\S]*bang-phan-tu: S01 \(4 checker\)/.test(st) || !/--bo-sung/.test(st)) lỗi.push('status.js thiếu khối/đề xuất');
+    const st = run([S('ba-next', 'status.js'), G]).stdout; if (!/⚙️ Tính năng đang tắt[\s\S]*bang-phan-tu: S01 \(4 bộ kiểm tra\)/.test(st) || !/--bo-sung/.test(st)) lỗi.push('status.js thiếu khối/đề xuất');
     if (run([TH, path.join(TMP, 'khong-co')]).status !== 2) lỗi.push('docs không tồn tại phải exit 2');
     if (!lỗi.length) { pass++; console.log('  ✅ 3dh thieu.js: 8 khoá gãy bắn đúng màn · example im · phạm vi docs bỏ plan-trace/verification-cu/cach-chay · status.js in khối + đề xuất · exit 0 (2 khi không có docs)'); }
     else { fail++; for (const l of lỗi) console.log('  ❌ 3dh ' + l); }
@@ -6365,8 +6398,8 @@ console.log(JSON.stringify({ is_error: false, result: 'Đây:\\n\`\`\`json\\n' +
     const tm = fs.readFileSync(path.join(h.R, 'docs/Screen-spec/S03 - TaskDetail/test.md'), 'utf8'); const tc = (tm.match(/TC-S03-\d+/) || [])[0];
     fs.mkdirSync(path.join(h.R, 'src', 'services'), { recursive: true }); fs.writeFileSync(path.join(h.R, 'src/services/x.test.ts'), `test('${tc} x', () => {})\n`);
     const a = h.stop();
-    if (!/· S1\]/.test(a.o)) lỗi.push('LỌT: tracking S03 ghi 2026-10-05 < ngày sửa mà S1 im (khớp theo tên thay vì mã)');
-    if (!/· S5\] 1 TC XANH GIẢ/.test(a.o) || /KHÔNG KIỂM ĐƯỢC/.test(a.o)) lỗi.push('check-tc-layer exit 1 có xanhGia phải thành S5, không phải "KHÔNG KIỂM ĐƯỢC": ' + a.o.split('\n').filter((l) => /S5|KHÔNG/.test(l)).join(' | ').slice(0, 160));
+    if (!/\(S1\)/.test(a.o)) lỗi.push('LỌT: tracking S03 ghi 2026-10-05 < ngày sửa mà S1 im (khớp theo tên thay vì mã)');
+    if (!/\] 1 TC XANH GIẢ[^\n]*\(S5\)/.test(a.o) || /KHÔNG KIỂM ĐƯỢC/.test(a.o)) lỗi.push('check-tc-layer exit 1 có xanhGia phải thành S5, không phải "KHÔNG KIỂM ĐƯỢC": ' + a.o.split('\n').filter((l) => /S5|KHÔNG/.test(l)).join(' | ').slice(0, 160));
     // checker in JSON thiếu trường bắt buộc → hỏng (bản cũ im như sạch)
     const h2 = dựngHk('3ha-gay', false); const sc = path.join(h2.R, '.claude', 'skills', 'ba-trace'); fs.unlinkSync(sc); fs.mkdirSync(path.join(sc, 'scripts'), { recursive: true });
     fs.writeFileSync(path.join(sc, 'scripts', 'scan.js'), 'console.log(JSON.stringify({ ok: true }))\n');
@@ -6387,16 +6420,16 @@ console.log(JSON.stringify({ is_error: false, result: 'Đây:\\n\`\`\`json\\n' +
   ca('3hb', () => {
     const lỗi = [];
     const a = dựngHk('3hb-bash'); a.sửa();
-    if (!/· S2\]/.test(a.stop().o)) lỗi.push('LỌT: sed đổi BRule-S03-02 của màn ✅ mà Stop im');
+    if (!/\(S2\)/.test(a.stop().o)) lỗi.push('LỌT: sed đổi BRule-S03-02 của màn ✅ mà Stop im');
     const b = dựngHk('3hb-commit'); b.stop(); b.sửa(); b.git('commit', '-qam', 'lén');
-    if (!/· S2\][^\n]*S03/.test(b.stop().o)) lỗi.push('LỌT: sửa rồi commit (HEAD dời) mà Stop im');
+    if (!/S03[^\n]*\(S2\)/.test(b.stop().o)) lỗi.push('LỌT: sửa rồi commit (HEAD dời) mà Stop im');
     b.stop(); if (b.nợ().mo.length !== 1) lỗi.push(`commit lén phải để lại 1 nợ mở (không tự đóng vì "bằng HEAD mới"): ${JSON.stringify(b.nợ()).slice(0, 120)}`);
     const c = dựngHk('3hb-ok'); c.stop(); c.sửa(); c.lint();
     const c1 = c.stop(), c2 = c.stop();
     if (c.hàng().length !== 1) lỗi.push(`sửa qua Edit: hàng đợi phải đúng 1 bản ghi (đối soát không nhân đôi), có ${c.hàng().length}`);
-    if (!/· S2\]/.test(c1.o) || c2.st !== 0) lỗi.push(`Edit có bản ghi: S2 một lần rồi im — lượt 1 ${c1.st}, lượt 2 ${c2.st} ${c2.o.slice(0, 100)}`);
+    if (!/\(S2\)/.test(c1.o) || c2.st !== 0) lỗi.push(`Edit có bản ghi: S2 một lần rồi im — lượt 1 ${c1.st}, lượt 2 ${c2.st} ${c2.o.slice(0, 100)}`);
     const d = dựngHk('3hb-nogit', false); d.sửa(); d.lint();
-    if (!/không đối soát được, không phải git/.test(d.stop().o)) lỗi.push('không git: phải nói một dòng "không đối soát được"');
+    if (!/không đối soát được bằng git\] thư mục này không phải git/.test(d.stop().o)) lỗi.push('không git: phải nói một dòng "không đối soát được"');
     if (!lỗi.length) { pass++; console.log('  ✅ 3hb: đối soát git bắt sửa qua Bash và commit lén (nợ còn mở) · sửa qua Edit không nhân đôi, lượt sau im · không git nói rõ'); }
     else { fail++; for (const x of lỗi) console.log('  ❌ 3hb ' + x); }
   });
@@ -6408,12 +6441,12 @@ console.log(JSON.stringify({ is_error: false, result: 'Đây:\\n\`\`\`json\\n' +
     const a = dựngHk('3hc-ha'); a.stop(); const t = path.join(a.R, 'docs', '00-tracking.md');
     fs.writeFileSync(t, fs.readFileSync(t, 'utf8').replace(/(S03 - TaskDetail.*?\| )Hoàn thành/, '$1Cần cập nhật')); a.sửa(); a.lint();
     const ra = a.stop();
-    if (!/· S2\]/.test(ra.o) || !/S03 rời "Hoàn thành"/.test(ra.o)) lỗi.push('LỌT: hạ S03 khỏi Hoàn thành rồi sửa mà S2 im / không nêu sự kiện hạ baseline: ' + ra.o.slice(0, 140));
+    if (!/\(S2\)/.test(ra.o) || !/S03 rời "Hoàn thành"/.test(ra.o)) lỗi.push('LỌT: hạ S03 khỏi Hoàn thành rồi sửa mà S2 im / không nêu sự kiện hạ baseline: ' + ra.o.slice(0, 140));
     const b = dựngHk('3hc-lite'); const tb = path.join(b.R, 'docs', '00-tracking.md');
     fs.writeFileSync(tb, '> Hồ sơ dự án: `lite`\n\n' + fs.readFileSync(tb, 'utf8')); b.git('commit', '-qam', 'lite'); b.stop(); b.sửa(); b.lint();
     const rb = b.hàng()[0] || {};
     if (rb.changelog !== false || !(rb.idsChanged || []).length) lỗi.push(`lite: hook-lint phải vẫn ghi (changelog:false, có idsChanged): ${JSON.stringify(rb).slice(0, 120)}`);
-    if (!/· S2\]/.test(b.stop().o)) lỗi.push('LỌT: hồ sơ lite tắt changelog kéo theo S2 mù');
+    if (!/\(S2\)/.test(b.stop().o)) lỗi.push('LỌT: hồ sơ lite tắt changelog kéo theo S2 mù');
     const c = dựngHk('3hc-ok'); c.stop(); const tc = path.join(c.R, 'docs', '00-tracking.md');
     fs.writeFileSync(tc, fs.readFileSync(tc, 'utf8').replace(/(S04 - UserProfile.*\| )\d{4}-\d{2}-\d{2} \|/, '$12026-10-07 |'));
     const rc = c.stop(); if (rc.st !== 0) lỗi.push('chỉ đổi ngày tracking mà hook kêu: ' + rc.o.slice(0, 120));
@@ -6428,17 +6461,17 @@ console.log(JSON.stringify({ is_error: false, result: 'Đây:\\n\`\`\`json\\n' +
     const a = dựngHk('3hd'); a.sửa(a.S03, 'BRule-S03-01'); a.lint(); a.stop();               // đợt 1 (mốc CR)
     a.sửa(); a.lint(); a.thêmCR('| CR-07 | x | Đề xuất |');                                   // đợt 2 + CR cụt cột, không nhắc S03
     const r = a.stop();
-    if (!/· S2\]/.test(r.o) || !/CR-07 mới mở nhưng không tính: thiếu cột/.test(r.o)) lỗi.push('LỌT: CR cụt cột không nhắc màn mà S2 im: ' + r.o.slice(0, 140));
+    if (!/\(S2\)/.test(r.o) || !/CR-07 mới mở nhưng không tính: thiếu cột/.test(r.o)) lỗi.push('LỌT: CR cụt cột không nhắc màn mà S2 im: ' + r.o.slice(0, 140));
     const nợ = a.nợ;
     if (!nợ().mo.some((d) => d.luat === 'S2' && d.man === 'S03')) lỗi.push('S2 chưa giải phải ghi nợ S03: ' + JSON.stringify(nợ()).slice(0, 120));
     const st = run([S('ba-next', 'status.js'), path.join(a.R, 'docs')]);
-    if (!/🟠 Nợ hook: \d+/.test(st.stdout || '')) lỗi.push('status.js không hiện nợ hook 🟠');
+    if (!/🟠 Sửa bản đã chốt chưa có CR: \d+/.test(st.stdout || '')) lỗi.push('status.js không hiện nợ hook 🟠');
     if (fs.existsSync(S('ac-po', 'pick.js'))) { const pk = run([S('ac-po', 'pick.js'), path.join(a.R, 'docs'), '--json']); let q = []; try { q = JSON.parse(pk.stdout).queue; } catch { /* dưới */ }
     if (!q.some((x) => x.loại === 'hook-debt' && x.hạng === 1)) lỗi.push('pick.js không xếp nợ hook ở hạng 1'); }   // pick.js thuộc ac-po (gói Pro)
     a.thêmCR('| CR-08 | 2026-10-07 | SH-06 | Đổi BRule-S03-02 | Must | F05 · S03 | Đề xuất | 2026-10-07 |'); a.stop();
     if (nợ().mo.length || !nợ().dong.some((d) => d.cach === 'CR-08')) lỗi.push('CR khớp mở sau → nợ phải đóng với cach CR-08: ' + JSON.stringify(nợ()).slice(0, 140));
     const b = dựngHk('3hd-ok'); b.stop(); b.thêmCR('| CR-07 | 2026-10-07 | SH-06 | Đổi điều kiện | Must | F05 · S03 | Đã duyệt | 2026-10-07 |'); b.sửa(); b.lint();
-    const rb = b.stop(); if (/· S2\]/.test(rb.o) || fs.existsSync(path.join(b.R, '.claude', 'ba-hook-debt.json'))) lỗi.push('CR khớp mở TRƯỚC khi sửa mà vẫn S2/ghi nợ: ' + rb.o.slice(0, 120));
+    const rb = b.stop(); if (/\(S2\)/.test(rb.o) || fs.existsSync(path.join(b.R, '.claude', 'ba-hook-debt.json'))) lỗi.push('CR khớp mở TRƯỚC khi sửa mà vẫn S2/ghi nợ: ' + rb.o.slice(0, 120));
     if (!lỗi.length) { pass++; console.log('  ✅ 3hd: CR cụt/không nhắc màn không gỡ S2 · nợ ghi sổ, status 🟠, pick hạng 1 · CR khớp đóng nợ · CR mở trước khi sửa im'); }
     else { fail++; for (const x of lỗi) console.log('  ❌ 3hd ' + x); }
   });
@@ -6448,11 +6481,11 @@ console.log(JSON.stringify({ is_error: false, result: 'Đây:\\n\`\`\`json\\n' +
   ca('3he', () => {
     const lỗi = [];
     const a = dựngHk('3he'); fs.writeFileSync(path.join(a.R, '.claude', 'ba-hook-gate.json'), JSON.stringify({ lastTs: '2099-01-01T00:00:00Z', crCount: 999 }));
-    a.sửa(); a.lint(); if (!/· S2\]/.test(a.stop().o)) lỗi.push('LỌT: mốc lastTs 2099 làm S2 câm');
+    a.sửa(); a.lint(); if (!/\(S2\)/.test(a.stop().o)) lỗi.push('LỌT: mốc lastTs 2099 làm S2 câm');
     a.sửa(a.S03, 'BRule-S03-01'); a.lint(); const r2 = a.stop();
-    if (!/· S2\]/.test(r2.o) || /· SQ\]/.test(r2.o)) lỗi.push('đợt hai bình thường: phải S2, không SQ: ' + r2.o.slice(0, 120));
+    if (!/\(S2\)/.test(r2.o) || /\(SQ\)/.test(r2.o)) lỗi.push('đợt hai bình thường: phải S2, không SQ: ' + r2.o.slice(0, 120));
     fs.writeFileSync(path.join(a.R, '.claude', 'spec-changes.jsonl'), '');
-    if (!/· SQ\] hàng đợi bị cắt/.test(a.stop().o)) lỗi.push('LỌT: hàng đợi bị xoá trắng mà hook im');
+    if (!/\] hàng đợi bị cắt[^\n]*\(SQ\)/.test(a.stop().o)) lỗi.push('LỌT: hàng đợi bị xoá trắng mà hook im');
     if (!lỗi.length) { pass++; console.log('  ✅ 3he: lastTs tương lai bị bỏ qua · hàng đợi bị cắt → SQ · đợt hai bình thường không SQ'); }
     else { fail++; for (const x of lỗi) console.log('  ❌ 3he ' + x); }
   });
@@ -6464,16 +6497,16 @@ console.log(JSON.stringify({ is_error: false, result: 'Đây:\\n\`\`\`json\\n' +
     const a = dựngHk('3hf'); fs.writeFileSync(path.join(a.R, '.claude', 'ba-hooks.json'), '{"S3": true, "S8": false}\n');
     fs.mkdirSync(path.join(a.R, 'docs', 'Ho-so'), { recursive: true }); fs.writeFileSync(path.join(a.R, 'docs', 'Ho-so', 'dev-notes.md'), '- Lệnh test: `node -e "process.exit(1)"`\n');
     a.git('add', '-A'); a.git('commit', '-qm', 's3'); a.stop(); fs.writeFileSync(path.join(a.R, 'app.js'), 'x\n');
-    if (!/· S3\]/.test(a.stop().o)) lỗi.push('LỌT: S3 bật, code đổi, không hàng đợi docs mà S3 không chạy');
+    if (!/\(S3\)/.test(a.stop().o)) lỗi.push('LỌT: S3 bật, code đổi, không hàng đợi docs mà S3 không chạy');
     const st = run([S('ba-toolkit', 'hook-gate.js'), '--stats', a.R]);
     if (!/S8 = false \(mặc định true\)/.test(st.stdout || '')) lỗi.push('--stats không in khoá ghi đè S8=false');
     const b = dựngHk('3hf-sn'); b.stop(); const t = path.join(b.R, 'docs', '00-tracking.md');
     fs.writeFileSync(t, fs.readFileSync(t, 'utf8').replace(/(S04 - UserProfile.*?)\| ⬜ \| Hoàn thành/, '$1| ✅ | Hoàn thành'));
-    if (!/· SN\][^\n]*S04/.test(b.stop().o)) lỗi.push('LỌT: S04 vừa chuyển dev ✅ không có dòng NHẬN mà hook im');
+    if (!/S04[^\n]*\(SN\)/.test(b.stop().o)) lỗi.push('LỌT: S04 vừa chuyển dev ✅ không có dòng NHẬN mà hook im');
     const c = dựngHk('3hf-sn-ok'); c.stop(); const tc = path.join(c.R, 'docs', '00-tracking.md');
     fs.writeFileSync(path.join(c.R, '.claude', 'ac-accept.jsonl'), JSON.stringify({ ts: new Date().toISOString(), man: 'S04', head: 'x', ketQua: 'NHẬN', traLoai: null }) + '\n');
     fs.writeFileSync(tc, fs.readFileSync(tc, 'utf8').replace(/(S04 - UserProfile.*?)\| ⬜ \| Hoàn thành/, '$1| ✅ | Hoàn thành'));
-    if (/· SN\]/.test(c.stop().o)) lỗi.push('kêu oan SN khi sổ nhận có dòng NHẬN S04');
+    if (/\(SN\)/.test(c.stop().o)) lỗi.push('kêu oan SN khi sổ nhận có dòng NHẬN S04');
     if (!lỗi.length) { pass++; console.log('  ✅ 3hf: S3 chạy theo code đổi (không cần hàng đợi) · SN bắt dev ✅ thiếu NHẬN, im khi có · --stats in khoá ghi đè'); }
     else { fail++; for (const x of lỗi) console.log('  ❌ 3hf ' + x); }
   });
@@ -6559,7 +6592,7 @@ ca('3hi', () => {
     const CHÉP = new Set(['ba-toolkit', 'ba-portal', 'dev-writing-plans']);
     for (const sk of fs.readdirSync(path.join(ROOT, '.claude', 'skills'))) { const src = path.join(ROOT, '.claude', 'skills', sk); if (!fs.statSync(src).isDirectory()) continue; if (CHÉP.has(sk)) cpDir(src, path.join(SKR, sk)); else { try { fs.symlinkSync(src, path.join(SKR, sk), 'dir'); } catch { linkOk = false; } } }
     for (const a of ['explain', 'example', '.claude/agents']) { try { fs.symlinkSync(path.join(ROOT, a), path.join(R, a), 'dir'); } catch { linkOk = false; } }
-    for (const x of ['CLAUDE.md', 'README.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md']) if (fs.existsSync(path.join(ROOT, x))) fs.copyFileSync(path.join(ROOT, x), path.join(R, x));
+    for (const x of ['CLAUDE.md', 'README.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md']) if (fs.existsSync(gốcSrc(x))) fs.copyFileSync(gốcSrc(x), path.join(R, x));
     const m44 = () => ((spawnSync(process.execPath, [path.join(SKR, 'ba-toolkit', 'scripts', 'lint.js')], { cwd: R, encoding: 'utf8', maxBuffer: 1e8 }).stdout || '').match(/=== 44[\s\S]*?(?=\n===)/) || [''])[0];
     if (linkOk) {
       const g44 = m44();
@@ -6722,7 +6755,7 @@ ca('3hi', () => {
     const gc = ((REGT.match(/^gate\.cost\.skills = (.*)$/m) || [])[1] || '').split(/\s+/);
     if (!gc.includes('ba-html-design') || gc.includes('ba-wireframe-lofi')) lỗi.push('registry gate.cost.skills phải có ba-html-design, không còn ba-wireframe-lofi');
     const est = run([S('ba-toolkit', 'cost.js'), 'estimate', 'ba-html-design-lofi', '--man', '2', '--root', path.join(TMP, 'gop10-cost')]).stdout || '';
-    if (!/^Ước tính: ~160k token[\s\S]*ba-html-design-lofi × 2 màn\n  nguồn: bảng mặc định/.test(est)) lỗi.push('cost.js estimate ba-html-design-lofi không ra số bảng mặc định: ' + est.slice(0, 120));
+    if (!/^Ước tính: ~160k token[\s\S]*ba-html-design-lofi × 2 màn\n  ước theo bảng mặc định/.test(est)) lỗi.push('cost.js estimate ba-html-design-lofi không ra số bảng mặc định: ' + est.slice(0, 120));
     const fMAN = path.join(ROOT, 'release', 'manifest.json');   // release/ là devOnly — bản công khai không có, phần còn lại của ca vẫn chạy
     const MAN = fs.existsSync(fMAN) ? JSON.parse(fs.readFileSync(fMAN, 'utf8')) : null;
     if (MAN && ('ba-wireframe-lofi' in (MAN.skills.community.closurePulled || {}) || !MAN.skills.core.list.includes('ba-html-design'))) lỗi.push('manifest: closurePulled còn ba-wireframe-lofi hoặc ba-html-design rời lõi');
@@ -6853,13 +6886,50 @@ ca('3hi', () => {
     if (!lỗi.length) { pass++; console.log('  ✅ 3thu4 câu chữ: ba-discover brainstorm trong chuỗi · cost.js record chỉ với số đo · ba-review gọi ba-api-test khi đã cài'); }
     else { fail++; for (const l of lỗi) console.log('  ❌ 3thu4 ' + l); }
   });
+  // 3plg. Plugin cửa cài (M5, docs/decisions/32): (a) .claude-plugin/{plugin,marketplace}.json hợp lệ, đủ trường bắt buộc, version =
+  // VERSION, mục marketplace không đặt version; (b) skills/veriline-setup/SKILL.md gọi install.js qua ${CLAUDE_PLUGIN_ROOT} kèm --from
+  // (thiếu --from thì lần cập nhật cài lại bản cache cũ ghi trong manifest đích); (c) install.js KHÔNG chép skill cửa cài hay
+  // .claude-plugin vào dự án (skill ở `skills/` gốc, ngoài .claude/skills); (d) manifest xuất công khai gồm cả hai thư mục;
+  // (e) đối kháng: plugin.json lệch VERSION + marketplace đặt version → lint 40 phải báo đúng hai dòng.
+  ca('3plg', () => {
+    const lỗi = []; const đọcJ = (rel) => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, rel), 'utf8')); } catch (e) { lỗi.push(`${rel} không đọc được JSON: ${e.message.slice(0, 60)}`); return {}; } };
+    const ver = fs.readFileSync(path.join(ROOT, 'VERSION'), 'utf8').trim();
+    const pj = đọcJ('.claude-plugin/plugin.json'), mj = đọcJ('.claude-plugin/marketplace.json');
+    if (pj.name !== 'veriline' || pj.version !== ver) lỗi.push(`plugin.json phải name=veriline, version=${ver}: ${JSON.stringify({ n: pj.name, v: pj.version })}`);
+    const mục = (mj.plugins || []).find((p) => p.name === pj.name);
+    if (!mj.name || !(mj.owner && mj.owner.name) || !mục || mục.source !== './' || mục.version) lỗi.push('marketplace.json phải có name, owner.name, mục plugin veriline source "./" không version');
+    const sk = (() => { try { return fs.readFileSync(path.join(ROOT, 'skills', 'veriline-setup', 'SKILL.md'), 'utf8'); } catch { return ''; } })();
+    if (!/^name: veriline-setup$/m.test(sk) || !/^description: Use when /m.test(sk)) lỗi.push('skills/veriline-setup/SKILL.md thiếu frontmatter name/description "Use when"');
+    if (!/\$\{CLAUDE_PLUGIN_ROOT\}/.test(sk) || !/node "\$\{CLAUDE_PLUGIN_ROOT\}\/\.claude\/skills\/ba-export\/scripts\/install\.js" --to "[^"]+" --from "\$\{CLAUDE_PLUGIN_ROOT\}"/.test(sk)) lỗi.push('skill cửa cài phải gọi install.js từ ${CLAUDE_PLUGIN_ROOT} kèm --from');
+    const D = path.join(TMP, 'plg-dich'); fs.mkdirSync(D, { recursive: true }); spawnSync('git', ['init', '-q', D]);
+    const r = run([S('ba-export', 'install.js'), '--to', D, '--profile', 'full', '--no-claude', '--allow-dirty']);
+    if (r.status !== 0) lỗi.push(`install.js --profile full exit ${r.status}: ${(r.stdout + r.stderr).slice(-160)}`);
+    for (const x of ['.claude-plugin', 'skills', path.join('.claude', 'skills', 'veriline-setup')]) if (fs.existsSync(path.join(D, x))) lỗi.push(`install.js chép ${x} vào dự án đích`);
+    if (fs.existsSync(path.join(ROOT, 'release', 'manifest.json'))) {
+      const inc = JSON.parse(fs.readFileSync(path.join(ROOT, 'release', 'manifest.json'), 'utf8')).public.include;
+      for (const g of ['.claude-plugin/**', 'skills/**']) if (!inc.includes(g)) lỗi.push(`release/manifest.json public.include thiếu ${g} — bản công khai mất plugin`);
+    }
+    const R = path.join(TMP, 'repo-plg'); fs.mkdirSync(path.join(R, '.claude-plugin'), { recursive: true }); let linkOk = true;
+    for (const rel of [['.claude', 'skills'], ['.claude', 'agents'], ['explain'], ['example']]) { try { fs.mkdirSync(path.dirname(path.join(R, ...rel)), { recursive: true }); fs.symlinkSync(path.join(ROOT, ...rel), path.join(R, ...rel), 'dir'); } catch { linkOk = false; } }
+    if (fs.existsSync(CLAUDE_MD)) fs.copyFileSync(CLAUDE_MD, path.join(R, 'CLAUDE.md'));
+    fs.writeFileSync(path.join(R, 'VERSION'), '1.0.0-beta.9\n'); fs.writeFileSync(path.join(R, 'CHANGELOG.md'), '# Changelog\n\n## [1.0.0-beta.9] — 2026-10-08\n');
+    fs.writeFileSync(path.join(R, '.claude-plugin', 'plugin.json'), JSON.stringify({ name: 'veriline', version: '1.0.0-beta.1' }));
+    fs.writeFileSync(path.join(R, '.claude-plugin', 'marketplace.json'), JSON.stringify({ name: 'veriline', owner: { name: 'x' }, plugins: [{ name: 'veriline', source: './', version: '1.0.0-beta.9' }] }));
+    const l = spawnSync(process.execPath, [S('ba-toolkit', 'lint.js')], { cwd: R, encoding: 'utf8', maxBuffer: 1e8 });
+    const dòng = (l.stdout || '').split('\n').filter((x) => /❌/.test(x));
+    if (!dòng.some((x) => /plugin\.json version "1\.0\.0-beta\.1" ≠ VERSION "1\.0\.0-beta\.9"/.test(x))) lỗi.push('lint 40 im khi plugin.json lệch VERSION');
+    if (!dòng.some((x) => /mục "veriline" đặt version/.test(x))) lỗi.push('lint 40 im khi mục marketplace đặt version');
+    if (!linkOk) { skip++; console.log('  ⏭️  3plg — BỎ QUA: không tạo được symlink'); }
+    else if (!lỗi.length) { pass++; console.log(`  ✅ 3plg plugin cửa cài: manifest hợp lệ (${pj.name}@${mj.name} ${ver}), skill gọi install.js qua \${CLAUDE_PLUGIN_ROOT} --from, install.js không chép plugin vào đích, lint 40 bắt version lệch`); }
+    else { fail++; for (const x of lỗi) console.log('  ❌ 3plg ' + x); }
+  });
   // 3ax. Số ca tự khai trong CLAUDE.md (steal B44). Chỉ test.js biết tổng của chính nó, nên phép
   // soát nằm ở đây chứ không ở lint (lint soát số skill/script/check của nó — check 40).
   // Ca này TỰ TÍNH nó vào tổng: thêm một ca là con số khai phải +1, không có ngoại lệ ngầm.
   ca('3ax', () => {
-    if (!cần('3ax', 'CLAUDE.md')) return;   // repo công khai cũng có CLAUDE.md (release/public, số ca điền lúc xuất) — vẫn soát
+    if (!cần('3ax', path.relative(ROOT, CLAUDE_MD))) return;   // repo công khai cũng có CLAUDE.md (release/public, số ca điền lúc xuất) — vẫn soát
     const tổng = pass + fail + skip + 1;    // ca bỏ qua (máy thiếu Chrome…) vẫn là ca của bộ — tổng không đổi theo máy
-    let md = ''; try { md = fs.readFileSync(path.join(ROOT, 'CLAUDE.md'), 'utf8'); } catch { /* không có thì câu dưới báo */ }
+    let md = ''; try { md = fs.readFileSync(CLAUDE_MD, 'utf8'); } catch { /* không có thì câu dưới báo */ }
     const m = md.match(/test\.js[^\n]*?—\s*(\d+)\s+checks/);
     if (!m) { fail++; console.log('  ❌ CLAUDE.md không còn câu "N checks" cho test.js — không soát được số ca'); }
     else if (Number(m[1]) !== tổng) { fail++; console.log(`  ❌ CLAUDE.md khai ${m[1]} ca, bộ test chạy ${tổng} — sửa CLAUDE.md (hoặc ca vừa thêm chưa khai)`); }

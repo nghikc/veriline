@@ -39,7 +39,7 @@ if (fs.existsSync(SK)) for (const d of fs.readdirSync(SK)) {
 }
 const AG = path.join(ROOT, '.claude', 'agents');
 if (fs.existsSync(AG)) for (const f of fs.readdirSync(AG)) if (f.endsWith('.md')) files.push(path.join(AG, f));
-if (fs.existsSync(path.join(ROOT, 'CLAUDE.md'))) files.push(path.join(ROOT, 'CLAUDE.md'));
+for (const f of [path.join(ROOT, 'CLAUDE.md'), path.join(ROOT, '.claude', 'CLAUDE.md')]) if (fs.existsSync(f)) files.push(f);   // .claude/CLAUDE.md = bản công khai (M5 plugin)
 const regTxt = (() => { try { return fs.readFileSync(path.join(SK, 'ba-toolkit', 'references', 'conv-registry.md'), 'utf8'); } catch { return ''; } })();
 const regKey = (k) => ((regTxt.match(new RegExp(`^${k.replace(/\./g, '\\.')}\\s*=\\s*(.+)$`, 'm')) || [])[1] || '').trim().split(/\s+/).filter(Boolean);
 const NGOÀI_GÓI = new Set([...regKey('skills.pro'), ...regKey('skills.devonly')]);

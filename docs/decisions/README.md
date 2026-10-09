@@ -1,6 +1,6 @@
 # Quyết định thiết kế lõi
 
-Trang này giải thích **vì sao** Veriline được thiết kế như hiện tại, để người đóng góp sửa đúng chỗ mà không phá thứ đã có lý do tồn tại. `CLAUDE.md` nói *quy ước là gì*; trang này nói *vì sao*. Một quyết định đổi thì thêm mục mới ở cuối và ghi rõ nó thay mục nào, không viết lại lịch sử.
+Trang này giải thích **vì sao** Veriline được thiết kế như hiện tại, để người đóng góp sửa đúng chỗ mà không phá thứ đã có lý do tồn tại. `.claude/CLAUDE.md` nói *quy ước là gì*; trang này nói *vì sao*. Một quyết định đổi thì thêm mục mới ở cuối và ghi rõ nó thay mục nào, không viết lại lịch sử.
 
 ## 1. Skill là prompt, script là phép đếm
 
@@ -71,3 +71,10 @@ Repo này là lõi (MIT). Một số skill thuộc gói khác (khai trong regist
 
 - **Vì sao:** một file mà nhiều dự án cùng phải tự sửa nghĩa là mặc định sai. Đó là tín hiệu mạnh hơn mọi suy đoán từ bên trong repo.
 - **Cái giá:** người dùng phải tự gửi file; không có thu thập tự động, và đó là chủ ý.
+
+## 11. Thông báo viết cho người dùng, không cho người bảo trì
+
+Chuỗi mà script lõi và hook in ra dùng chữ người dùng hiểu: "bộ kiểm báo sai" chứ không "checker oan", "bị trả lại" chứ không "TRẢ", "bản đã chốt" chứ không "baseline". Nhắc của hook mở bằng việc cần làm (`[Veriline · tracking chưa cập nhật]`), mã luật để cuối dòng trong ngoặc; lỗi nào cũng kèm một dòng `Sửa: <lệnh>`. Chữ "cổng" được giữ và giải nghĩa trong `explain/README.md` → "Thuật ngữ bạn sẽ gặp". Lint 45 (`lang.internal.terms`) chặn từ lóng quay lại.
+
+- **Vì sao:** người dùng đầu tiên đọc thông báo trước khi đọc tài liệu. Từ lóng chỉ cần lọt một lần là lan khắp nơi, vì thông báo mới hay được chép từ thông báo cũ.
+- **Cái giá:** lint chỉ thấy chuỗi viết thẳng trong lời gọi in; câu dựng sẵn ở biến rồi mới in, và lời trong `SKILL.md`, vẫn cần người soát.

@@ -64,7 +64,7 @@ const TỪ_TT = /^(Đề xuất|Đang phân tích|Đã duyệt|Đang triển kha
 function read(f) { try { return fs.readFileSync(f, 'utf8'); } catch { return ''; } }
 
 const txt = read(FILE);
-if (!txt) die(`Không đọc được / rỗng: ${FILE}`);
+if (!txt) die(`Không đọc được / rỗng: ${FILE}\nSửa: kiểm đường dẫn sổ (vd docs/00-cr.md); chưa có sổ thì tạo bằng skill chủ của nó (\`/ba-change-request\`, \`/ba-task\`).`);
 const lines = txt.split('\n');
 
 // ---------- parse bảng tổng ----------
@@ -231,4 +231,4 @@ if (CMD === 'get') {
   return out({ id: target, source: path.relative(process.cwd(), source), block });
 }
 
-die(`Lệnh không rõ: ${CMD}`);
+die(`Lệnh không rõ: ${CMD}\nSửa: dùng summary | ids | open | next | get <ID>.`);

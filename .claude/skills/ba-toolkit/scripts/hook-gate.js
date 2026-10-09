@@ -164,10 +164,10 @@ function S1(mới, mànChạm) {
   }
   if (!trễ.length) return [];
   đánhDấu('S1', 'ban');
-  return [`[ba-toolkit hook · S1] ${trễ.length} màn vừa sửa tài liệu mà "Cập nhật cuối" trong \`00-tracking.md\` chưa đổi:`,
+  return [`[Veriline · tracking chưa cập nhật] ${trễ.length} màn vừa sửa tài liệu mà cột "Cập nhật cuối" trong \`00-tracking.md\` chưa đổi (S1):`,
     ...trễ.map((x) => '  · ' + x),
-    '  Sửa tài liệu của một màn thì cập nhật ô tương ứng + "Cập nhật cuối" (conventions.md → "Bổn phận khi động vào docs/").',
-    '  Cách nhanh: `node .claude/skills/ba-track/scripts/refresh.js docs`.'];
+    '  Sửa tài liệu của một màn thì cập nhật ô của màn đó + cột "Cập nhật cuối".',
+    '  Sửa: chạy `/ba-track` (hoặc `node .claude/skills/ba-track/scripts/refresh.js docs`).'];
 }
 
 /*
@@ -220,9 +220,9 @@ function gọiChecker(mànChạm) {
   if (tr && Array.isArray(tr.brokenRefs)) {
     const gãy = tr.brokenRefs.filter((b) => thuộcMàn(JSON.stringify(b)));
     if (gãy.length) đánhDấu('S4', 'ban');
-    if (gãy.length) ra.push(`[ba-toolkit hook · S4] ${gãy.length} tham chiếu gãy ở màn vừa sửa (ba-trace): `
+    if (gãy.length) ra.push(`[Veriline · tham chiếu gãy] ${gãy.length} mã ở màn vừa sửa trỏ tới mã không tồn tại: `
       + gãy.slice(0, 6).map((b) => `${b.id || b.từ || '?'} → ${b.ref || '?'}`).join(' · ')
-      + (gãy.length > 6 ? ` … còn ${gãy.length - 6}` : ''));
+      + (gãy.length > 6 ? ` … còn ${gãy.length - 6}` : '') + ' — sửa: `/ba-trace` (S4)');
   }
 
   // S5 — TC XANH GIẢ: TC khai đạt nhưng test nằm sai tầng so với điều TC mô tả.
@@ -232,18 +232,18 @@ function gọiChecker(mànChạm) {
   if (tc && Array.isArray(tc.xanhGia)) {
     const xg = tc.xanhGia.filter((x) => thuộcMàn(JSON.stringify(x)));
     if (xg.length) đánhDấu('S5', 'ban');
-    if (xg.length) ra.push(`[ba-toolkit hook · S5] ${xg.length} TC XANH GIẢ ở màn vừa sửa — test mang mã đó không kiểm ở tầng TC mô tả: `
+    if (xg.length) ra.push(`[Veriline · test kiểm sai tầng] ${xg.length} TC XANH GIẢ ở màn vừa sửa — test mang mã đó không kiểm ở tầng mà TC mô tả: `
       + xg.slice(0, 6).map((x) => (typeof x === 'string' ? x : x.tc || x.id || JSON.stringify(x))).join(' · ')
-      + (xg.length > 6 ? ` … còn ${xg.length - 6}` : ''));
+      + (xg.length > 6 ? ` … còn ${xg.length - 6}` : '') + ' (S5)');
     // "Chưa kiểm" là kết quả riêng (giao diện 5): bảng TC không có cột Cách chạy → cổng mù ở màn đó, phải nói ra.
     const ck = Array.isArray(tc.chuaKiem) ? tc.chuaKiem.filter((x) => thuộcMàn(x)) : [];
-    if (ck.length) ra.push(`[ba-toolkit hook · S5] CHƯA KIỂM ở màn vừa sửa — bảng TC không có cột \`Cách chạy\`, cổng tầng TC mù: `
-      + ck.map((x) => `${x.man || '?'} (${x.soTC ?? '?'}/${x.tongTC ?? '?'} TC)`).join(' · ') + ' · bổ sung: `ba-screen-spec <màn> --bo-sung cach-chay`');
+    if (ck.length) ra.push(`[Veriline · test chưa kiểm được] CHƯA KIỂM ở màn vừa sửa — bảng TC không có cột \`Cách chạy\` nên không soát được test có đúng tầng không: `
+      + ck.map((x) => `${x.man || '?'} (${x.soTC ?? '?'}/${x.tongTC ?? '?'} TC)`).join(' · ') + ' · sửa: `ba-screen-spec <màn> --bo-sung cach-chay` (S5)');
   }
   // Checker hỏng: nói ra ở đúng lượt đó. Không nâng thành "có phát hiện" (chưa biết có gì hay không) —
   // nhưng im lặng thì người đọc kết luận sai rằng S4/S5 đã chạy sạch.
-  if (hỏng.length) ra.push(`[ba-toolkit hook · S4/S5] KHÔNG KIỂM ĐƯỢC — ${hỏng.join(' · ')}. `
-    + `Cổng này chưa nói gì về màn ${mànChạm.join(', ')}: chạy tay checker đó rồi xem lại.`);
+  if (hỏng.length) ra.push(`[Veriline · KHÔNG KIỂM ĐƯỢC] ${hỏng.join(' · ')}. `
+    + `Bước kiểm này chưa nói gì về màn ${mànChạm.join(', ')}: chạy tay bộ kiểm tra đó rồi xem lại (S4/S5).`);
   return ra;
 }
 
@@ -320,13 +320,13 @@ function S8(transcriptPath, mốc) {
   if (lượtCóTool >= S8_LƯỢT && tỷLệ < S8_TỶ_LỆ) {
     nấc.tỷLệ = Math.floor(lượtCóTool / S8_LƯỢT);
     if (!(mốc && mốc.s8Nấc >= nấc.tỷLệ)) cảnhBáo.push(
-      `[ba-toolkit hook · S8] ${tỷLệ.toFixed(2)} tool/lượt trên ${lượtCóTool} lượt gọi tool (${lượtSauCompact} lượt kể từ lần compact cuối) — tool độc lập đang chạy RỜI, mỗi lượt nạp lại cả ngữ cảnh.`,
-    '  Gộp các lệnh không phụ thuộc nhau vào MỘT lượt; việc dò tìm (đọc nhiều file, đọc ảnh) phái subagent ngữ cảnh trắng. Đo 19/09/2026: nội dung cả phiên chỉ ~1,4 M token mà lặp lại thành 3,8 TỶ — xem `CLAUDE.md` → "Kỷ luật ngữ cảnh".');
+      `[Veriline · gộp lệnh cho đỡ tốn] trung bình ${tỷLệ.toFixed(2)} lệnh mỗi lượt trên ${lượtCóTool} lượt có gọi lệnh (${lượtSauCompact} lượt từ lần thu gọn ngữ cảnh cuối) — các lệnh độc lập đang chạy RỜI, mỗi lượt nạp lại cả ngữ cảnh (S8).`,
+    '  Gộp các lệnh không phụ thuộc nhau vào MỘT lượt; việc dò tìm (đọc nhiều file, đọc ảnh) giao cho subagent ngữ cảnh trắng. Đo 19/09/2026: nội dung cả phiên chỉ ~1,4 M token mà lặp lại thành 3,8 TỶ — xem `CLAUDE.md` → "Kỷ luật ngữ cảnh".');
   }
   if (lượtSauCompact >= S8_LƯỢT_PHIÊN) {
     nấc.lượt = Math.floor(lượtSauCompact / S8_LƯỢT_PHIÊN);
     if (!(mốc && mốc.s8LượtNấc >= nấc.lượt)) cảnhBáo.push(
-      `[ba-toolkit hook · S8] phiên đã ~${lượtSauCompact} lượt kể từ lần compact cuối — mỗi lượt nạp lại cả ngữ cảnh (đo 17/09/2026: 6 774 lượt = 3,8 tỷ token cache-read).`,
+      `[Veriline · phiên đã dài] phiên đã ~${lượtSauCompact} lượt kể từ lần thu gọn ngữ cảnh cuối — mỗi lượt nạp lại cả ngữ cảnh (đo 17/09/2026: 6 774 lượt = 3,8 tỷ token đọc lại) (S8).`,
       '  Trạng thái đã trên đĩa: mở phiên mới rồi `ba-next` (hoặc `ac-po resume` / `ac-po run.js` headless) — không mất gì.');
   }
   if (cảnhBáo.length) đánhDấu('S8', 'ban');
@@ -359,9 +359,9 @@ function S3() {
   }
   if (!đỏ.length) return [];
   đánhDấu('S3', 'ban');
-  return [`[ba-toolkit hook · S3] gate dev ĐỎ (lệnh lấy từ \`dev-notes.md\`):`,
+  return [`[Veriline · lệnh kiểm dev đang ĐỎ] lệnh lấy từ \`dev-notes.md\` (S3):`,
     ...đỏ.map((x) => '  · ' + x),
-    '  Đừng đánh dấu hoàn thành khi gate còn đỏ — bằng chứng là output lệnh thật, không phải lời khai.'];
+    '  Đừng đánh dấu hoàn thành khi lệnh kiểm còn đỏ — bằng chứng là output lệnh thật, không phải lời khai.'];
 }
 
 /*
@@ -600,9 +600,9 @@ function SI(mốc, g, mốcMới) {
   mốcMới.siDaNhac = nay;
   if (!mới.length) return [];
   đánhDấu('SI', 'ban');
-  return [`[ba-toolkit hook · SI] toolkit lệch nguồn (${j.nguon || '?'}) — ${mới.length} file mới lệch:`,
+  return [`[Veriline · toolkit bị sửa tại chỗ] bản toolkit ở đây khác bản gốc (${j.nguon || '?'}) — ${mới.length} file mới khác (SI):`,
     ...mới.slice(0, 10).map((x) => `  · ${x.file} (${x.loai})`), mới.length > 10 ? `  · … còn ${mới.length - 10}` : '',
-    '  Cổng accept/validate-done sẽ TRẢ A0. Trả về bản nguồn (`ba-export update`) hoặc, nếu cố ý, ghi duyệt có hạn vào `.claude/ba-toolkit-local.json`.'].filter(Boolean);
+    '  Bước nghiệm thu (accept/validate-done) sẽ bị trả lại với mã A0. Sửa: `ba-export update` để lấy lại bản gốc; cố ý sửa thì người duyệt ghi ngoại lệ có hạn — chi tiết: `.claude/ba-toolkit-local.json`.'].filter(Boolean);
 }
 
 /* SN — màn VỪA chuyển sang `dev ✅` mà sổ nhận `.claude/ac-accept.jsonl` (giao diện 2) không có dòng NHẬN cho màn. Miễn màn
@@ -637,8 +637,8 @@ function SN(trNội, mốc, mốcMới, g, base) {
   const mới = thiếu.filter((c) => !(mốc.snDaNhac || {})[c]);
   if (!mới.length) return [];
   đánhDấu('SN', 'ban');
-  return [`[ba-toolkit hook · SN] ⚠ ${mới.length} màn vừa chuyển \`dev ✅\` mà \`.claude/ac-accept.jsonl\` không có dòng NHẬN: ${mới.join(', ')}.`,
-    '  `dev ✅` chỉ đặt sau khi `ac-verify/scripts/accept.js` cho màn đó ra NHẬN (verifier mới chạy Proof) — lời khai trong tracking không phải bằng chứng.'];
+  return [`[Veriline · dev xong mà thiếu bằng chứng] ⚠ ${mới.length} màn vừa chuyển \`dev ✅\` mà chưa có lượt nghiệm thu "đã nhận": ${mới.join(', ')} (SN).`,
+    '  `dev ✅` chỉ đặt sau khi `ac-verify/scripts/accept.js` kết luận màn đó đã nhận (người kiểm độc lập đã chạy bằng chứng) — lời khai trong tracking không phải bằng chứng. Chi tiết: `.claude/ac-accept.jsonl`.'];
 }
 
 function chạy(opts = {}) {
@@ -653,8 +653,8 @@ function chạy(opts = {}) {
 
   let mới;
   if (typeof mốc.offset === 'number') {
-    if (q.dòng.length < mốc.offset) { cảnhBáoĐầu.push(`[ba-toolkit hook · SQ] hàng đợi bị cắt: mốc đã đọc ${mốc.offset} dòng, nay còn ${q.dòng.length} — \`.claude/spec-changes.jsonl\` không được xoá/rút tay (ba-changelog đánh dấu, không cắt). Soát lại cả hàng đợi.`); mới = q.recs; đánhDấu('SQ', 'ban'); }
-    else if (mốc.queueSha && shaS(q.dòng.slice(0, mốc.offset).join('\n')) !== mốc.queueSha) { cảnhBáoĐầu.push('[ba-toolkit hook · SQ] hàng đợi bị sửa ở phần đã đọc (sha lệch mốc) — soát lại cả hàng đợi.'); mới = q.recs; đánhDấu('SQ', 'ban'); }
+    if (q.dòng.length < mốc.offset) { cảnhBáoĐầu.push(`[Veriline · hàng đợi thay đổi bị sửa] hàng đợi bị cắt: đã đọc tới dòng ${mốc.offset}, nay còn ${q.dòng.length} dòng — \`.claude/spec-changes.jsonl\` không được xoá/rút tay (ba-changelog đánh dấu, không cắt). Soát lại cả hàng đợi (SQ).`); mới = q.recs; đánhDấu('SQ', 'ban'); }
+    else if (mốc.queueSha && shaS(q.dòng.slice(0, mốc.offset).join('\n')) !== mốc.queueSha) { cảnhBáoĐầu.push('[Veriline · hàng đợi thay đổi bị sửa] phần đã đọc của hàng đợi bị sửa (mã băm khác lần trước) — soát lại cả hàng đợi (SQ).'); mới = q.recs; đánhDấu('SQ', 'ban'); }
     else mới = q.recs.slice(mốc.offset);
   } else mới = mốc.lastTs ? q.recs.filter((r) => r && r.ts > mốc.lastTs) : q.recs;
   mới = mới.filter(Boolean);
@@ -702,7 +702,7 @@ function chạy(opts = {}) {
   LẦN_NÀY._cóViệc = true;
   const ghiChúGit = [];
   if (!g) {
-    if (cảnhBáoĐầu.length || độcLập.length || !mốc.khongGitDaBao) ghiChúGit.push('[ba-toolkit hook · SR] không đối soát được, không phải git — chỉ thấy sửa qua Edit/Write; sửa bằng Bash/sed hay commit lén sẽ lọt.');
+    if (cảnhBáoĐầu.length || độcLập.length || !mốc.khongGitDaBao) ghiChúGit.push('[Veriline · không đối soát được bằng git] thư mục này không phải git — chỉ thấy sửa qua Edit/Write; sửa bằng Bash/sed hay commit lén sẽ lọt (SR).');
     mốcMới.khongGitDaBao = true;
   }
 
@@ -764,12 +764,12 @@ function chạy(opts = {}) {
   return {
     mốcMới,
     cảnhBáo: kèm([
-      `[ba-toolkit hook · S2] ${ds2.length} thay đổi ở tài liệu ĐÃ CHỐT (màn ${chưaGiải.map((n) => n.code || '?').join(', ')}) mà sổ \`00-cr.md\` không có CR mới khớp:`,
+      `[Veriline · sửa bản đã chốt chưa có CR] ${ds2.length} thay đổi ở tài liệu ĐÃ CHỐT (màn ${chưaGiải.map((n) => n.code || '?').join(', ')}) mà sổ \`00-cr.md\` không có CR mới khớp (S2):`,
       ...gọn.map((x) => '  · ' + x),
       ds2.length > 8 ? `  · … còn ${ds2.length - 8}` : '',
       ...[...bịLoại].map(([id, v]) => `  · ${id} mới mở nhưng không tính: ${v}`),
-      '  Đổi thứ đã chốt thì mở Change Request TRƯỚC khi sửa (conventions.md → "Change Request") — dòng CR phải đủ cột và nhắc mã màn hoặc mã vừa đổi.',
-      `  Ghi nợ vào \`.claude/ba-hook-debt.json\` (status.js hiện 🟠); nợ tự đóng khi có CR khớp hoặc file trở về bằng HEAD. Nhắc MỘT LẦN cho đợt này.`,
+      '  Đổi thứ đã chốt thì mở Change Request TRƯỚC khi sửa (`/ba-change-request`) — dòng CR phải đủ cột và nhắc mã màn hoặc mã vừa đổi.',
+      '  Đã ghi thành nợ có hạn chót (`/ba-next` hiện 🟠); tự đóng khi có CR khớp hoặc file trở về bản đã commit. Nhắc MỘT LẦN cho đợt này.',
     ].filter(Boolean)),
   };
 }
@@ -834,7 +834,7 @@ function inThốngKê(argv) {
     for (const x of ghiĐè) console.log(`  · ${x.gốc}: ${x.khoá} = ${JSON.stringify(x.giáTrị)}${x.mặcĐịnh === null ? '' : ` (mặc định ${JSON.stringify(x.mặcĐịnh)})`}${x.ghiChú ? ' — ' + x.ghiChú : ''}`);
   }
   console.log('\nĐọc: hook `gọi 0` = hook không chạy ở đây (chưa cài / settings.json thiếu) · luật `gọi 0` mà hook có việc = điều kiện của luật chưa từng xảy ra'
-    + ' · `bắn 0` sau nhiều lần gọi = ứng viên cắt (hoặc nó đang im oan — soi một ca thật trước khi cắt) · `hỏng` > 0 = checker chết, sửa trước khi đánh giá.');
+    + ' · `bắn 0` sau nhiều lần gọi = ứng viên cắt (hoặc bộ kiểm không báo dù có lỗi — soi một ca thật trước khi cắt) · `hỏng` > 0 = bộ kiểm tra chết, sửa trước khi đánh giá.');
   return 0;
 }
 

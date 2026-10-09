@@ -67,7 +67,7 @@ const MIN_KHOÁ = +opt('--min-khoa', 3);
 const TRẦN_MODULE = +opt('--tran-module', 4);
 const NG_PHẲNG = +opt('--tach-phang', 40);
 const ROOT_ARG = path.resolve(opt('--root', '.'));
-if (!fs.existsSync(ROOT_ARG)) { console.error(`Không thấy --root ${ROOT_ARG}`); process.exit(2); }
+if (!fs.existsSync(ROOT_ARG)) { console.error(`Không thấy --root ${ROOT_ARG}\nSửa: --root phải trỏ tới thư mục code có thật của dự án.`); process.exit(2); }
 const ROOT = fs.realpathSync(ROOT_ARG);
 const DOCS = (() => {
   if (argv.includes('--docs')) return path.resolve(opt('--docs', 'docs'));

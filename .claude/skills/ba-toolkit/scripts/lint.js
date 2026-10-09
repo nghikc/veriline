@@ -22,7 +22,8 @@ const CONV = path.join(SKILLS, 'ba-toolkit', 'references', 'conventions.md');
 // Khối ```registry sống ở phụ lục riêng từ 17/08/2026 (không skill nào cần nạp 57 dòng canon
 // máy-đọc). Vẫn đọc fallback từ conventions.md cho bản cài cũ chưa có file phụ lục.
 const CONVREG = path.join(SKILLS, 'ba-toolkit', 'references', 'conv-registry.md');
-const CLAUDEMD = path.join(ROOT, 'CLAUDE.md');
+// Repo công khai mang briefing ở `.claude/CLAUDE.md` (M5: CLAUDE.md ở gốc plugin làm `claude plugin validate --strict` cảnh báo).
+const CLAUDEMD = [path.join(ROOT, 'CLAUDE.md'), path.join(ROOT, '.claude', 'CLAUDE.md')].find((f) => fs.existsSync(f)) || path.join(ROOT, 'CLAUDE.md');
 
 let errors = 0, warns = 0;
 // --strict (đợt 5 gói 3, 24/09/2026 — steal scan-skills.ts: lỗi HẠ TẦNG của scanner không được thành "sạch").
@@ -764,8 +765,10 @@ if (REG) {
       const f = path.join(SKILLS, 'ba-toolkit', 'scripts', script || '');
       if (!fs.existsSync(f)) { fail(`gate.hook.checks khai \`${mã}\` ở \`${script}\` — không có file đó`); drift++; continue; }
       const src = read(f);
-      // Hàm tên đúng mã (H1/H2) hoặc chuỗi mã xuất hiện như nhãn phát hiện (S2 nằm trong thông báo)
-      if (!new RegExp(`function ${mã}\\b|mã: '${mã}'|· ${mã}\\]`).test(src)) {
+      // Hàm tên đúng mã (H1/H2) hoặc chuỗi mã xuất hiện như nhãn phát hiện (S2 nằm trong thông báo). Từ M8 (08/10/2026) mã
+      // đứng CUỐI câu thông báo trong ngoặc — `… (S2):\`` — thay cho thẻ đầu `[… · S2]`; bắt cả hai, và phải sát dấu đóng chuỗi
+      // (ngoặc mã trong chú thích không tính).
+      if (!new RegExp(`function ${mã}\\b|mã: '${mã}'|· ${mã}\\]|\\(${mã}\\)[.:]?(?:\\\\n)?['\`]`).test(src)) {
         fail(`gate.hook.checks khai \`${mã}\` nhưng \`${script}\` không có hàm/nhãn nào mang mã đó — luật đã lặng lẽ quay về tự nguyện`);
         drift++;
       }
@@ -1249,6 +1252,82 @@ if (REG) {
   }
 }
 
+// 45. Ngôn ngữ người dùng (M8, 08/10/2026 — docs/decisions/34): chuỗi IN RA của script LÕI (skill thuộc `profile.core.skills`, cộng
+// ba-toolkit — nơi có hook) không được mang từ nội bộ của người bảo trì (`lang.internal.terms`: "oan", "lách", "canon", "gate"…).
+// Người mới đọc "checker oan" không hiểu mình phải làm gì; từ lóng chỉ cần một lần lọt là quay lại khắp nơi vì chép từ chỗ cũ.
+// Soát: đối số chuỗi của console.log/error/warn + process.stdout/stderr.write · giá trị `systemMessage`/`reason`/`stopReason`
+// (hook) · mảng/lời gọi chứa thẻ thông báo hook `[Veriline ·`. `${…}` trong template: chuỗi bên trong cũng tính (nhánh in ra).
+// Từ có chữ HOA so khớp phân biệt hoa/thường ("TRẢ" ≠ "trả"); `_` trong registry = khoảng trắng; từ dạng tên file (có `-`/`.`)
+// khớp cả khi có đuôi (`conv-registry.md`), từ thường thì `oan.js`/`OAN-3`/`hook-gate.js` là TÊN, không tính.
+// gioiHan: không thấy chuỗi dựng ở biến rồi mới in (`const m = 'oan'; console.log(m)`), không đọc SKILL.md; script bảo trì
+// (`lang.internal.skip`) bỏ qua. Ngoại lệ `lang.internal.allow` dạng `<skill>/<script>:<từ>` — mục không còn bắn là thừa (lỗi).
+{
+  console.log('\n=== 45. Ngôn ngữ người dùng: chuỗi in ra của script lõi không mang từ nội bộ ===');
+  const từ = (REG['lang.internal.terms'] || []).map((t) => t.replace(/_/g, ' '));
+  const core = REG['profile.core.skills'] || [];
+  if (!từ.length || !core.length) warn('registry thiếu lang.internal.terms / profile.core.skills — bỏ qua soát ngôn ngữ người dùng');
+  else {
+    const bỏ = new Set(REG['lang.internal.skip'] || []);
+    const miễn = new Map((REG['lang.internal.allow'] || []).map((a) => [a.replace(/_/g, ' '), 0]));
+    const thoát = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const reTừ = từ.map((t) => [t, new RegExp(`(?<![\\p{L}\\p{N}_.-])${thoát(t)}(?![\\p{L}\\p{N}_${/[-.]/.test(t) ? '' : '-'}]${/[-.]/.test(t) ? '' : '|\\.\\p{L}'})`, /\p{Lu}/u.test(t) ? 'u' : 'iu')]);
+    // Quét từ vị trí i tới hết lời gọi/mảng (stopAtComma: tới dấu phẩy/chấm phẩy/xuống dòng ở độ sâu 0) — gom literal chuỗi.
+    const gom = (src, i, dừngPhẩy) => {
+      const ra = []; let sâu = 0;
+      const đọcChuỗi = (q, j) => { let s = ''; while (j < src.length && src[j] !== q) { if (src[j] === '\\') { s += src[j] + (src[j + 1] || ''); j += 2; continue; } if (q !== '`' && src[j] === '\n') break; if (q === '`' && src[j] === '$' && src[j + 1] === '{') { let d = 1; j += 2; s += ' '; while (j < src.length && d) { const c = src[j]; if (c === '{') d++; else if (c === '}') d--; else if (c === "'" || c === '"') { const k = src.indexOf(c, j + 1); s += src.slice(j + 1, k < 0 ? j + 1 : k) + ' '; j = k < 0 ? j : k; } j++; } continue; } s += src[j++]; } return [s, j]; };
+      for (; i < src.length; i++) {
+        const c = src[i];
+        if (c === '/' && src[i + 1] === '/') { while (i < src.length && src[i] !== '\n') i++; if (dừngPhẩy && sâu === 0) return ra; continue; }
+        if (c === '/' && src[i + 1] === '*') { const k = src.indexOf('*/', i + 2); i = k < 0 ? src.length : k + 1; continue; }
+        if (c === "'" || c === '"' || c === '`') { const [s, j] = đọcChuỗi(c, i + 1); ra.push({ s, at: i }); i = j; continue; }
+        if (c === '/' && /[=(,:!&|?{};]\s*$/.test(src.slice(Math.max(0, i - 20), i))) { let j = i + 1, lớp = false; while (j < src.length && src[j] !== '\n') { if (src[j] === '\\') { j += 2; continue; } if (src[j] === '[') lớp = true; else if (src[j] === ']') lớp = false; else if (src[j] === '/' && !lớp) break; j++; } i = j; continue; }   // regex literal: bỏ
+        if ('([{'.includes(c)) sâu++;
+        else if (')]}'.includes(c)) { sâu--; if (sâu < 0) return ra; }
+        else if (dừngPhẩy && sâu === 0 && (c === ',' || c === ';' || c === '\n')) return ra;
+      }
+      return ra;
+    };
+    // Xoá chú thích (giữ nguyên vị trí/xuống dòng) để `// console.log('…')` không bị tính; tôn trọng chuỗi để `'http://'` không mất.
+    const bỏChúThích = (src) => {
+      let ra = '', q = null;
+      for (let i = 0; i < src.length; i++) {
+        const c = src[i];
+        if (q) { ra += c; if (c === '\\') { ra += src[i + 1] || ''; i++; } else if (c === q || (c === '\n' && q !== '`')) q = null; continue; }
+        if (c === "'" || c === '"' || c === '`') { q = c; ra += c; continue; }
+        if (c === '/' && src[i + 1] === '/') { while (i < src.length && src[i] !== '\n') { ra += ' '; i++; } ra += src[i] || ''; continue; }
+        if (c === '/' && src[i + 1] === '*') { const k = src.indexOf('*/', i + 2); const đ = k < 0 ? src.length : k + 2; ra += src.slice(i, đ).replace(/[^\n]/g, ' '); i = đ - 1; continue; }
+        ra += c;
+      }
+      return ra;
+    };
+    const trích = (src0) => {
+      const src = bỏChúThích(src0);
+      const ra = []; let m;
+      const re = /(?:console\.(?:log|error|warn)|process\.(?:stdout|stderr)\.write)\s*\(|\b(?:systemMessage|reason|stopReason)\s*:/g;
+      while ((m = re.exec(src))) ra.push(...gom(src, m.index + m[0].length, !m[0].endsWith('(')));
+      // thẻ hook `[Veriline ·`: lùi về dấu mở gần nhất ([ hoặc () rồi gom cả mảng/lời gọi chứa nó
+      const reThẻ = /['"`]\[Veriline ·/g;
+      while ((m = reThẻ.exec(src))) { let j = m.index - 1; while (j > 0 && /\s/.test(src[j])) j--; if ('[('.includes(src[j])) ra.push(...gom(src, j + 1, false)); }
+      return ra;
+    };
+    const dòng = (src, at) => src.slice(0, at).split('\n').length;
+    let soát = 0, nHit = 0;
+    const đi = (d, sk) => { for (const f of fs.readdirSync(d)) { const q = path.join(d, f); if (fs.statSync(q).isDirectory()) { if (!/node_modules|vendor|fixtures/.test(f)) đi(q, sk); continue; }
+      if (!/\.(js|mjs|cjs)$/.test(f) || bỏ.has(f)) continue;
+      const src = read(q); soát++; const đã = new Set();
+      for (const { s, at } of trích(src)) for (const [t, r] of reTừ) {
+        if (!r.test(s)) continue;
+        const khoá = `${sk}/${path.relative(path.join(SKILLS, sk, 'scripts'), q)}:${t}`.replace(/\.(js|mjs|cjs):/, ':');
+        if (miễn.has(khoá)) { miễn.set(khoá, miễn.get(khoá) + 1); continue; }
+        const k2 = `${khoá}@${at}`; if (đã.has(k2)) continue; đã.add(k2);
+        nHit++; fail(`${path.relative(ROOT, q)}:${dòng(src, at)} — chuỗi in ra có từ nội bộ "${t}": «${s.trim().slice(0, 90)}» — viết lại bằng chữ người dùng (bảng thay: docs/decisions/34) hoặc thêm lang.internal.allow ${khoá}`);
+      } } };
+    for (const sk of [...new Set([...core, 'ba-toolkit'])]) { const d = path.join(SKILLS, sk, 'scripts'); if (fs.existsSync(d)) đi(d, sk); }
+    for (const [k, n] of miễn) if (!n) fail(`lang.internal.allow ${k} không còn bắn — ngoại lệ thừa, xoá khỏi registry`);
+    if (!nHit && [...miễn.values()].every(Boolean)) ok(`${soát} script lõi: chuỗi in ra không mang ${từ.length} từ nội bộ${miễn.size ? ` (${miễn.size} ngoại lệ có khai)` : ''}`);
+  }
+}
+
 // 40 (chạy CUỐI — đếm số mục nên phải để mọi mục khác in xong). MỘT NGUỒN cho mọi con số tự khai (25/09/2026: gộp lint 1
 // phần CLAUDE.md và lint 3c header explain vào đây; số ca test.js vẫn ở ca 3ax vì chỉ test.js biết tổng của nó lúc chạy).
 // Con số CLAUDE.md tự khai (steal B44): briefing nói "89 skills (68 ba-* + 11 dev-* + 10 ac-*)",
@@ -1256,12 +1335,12 @@ if (REG) {
 // lại là thứ sai. Số ca của test.js do chính test.js soát (nó mới biết tổng của mình).
 {
   console.log('\n=== 40. Con số tự khai (CLAUDE.md · README · header explain · VERSION) khớp thực tế ===');
-  const md = read(path.join(ROOT, 'CLAUDE.md'));
+  const md = read(CLAUDEMD);
   const skillDirs = fs.existsSync(SKILLS) ? fs.readdirSync(SKILLS, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name) : [];
   const đếm = (pre) => skillDirs.filter((n) => n.startsWith(pre)).length;
   let drift = 0;
   const mSkill = md.match(/(\d+)\s+skills?\s*\((\d+)\s*`ba-\*`\s*\+\s*(\d+)\s*`dev-\*`\s*\+\s*(\d+)\s*`ac-\*`\)/);
-  if (!fs.existsSync(path.join(ROOT, 'CLAUDE.md'))) { /* repo công khai: CLAUDE.md là briefing phát triển (devOnly) — không có số tự khai để soát */ }
+  if (!fs.existsSync(CLAUDEMD)) { /* repo công khai: CLAUDE.md là briefing phát triển (devOnly) — không có số tự khai để soát */ }
   else if (!mSkill) { warn('CLAUDE.md không còn câu "N skills (x ba-* + y dev-* + z ac-*)" — bỏ qua phép đếm skill'); }
   else {
     const thật = [skillDirs.length, đếm('ba-'), đếm('dev-'), đếm('ac-')];
@@ -1329,6 +1408,25 @@ if (REG) {
       const esc = ver.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       if (!new RegExp(`^## \\[${esc}\\]`, 'm').test(cl)) { fail(`CHANGELOG.md thiếu mục "## [${ver}]" cho phiên bản trong VERSION`); drift++; }
       else verNote = ` · phiên bản ${ver} có CHANGELOG`;
+    }
+    // Plugin cửa cài (M5): .claude-plugin/plugin.json mang `version` = VERSION (một nguồn — không đặt cả ở mục marketplace),
+    // marketplace.json đủ trường bắt buộc (name · owner.name · plugins[] có name + source). Không có thư mục → không áp.
+    const PL = path.join(ROOT, '.claude-plugin');
+    if (fs.existsSync(PL)) {
+      const j = (f) => { try { return JSON.parse(read(path.join(PL, f))); } catch (e) { fail(`.claude-plugin/${f} không đọc được JSON: ${String(e.message).slice(0, 80)}`); drift++; return null; } };
+      const pj = j('plugin.json'), mj = j('marketplace.json');
+      if (pj) {
+        if (!pj.name) { fail('.claude-plugin/plugin.json thiếu `name`'); drift++; }
+        if (ver && pj.version !== ver) { fail(`.claude-plugin/plugin.json version "${pj.version}" ≠ VERSION "${ver}" — sửa plugin.json khi nâng bản`); drift++; }
+      }
+      if (mj) {
+        if (!mj.name || !(mj.owner && mj.owner.name) || !Array.isArray(mj.plugins) || !mj.plugins.length) { fail('.claude-plugin/marketplace.json thiếu name / owner.name / plugins[]'); drift++; }
+        for (const p of mj.plugins || []) {
+          if (!p.name || !p.source) { fail(`marketplace.json: mục plugin thiếu name/source (${JSON.stringify(p).slice(0, 60)})`); drift++; }
+          if (p.version) { fail(`marketplace.json: mục "${p.name}" đặt version — phiên bản chỉ ở plugin.json (một nguồn)`); drift++; }
+        }
+      }
+      if (pj && mj && !drift) verNote += ` · plugin ${pj.name}@${mj.name} ${pj.version}`;
     }
   }
   if (!drift) ok(`Số tự khai khớp: ${skillDirs.length} skill (${đếm('ba-')}+${đếm('dev-')}+${đếm('ac-')}) · ${sốMục} check lint · header ${nExplain} file explain · ${nReadme} README${verNote}`);

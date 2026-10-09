@@ -31,7 +31,7 @@ const DOCS = path.resolve(pos[0] || 'docs');
 const docpath = require('../../ba-toolkit/scripts/docpath.js');
 const OUT = path.resolve(pos[1] || docpath.writePathFor(DOCS, 'sitemap.html'));
 const MD = OUT.replace(/\.html?$/i, '.md');
-if (!fs.existsSync(DOCS)) { console.error(`Không thấy docsDir: ${DOCS}`); process.exit(2); }
+if (!fs.existsSync(DOCS)) { console.error(`Không thấy thư mục tài liệu: ${DOCS}\nSửa: chạy từ gốc dự án (nơi có docs/), hoặc truyền đúng thư mục làm tham số đầu.`); process.exit(2); }
 const read = (p) => { try { return fs.readFileSync(p, 'utf8'); } catch { return ''; } };
 
 // ─── 1. Quét màn (nhận diện container Screen-spec/ trong suốt, tương thích layout cũ) ──
@@ -53,7 +53,7 @@ const walk = (dir, group, prefix) => {
 };
 walk(DOCS, '', '');
 screens.sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }));
-if (!screens.length) { console.error('Không tìm thấy folder màn nào (S.. - ..) trong ' + DOCS); process.exit(2); }
+if (!screens.length) { console.error('Không tìm thấy folder màn nào (S.. - ..) trong ' + DOCS + '\nSửa: chạy `/ba-screens` để sinh khung folder màn trước.'); process.exit(2); }
 
 // Wireframe ASCII (nội dung trong khối ``` của ascii-screen.md) — cache 1 lần
 function asciiOf(absDir) {
@@ -85,7 +85,7 @@ const orphanCodes = [...new Set(flowsRaw.match(/\bS\d+\b/g) || [])].filter(c => 
 // ─── CỔNG (--check): dò gap, exit = số gap CHẶN, KHÔNG build ─────────────────────────
 if (CHECK) {
   const blocking = (nav ? 0 : 1) + orphanCodes.length;
-  console.log('GATE ba-portal sitemap — readiness:');
+  console.log('CỔNG ba-portal sitemap — đủ điều kiện dựng chưa:');
   console.log(`  Sơ đồ điều hướng (03-overview): ${nav ? 'CÓ' : 'THIẾU ← CHẶN (chạy ba-screens)'}`);
   console.log(`  Màn: ${screens.length} · thiếu ascii-screen.md: ${missingAscii.length ? missingAscii.join(', ') + ' ← mềm (chạy ba-screen-spec hoặc build với ô trống)' : 'không'}`);
   console.log(`  Hành trình (sitemap-flows.md): ${flows ? 'CÓ' : 'CHƯA (viết bằng ba-portal sitemap)'}`);
@@ -126,6 +126,7 @@ try {
   execFileSync(process.execPath, [portal, '--single', MD, OUT], { stdio: ['ignore', 'ignore', 'pipe'] });
 } catch (e) {
   console.error('Lỗi render qua ba-portal:', String(e.stderr || e.message).slice(0, 500));
+  console.error('Sửa: chạy `node .claude/skills/ba-portal/scripts/build.js --lint <file.md>` để thấy sơ đồ hỏng, sửa rồi chạy lại.');
   process.exit(1);
 }
 const rel = (p) => path.relative(process.cwd(), p);

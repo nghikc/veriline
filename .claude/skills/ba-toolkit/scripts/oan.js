@@ -73,15 +73,15 @@ if (require.main === module) {
     if (!r.checker || !DẠNG_CHECKER.test(r.checker)) sai.push(`--checker phải dạng <skill>/<script> (vd ba-html-design/check-design), được "${r.checker || ''}"`);
     if (!r.code || !DẠNG_MÃ.test(r.code)) sai.push(`--code phải là mã luật checker in (vd DS-HEX), được "${r.code || ''}"`);
     if (!r.where || !DẠNG_CHỖ.test(r.where)) sai.push(`--where phải dạng file:dòng (vd docs/07-design-system.md:331), được "${r.where || ''}"`);
-    if (!r.reason || r.reason.trim().length < 10) sai.push('--reason phải nói vì sao checker SAI (≥10 ký tự)');
-    if (r.shape && r.shape.length > 300) sai.push(`--shape tối đa 300 ký tự (được ${r.shape.length}) — dán hình ngắn nhất còn tái hiện oan`);
+    if (!r.reason || r.reason.trim().length < 10) sai.push('--reason phải nói vì sao bộ kiểm SAI (≥10 ký tự)');
+    if (r.shape && r.shape.length > 300) sai.push(`--shape tối đa 300 ký tự (được ${r.shape.length}) — dán hình ngắn nhất còn tái hiện lỗi báo sai`);
     if (sai.length) thoát('\n  ' + sai.join('\n  '));
     const s = đọc(SỔ);
     const id = `OAN-${s.oan.length + 1}`;
     const rec = { type: 'oan', id, ts: new Date().toISOString(), checker: r.checker, code: r.code, where: r.where, reason: r.reason.trim() };
     if (r.shape) rec.shape = r.shape;
     ghiDòng(rec);
-    console.log(`${id} ghi vào ${rel} — ${r.checker} ${r.code} @ ${r.where}. Giữ nguyên tài liệu (đừng lách); nêu ${id} lúc giao.`);
+    console.log(`${id} ghi vào ${rel} — ${r.checker} ${r.code} @ ${r.where}. Giữ nguyên tài liệu (đừng sửa để qua mặt bộ kiểm); nêu ${id} lúc giao.`);
     process.exit(0);
   }
 
@@ -90,7 +90,7 @@ if (require.main === module) {
     const s = đọc(SỔ);
     if (!id || !s.oan.some((o) => o.id === id)) thoát(`--id "${id || ''}" không có trong ${rel}`);
     if (s.resolved.has(id)) thoát(`${id} đã đóng (${s.resolved.get(id).how}) — sổ append-only, không đóng hai lần`);
-    if (!how || !CÁCH_ĐÓNG.has(how)) thoát('--how phải là sửa (checker đã sửa) | bác (checker đúng) | giữ (biết oan, chưa sửa)');
+    if (!how || !CÁCH_ĐÓNG.has(how)) thoát('--how phải là sửa (bộ kiểm đã sửa) | bác (bộ kiểm đúng) | giữ (biết báo sai, chưa sửa)');
     if (!note || note.trim().length < 5) thoát('--note phải nói đã làm gì (commit, lý do bác…)');
     ghiDòng({ type: 'resolved', id, ts: new Date().toISOString(), how, note: note.trim() });
     console.log(`${id} đóng (${how}).`);
@@ -108,7 +108,7 @@ if (require.main === module) {
       console.log(JSON.stringify({ file: rel, tong: s.oan.length, mo: s.oan.filter((o) => !s.resolved.has(o.id)).length, theoChecker, muc: ds, dongHong: s.hỏng, idTrung: trùng }, null, 2));
       process.exit(0);
     }
-    console.log(`oan: ${rel} · ${s.oan.length} báo · ${s.oan.filter((o) => !s.resolved.has(o.id)).length} mở${lọc ? ` · lọc ${lọc}` : ''}`);
+    console.log(`Sổ báo sai của bộ kiểm (oan.js): ${rel} · ${s.oan.length} báo · ${s.oan.filter((o) => !s.resolved.has(o.id)).length} mở${lọc ? ` · lọc ${lọc}` : ''}`);
     for (const [c, n] of Object.entries(theoChecker).sort()) if (!lọc || c === lọc) console.log(`  ${c}: ${n.mở} mở · ${n.đóng} đóng`);
     for (const o of ds) console.log(`${o.id} ${o.resolved ? `[${o.resolved.how}] ` : ''}${o.checker} ${o.code} @ ${o.where} — ${o.reason}${o.shape ? ` · hình: ${o.shape}` : ''}`);
     if (s.hỏng) console.log(`⚠️ ${s.hỏng} dòng không đọc được (sổ bị sửa tay?)`);

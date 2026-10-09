@@ -6,6 +6,14 @@ Bản `0.x`/`1.0.0-beta` còn đổi được hợp đồng (tên lệnh, cột 
 
 ## [Unreleased]
 
+### Thêm
+- **Cài qua plugin của Claude Code.** Repo vừa là marketplace vừa là plugin `veriline`: `claude plugin marketplace add` → `claude plugin install veriline@veriline` → trong dự án gõ `/veriline:veriline-setup` (hoặc nói "cài Veriline"). Skill hỏi một câu chọn gói rồi chạy đúng `install.js` từ bản plugin đã tải; cài xong mọi thứ như cách cài từ bản clone. Briefing cho người đóng góp dời sang `.claude/CLAUDE.md`.
+- **Bảng "Thuật ngữ bạn sẽ gặp"** ở `explain/README.md`: cổng, Cổng phương án, nợ có hạn chót, các mã BR/FR/F/S/TC/CR/WI/PD, và cách phân biệt `GĐ-01` (giả định) với `GĐ1` (giai đoạn).
+
+### Đổi
+- **Thông báo viết cho người dùng (M8).** Hook, `ba-next`, bộ cài và script của bộ lõi bỏ từ lóng nội bộ ("oan", "lách", "vế", "TRẢ", "canon", "gate", tên file cấu hình) — vd "bộ kiểm báo sai", "bị trả lại", "nợ có hạn chót", "bản đã chốt". Nhắc của hook nay mở bằng việc cần làm: `[Veriline · tracking chưa cập nhật] … (S1)` — mã cũ ở cuối dòng trong ngoặc; ai lọc log theo `[ba-toolkit hook · S1]` thì đổi sang `(S1)`. Thông báo lỗi kèm một dòng `Sửa: <lệnh>`; "Error:" thành "Lỗi:". Ước tính chi phí nói rõ "ước theo bảng mặc định — cần ≥3 lần chạy thật để ước theo dự án này".
+- Cài từ bản công khai không còn báo thiếu `site/huong-dan.md`; gói `core` (không có `ba-index`) không còn được gợi lệnh dựng chỉ mục. README: `claude plugin marketplace add <chủ>/<repo>` (dạng ngắn).
+
 ## [1.0.0-beta.2] — 2026-10-08
 
 Bản beta thứ hai: cài gọn mặc định, cửa vào `ba-start` cho người mới, và gộp skill cùng họ (69 → 49 skill công khai). **Có đổi tên lệnh** — xem mục *Đổi*.

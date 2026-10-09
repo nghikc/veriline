@@ -1,0 +1,13 @@
+{
+  "name": "veriline",
+  "owner": { "name": "Veriline" },
+  "metadata": { "description": "Marketplace của Veriline — một plugin cửa cài bộ BA toolkit." },
+  "plugins": [
+    {
+      "name": "veriline",
+      "source": "./",
+      "description": "Cài Veriline (BA toolkit tiếng Việt: ý tưởng → tài liệu → plan → code) vào dự án đang mở.",
+      "category": "productivity"
+    }
+  ]
+}

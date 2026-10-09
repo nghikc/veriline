@@ -280,7 +280,7 @@ if (require.main === module) {
     if ((r.cu || []).length) console.log(`  · ${r.cu.length} file toolkit cũ update chưa dọn (blob có trong kho nguồn — không tính lệch): ${r.cu.slice(0, 3).join(', ')}${r.cu.length > 3 ? '…' : ''}`);
     for (const d of r.duyetHong || []) console.log(`  ⚠️ mục duyệt không tính: ${d.file} — ${d.lyDo}`);
     if (r.lech.length) {
-      console.log('Toolkit bị sửa tại đích: sửa ở NGUỒN rồi `ba-export update`; checker oan → `oan.js add`. Bản vá có chủ đích → người duyệt ghi');
+      console.log('Toolkit bị sửa tại đích. Sửa: sửa ở NGUỒN rồi `ba-export update`; bộ kiểm báo sai → `oan.js add`. Bản vá có chủ đích → người duyệt ghi');
       console.log('  .claude/ba-toolkit-local.json { "duyet": [{ "file", "sha256", "lyDo", "nguoiDuyet", "hetHan": "YYYY-MM-DD" }] }.');
     }
   }

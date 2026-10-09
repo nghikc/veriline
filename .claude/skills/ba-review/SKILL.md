@@ -134,7 +134,9 @@ Mỗi gap gán 1 **mức ưu tiên** và **skill sửa** (để báo cáo hành 
 
 Mọi 🟡 khác **giữ nguyên 🟡**. Không ghi được mốc cụ thể → **không phải 🟠**, chấm 🟡.
 
-**Luật phạm vi khi gate (`conv-gates.md` → "Quy ước gate"):** báo cáo ra chat phải tách rõ **gap thuộc scope vừa chạy** (cái làm gate dừng) khỏi **gap của scope khác** (chỉ liệt kê). 🔴 thì dừng bất kể scope.
+**Luật phạm vi khi gate (`conv-gates.md` → "Quy ước gate"):** báo cáo ra chat phải tách rõ **gap thuộc scope vừa chạy** (cái làm cổng dừng) khỏi **gap của scope khác** (chỉ liệt kê). 🔴 thì dừng bất kể scope.
+
+**Báo cáo ra chat viết cho người dùng** (M8): nói "cổng"/"lượt rà soát" (không "gate"), "bản đã chốt" (không "baseline"), "bộ kiểm tra" (không "checker"), 🟠 = "nợ có hạn chót" kèm hạn chót là bước nào — mã luật/mã gap để cuối dòng trong ngoặc. Bảng thuật ngữ người dùng: `explain/README.md` → "Thuật ngữ bạn sẽ gặp".
 
 | Loại gap | Sửa bằng |
 |---|---|

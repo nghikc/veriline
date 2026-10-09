@@ -65,8 +65,8 @@ if (cmd === 'init') {
   };
   save(s); console.log(`ac-state: khởi tạo ${screen} · chế độ ${MODES[mode]} · nhánh ${s.branch} · base ${base.slice(0, 7)} · ${s.batches.length} lô · tự chủ ${s.autonomy}`);
 } else if (cmd === 'batch-done' || cmd === 'batch-fail') {
-  const s = load() || die('chưa có .claude/ac-state.json — chạy init');
-  const n = +argv[1]; const b = s.batches.find((x) => x.n === n) || die(`không có lô ${n}`);
+  const s = load() || die('chưa có phiên đội nào (.claude/ac-state.json)\nSửa: bắt đầu bằng `/ac-team <màn>` (hoặc state.js init <Mã> --base <sha> --batches <json>).');
+  const n = +argv[1]; const b = s.batches.find((x) => x.n === n) || die(`không có lô ${n}\nSửa: xem số lô bằng \`state.js show\`.`);
   if (cmd === 'batch-fail') {
     b.status = 'hỏng'; b.reason = opt('--reason', '(không ghi lý do)'); s.log.push({ t: new Date().toISOString(), lô: n, sự_kiện: 'hỏng', lý_do: b.reason });
     save(s); console.log(`ac-state: lô ${n} HỎNG — ${b.reason}. Orchestrator quyết: sửa / hỏi người / dừng.`); process.exit(0);
@@ -159,9 +159,9 @@ if (cmd === 'init') {
   if (argv.includes('--reset')) { sp[key] = []; fs.mkdirSync(path.dirname(SP), { recursive: true }); fs.writeFileSync(SP, JSON.stringify(sp, null, 2)); console.log(`spawn: xoá sổ ${key}`); process.exit(0); }
   const round = +opt('--round', sp[key].length ? sp[key][sp[key].length - 1].round : 1);
   const đã = sp[key].filter((x) => x.round === round);
-  if (đã.length) die(`spawn: ${agent} cho ${screen} vòng ${round} ĐÃ phái lúc ${đã[0].t} — một màn một vòng một agent; vòng mới → --round ${round + 1} (sau TRẢ), hoặc --reset nếu chắc chắn`);
-  if (sp[key].length >= 4) die(`spawn: ${agent} cho ${screen} đã 4 vòng — po.ask "TRẢ quá 2 vòng" đáng lẽ đã dừng; hỏi người`);
+  if (đã.length) die(`spawn: ${agent} cho ${screen} vòng ${round} ĐÃ phái lúc ${đã[0].t} — một màn một vòng một agent; vòng mới → --round ${round + 1} (sau khi bị trả lại), hoặc --reset nếu chắc chắn`);
+  if (sp[key].length >= 4) die(`spawn: ${agent} cho ${screen} đã 4 vòng — luật PO "bị trả lại quá 2 vòng thì hỏi người" đáng lẽ đã dừng; hỏi người`);
   sp[key].push({ t: new Date().toISOString(), round });
   fs.mkdirSync(path.dirname(SP), { recursive: true }); fs.writeFileSync(SP, JSON.stringify(sp, null, 2));
   console.log(`spawn: ${agent} ${screen} vòng ${round} — được phái (lần ${sp[key].length} cho màn này)`); process.exit(0);
-} else die('Lệnh: init | batch-done | batch-fail | resume | show | spawn');
+} else die('Lệnh không rõ.\nSửa: dùng một trong init | batch-done | batch-fail | resume | show | spawn.');

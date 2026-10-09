@@ -194,10 +194,10 @@ if (require.main === module) {
   const argv = process.argv.slice(2);
   const iRoot = argv.indexOf('--root');
   const root = iRoot >= 0 ? argv[iRoot + 1] : null;
-  if (iRoot >= 0 && (!root || root.startsWith('--'))) { console.error('thieu.js: --root cần đường dẫn'); process.exit(2); }
+  if (iRoot >= 0 && (!root || root.startsWith('--'))) { console.error('thieu.js: --root cần đường dẫn\nSửa: thêm đường dẫn thư mục code sau --root (vd --root src).'); process.exit(2); }
   const pos = argv.filter((a, i) => !a.startsWith('--') && (iRoot < 0 || i !== iRoot + 1));
   const DOCS = path.resolve(pos[0] || 'docs');
-  if (!fs.existsSync(DOCS)) { console.error(`thieu.js: không thấy ${DOCS}`); process.exit(2); }
+  if (!fs.existsSync(DOCS)) { console.error(`thieu.js: không thấy ${DOCS}\nSửa: chạy từ gốc dự án (nơi có docs/), hoặc truyền đúng thư mục tài liệu.`); process.exit(2); }
   const kq = quét(DOCS, { root });
   if (argv.includes('--json')) { console.log(JSON.stringify(kq, null, 2)); process.exit(0); }
   if (argv.includes('--plain')) {

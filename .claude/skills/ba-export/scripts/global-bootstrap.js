@@ -40,7 +40,7 @@ if (fs.existsSync(SOURCE_FILE)) {
 const srcRoot = path.resolve(fromArg || recorded || '');
 
 const fail = (msg, hint) => {
-  console.error(`Error: ${msg}`);
+  console.error(`Lỗi: ${msg}`);
   if (hint) console.error(hint);
   process.exit(2);
 };

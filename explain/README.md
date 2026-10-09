@@ -218,3 +218,40 @@ Mặc định toolkit chạy **đầy đủ**: mỗi màn 9 tài liệu, cộng 
 Tài liệu cấp hệ thống (`ba-discover stakeholder`, `ba-data-model`, `ba-api-spec`, `ba-design-system`, `ba-architecture`, `ba-integration`) chạy **khi cần**, không bắt buộc theo thứ tự — riêng `ba-architecture`/`ba-integration` là **bước có gate + cổng chốt** (build/dev chỉ bám bản đã chốt). Các tiện ích (`ba-review`, `ba-track`, `ba-portal`...) chạy xen kẽ bất cứ lúc nào.
 
 > Một câu để nhớ: **skill nguyên tử** làm một việc; **orchestrator** ghép nhiều việc lại (4 cái khép vòng đời discover→init→dev-run→accept); **tiện ích** giữ cho tài liệu sạch và chia sẻ được; **dev** biến kế hoạch thành code.
+
+---
+
+## 5. Thuật ngữ bạn sẽ gặp
+
+Những chữ dưới đây xuất hiện trong thông báo của Veriline và trong tài liệu sinh ra. Gặp chữ nào không có ở đây → gõ `/ba-next`, nó nói bằng lời thường bạn đang ở đâu.
+
+| Chữ | Nghĩa |
+|---|---|
+| **Cổng** | Điểm dừng để soát trước khi đi tiếp (vd `ba-review` soát đủ tài liệu chưa). Cổng còn 🔴/🟡 thì bước sau chưa chạy. |
+| **Cổng phương án** | Trước khi ghi nhiều file, Claude trình *đã đọc gì · hiểu gì · sẽ làm gì · giả định · câu hỏi chặn · ngoài phạm vi* rồi **chờ bạn duyệt**. Chưa duyệt thì chưa ghi. |
+| **🔴 / 🟡 / 🟠 / 🟢** | 🔴 chặn mọi thứ · 🟡 chặn phần đang làm · 🟠 **nợ có hạn chót** · 🟢 chỉ để biết, không chặn. |
+| **Nợ có hạn chót** (🟠) | Việc còn thiếu được phép để sau, nhưng có **hạn chót** là một bước cụ thể (vd "trước `ba-build`"). Tới bước đó mà chưa xong thì bước đó dừng. Trong `00-gaps.md` nằm ở mục "Nợ có hạn". |
+| **Bản đã chốt** | Tài liệu/màn đã duyệt (✅). Đổi nó phải mở **CR** trước (`/ba-change-request`), không sửa thẳng. |
+| **Bộ kiểm tra** | Script tự đếm/soát tài liệu hay code (bảng hỏng, mã gãy, test thiếu…). Nó **đếm, không phán** — thấy nó **báo sai** thì ghi lại cho người bảo trì, đừng sửa tài liệu để qua mặt nó. |
+| **Thông báo `[Veriline · …]`** | Lời nhắc tự động sau mỗi lượt (vd "tracking chưa cập nhật"). Mã trong ngoặc ở cuối dòng — `(S1)`, `(S2)`… — chỉ để người bảo trì tra, bạn không cần nhớ. |
+
+**Mã định danh chính** (chuỗi truy vết đi từ trái sang phải — mỗi mã sau trỏ về mã trước):
+
+| Mã | Là gì | Nằm ở |
+|---|---|---|
+| `BR` | Yêu cầu nghiệp vụ — mục tiêu của tổ chức | `01-requirements.md` |
+| `StR` | Yêu cầu của từng nhóm người liên quan | `01-requirements.md` |
+| `FR` / `NFR` | Yêu cầu chức năng / phi chức năng (hiệu năng, bảo mật…) | `01-requirements.md` |
+| `F` | Chức năng của phần mềm | `02-functions.md` |
+| `S` | Màn hình (vd `S03`) | `03-overview.md`, folder màn |
+| `R-S` | Yêu cầu chi tiết của một màn (vd `R-S03-02`) | `srs.md` của màn |
+| `UC` / `US` | Use case / user story của màn | `usecase.md`, `userstory.md` |
+| `TC` | Ca kiểm thử (vd `TC-S03-01`) | `test.md` của màn |
+| `CR` | Yêu cầu thay đổi thứ đã chốt | `00-cr.md` |
+| `WI` | Việc dev không đổi bản đã chốt (tính năng, bug, task kỹ thuật) | `00-backlog.md` |
+| `PD` | Câu hỏi nghiệp vụ chỉ người mới trả lời được | `00-decisions.md` |
+
+**`GĐ` có hai nghĩa — phân biệt bằng dấu gạch:**
+
+- **`GĐ-01`, `GĐ-S03-02`** (có gạch + số) = **Giả định** trong tài liệu — điều tạm coi là đúng, chờ người xác nhận. Còn "chưa xác nhận" thì thành nợ 🟠 tới `ba-build`.
+- **`GĐ1` … `GĐ4`** (liền, không gạch) = **Giai đoạn** của dự án: GĐ1 Discovery · GĐ2 Yêu cầu & giải pháp · GĐ3 Dev (hoặc bàn giao tài liệu) · GĐ4 Nghiệm thu. `/ba-next` in giai đoạn ở dòng đầu.

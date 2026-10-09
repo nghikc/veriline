@@ -46,7 +46,7 @@ let planFile = null;
     walk(p); if (planFile) return;
   }
 })(DOCS);
-if (!planFile) { console.error(`Không thấy plan.md của màn ${SCREEN} dưới ${DOCS}`); process.exit(2); }
+if (!planFile) { console.error(`Không thấy plan.md của màn ${SCREEN} dưới ${DOCS}\nSửa: chạy \`/ba-build ${SCREEN}\` để lập kế hoạch cho màn này trước.`); process.exit(2); }
 
 const txt = fs.readFileSync(planFile, 'utf8');
 const parts = txt.split(/^(?=## Task \d+)/m).filter((s) => /^## Task \d+/.test(s));
@@ -67,7 +67,7 @@ const ids = new Set(tasks.map((t) => t.n));
 const level = {}; let remaining = tasks.filter((t) => !t.done); let k = 0;
 while (remaining.length) {
   const ready = remaining.filter((t) => t.deps.every((d) => !ids.has(d) || level[d] !== undefined || tasks.find((x) => x.n === d).done));
-  if (!ready.length) { console.error(`Vòng phụ thuộc giữa: ${remaining.map((t) => 'Task ' + t.n).join(', ')} — chạy check-plan.js`); process.exit(2); }
+  if (!ready.length) { console.error(`Vòng phụ thuộc giữa: ${remaining.map((t) => 'Task ' + t.n).join(', ')} \nSửa: gỡ vòng ở cột phụ thuộc của plan.md (\`/ba-build ${SCREEN}\`); có \`ac-verify/scripts/check-plan.js\` thì nó chỉ ra vòng.`); process.exit(2); }
   for (const t of ready) level[t.n] = k;
   remaining = remaining.filter((t) => level[t.n] === undefined); k++;
 }

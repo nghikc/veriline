@@ -142,7 +142,7 @@ function chạy(vào, nay = Date.now()) {
     luật.S9a = { goi: true };
     if (!phiênTựĐổi(vào.transcript_path, git.nhánh, tôi.lastSeenAt)) {
       luật.S9a.ban = true;
-      cảnhBáo.push(`[ba-toolkit hook · S9a] nhánh đổi từ \`${tôi.branch}\` sang \`${git.nhánh}\` dưới chân phiên — thay đổi chưa commit của bạn đang nằm trên \`${git.nhánh}\`; kiểm \`git status\` trước khi làm tiếp.`,
+      cảnhBáo.push(`[Veriline · nhánh git bị đổi] nhánh đổi từ \`${tôi.branch}\` sang \`${git.nhánh}\` dưới chân phiên — thay đổi chưa commit của bạn đang nằm trên \`${git.nhánh}\`; kiểm \`git status\` trước khi làm tiếp (S9a).`,
         `  Phiên này không tự đổi nhánh (transcript không có \`git checkout/switch ${git.nhánh}\` từ ${giờ(tôi.lastSeenAt)}) — nhiều khả năng một cửa sổ Claude khác cùng thư mục đã đổi.`,
         '  Muốn quay lại: commit/tách đúng file của mình trước (`git add <đường dẫn>`, không `git add -A`), rồi mới `git switch`.');
     }
@@ -160,7 +160,7 @@ function chạy(vào, nay = Date.now()) {
       luật.S9b.ban = true;
       const repo = path.basename(git.gốc);
       if (cảnhBáo.length) cảnhBáo.push('');
-      cảnhBáo.push(`[ba-toolkit hook · S9b] ${mới.length} phiên Claude khác đang mở trên CÙNG thư mục repo này:`,
+      cảnhBáo.push(`[Veriline · nhiều phiên cùng thư mục] ${mới.length} phiên Claude khác đang mở trên CÙNG thư mục repo này (S9b):`,
         ...mới.map(([k, e]) => `  · phiên ${k.slice(0, 8)} — nhánh \`${e.branch || '?'}\`, thấy lần cuối ${giờ(e.lastSeenAt)}`),
         '  Hai phiên chung một thư mục làm việc: phiên kia đổi nhánh là thay đổi chưa commit của bạn đi theo, và file hai bên cùng sửa không tách commit được nữa.',
         `  Tách ra: \`git worktree add ../${repo}-<việc> -b <nhánh>\` rồi mở phiên kia ở đó. Commit chỉ file của mình (\`git add <đường dẫn>\`), không \`git add -A\`.`);
@@ -180,10 +180,10 @@ function chạy(vào, nay = Date.now()) {
       if (r.lech.length) {
         luật.SI.ban = true;
         if (cảnhBáo.length) cảnhBáo.push('');
-        cảnhBáo.push(`[ba-toolkit hook · SI] toolkit ở dự án này LỆCH ${r.nguon === 'source' ? `nguồn @${r.commit}` : 'manifest đã commit'}: ${r.lech.length} mục chưa được duyệt — cổng (accept/validate-done) sẽ TRẢ A0 tới khi xử lý.`,
+        cảnhBáo.push(`[Veriline · toolkit bị sửa tại chỗ] bản toolkit ở dự án này khác ${r.nguon === 'source' ? `bản gốc @${r.commit}` : 'bản cài đã commit'}: ${r.lech.length} mục chưa được duyệt — bước nghiệm thu (accept/validate-done) sẽ bị trả lại với mã A0 tới khi xử lý (SI).`,
           ...r.lech.slice(0, 8).map((x) => `  · ${x.loai} ${x.file}${x.chiTiet ? ` — ${x.chiTiet}` : ''}`),
           ...(r.lech.length > 8 ? [`  · … và ${r.lech.length - 8} mục nữa (node .claude/skills/ba-toolkit/scripts/integrity.js)`] : []),
-          '  Đừng vá checker tại chỗ: checker oan → `oan.js add`; sửa ở NGUỒN rồi `ba-export update`; bản vá có chủ đích → NGƯỜI duyệt ghi `.claude/ba-toolkit-local.json`.');
+          '  Đừng vá bộ kiểm tra tại chỗ: bộ kiểm báo sai → ghi lại bằng `oan.js add`; sửa ở NGUỒN rồi `ba-export update`; bản vá có chủ đích → NGƯỜI duyệt ghi ngoại lệ (chi tiết: `.claude/ba-toolkit-local.json`).');
       }
     }
   }

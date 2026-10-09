@@ -43,6 +43,7 @@ Pipeline order and every skill's role: `.claude/skills/ba-toolkit/SKILL.md`. Bus
 - **`00-gaps.md`** merges per scope; only `ba-review all` overwrites it; every orchestrator ends with a review.
 - **ADRs pass `check-adr.js`** (choice in the title, ≥2 options with a why-not, ≥1 negative consequence, NFR trace) and are immutable — supersede, never edit.
 - **"Done" means verified**: a screen is done only when a **fresh `ac-verifier`** (never the agent that wrote the code) passes every `plan.md` **Proof** and every clause of each TC (`validate-done.js`, `accept.js`). Mutants must die (`mutate.js`); evidence must be newer than the code.
+- **User language**: what core scripts print (console, hook messages) carries no maintainer slang — registry `lang.internal.terms`, check 45; "cổng"/"Cổng phương án" stay (glossary in `explain/README.md`). Hook messages read `[Veriline · <task>] … (S1)`; core error messages carry a `Sửa: <command>` hint.
 - **Optional pack skills may be absent**: the registry keys `skills.pro`/`skills.devonly` name skills that are not in this repo; core files must not hard-depend on them (check 44, `existsSync` guard), and `test.js --public` skips exactly the cases listed in `BỎ_QUA_CÔNG_KHAI`.
 
 ## The executable tooling
@@ -50,7 +51,7 @@ Pipeline order and every skill's role: `.claude/skills/ba-toolkit/SKILL.md`. Bus
 ~88 zero-dependency Node scripts plus shared modules (`docpath.js`, `e2epath.js`, `profile.js`, `testcode.js`, `ledger.js`). Each script states its limits (`gioiHan`) and **counts, never judges** — judgment belongs to the skill and the human.
 
 ```bash
-node .claude/skills/ba-toolkit/scripts/test.js --public # the toolkit's own suite — 201 checks (self-lint · scripts on example/ · ADVERSARIAL). Exit = failures.
+node .claude/skills/ba-toolkit/scripts/test.js --public # the toolkit's own suite — 203 checks (self-lint · scripts on example/ · ADVERSARIAL). Exit = failures.
 node .claude/skills/ba-toolkit/scripts/lint.js          # structural/content-drift checks against the registry. Exit = error count.
 node .claude/skills/ba-next/scripts/status.js example/docs   # where a project is in the pipeline, what next
 node .claude/skills/ba-portal/scripts/build.js example/docs example/docs/Ho-so/portal.html   # offline docs portal

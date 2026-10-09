@@ -26,6 +26,19 @@ Veriline là bộ skill cho [Claude Code](https://claude.com/claude-code) làm *
 
 ## Cài đặt
 
+### Cách 1 — qua plugin của Claude Code (gọn nhất)
+
+```bash
+claude plugin marketplace add nghikc/veriline
+claude plugin install veriline@veriline
+```
+
+Mở Claude Code trong thư mục dự án, gõ `/veriline:veriline-setup` (hoặc nói "cài Veriline"). Skill hỏi một câu chọn gói (mặc định: bộ lõi) rồi chạy đúng lệnh cài của Cách 2 từ bản plugin đã tải. Xong thì **mở phiên Claude Code mới** và gõ `/ba-start`. Cập nhật: `claude plugin update veriline`, rồi gọi lại `/veriline:veriline-setup`.
+
+Plugin chỉ là cửa cài: skill, agent, hook vẫn nằm trong `.claude/` của dự án như Cách 2.
+
+### Cách 2 — từ bản clone
+
 ```bash
 git clone https://github.com/nghikc/veriline.git ~/veriline
 cd ~/du-an-cua-ban
@@ -45,8 +58,6 @@ Mặc định lệnh cài chỉ chép **bộ lõi** (19 skill): từ ý tưởng
 
 Lựa chọn được ghi nhớ: lần cập nhật sau giữ nguyên bộ đã chọn. `/ba-next` gợi skill chưa cài kèm lệnh cài.
 - Kiểm tra bản mới: `git -C ~/veriline pull`, rồi chạy lại lệnh cài với `--check` (chỉ báo, không ghi) hoặc không cờ (cập nhật).
-
-> **Sắp có:** cài qua plugin marketplace của Claude Code (`claude plugin install`).
 
 ## Bắt đầu
 
@@ -112,7 +123,7 @@ Lệnh ghi `.claude/ba-toolkit-report.json`: **ẩn danh theo thiết kế**, ch
 
 ## Đóng góp
 
-Đọc `CLAUDE.md` (cấu trúc skill, quy ước phải giữ) và `docs/decisions/README.md` (vì sao thiết kế như vậy). Trước khi mở pull request:
+Đọc `.claude/CLAUDE.md` (cấu trúc skill, quy ước phải giữ) và `docs/decisions/README.md` (vì sao thiết kế như vậy). Trước khi mở pull request:
 
 ```bash
 node .claude/skills/ba-toolkit/scripts/test.js --public   # bộ kiểm của chính toolkit, gồm nhóm đối kháng

@@ -343,7 +343,7 @@ if (!côLõi('01-requirements.md') && protoFirst) {
   if (côLõi('00-intake.md')) suggest('ba-reverse-doc', 'Đã kiểm kê nguồn (00-intake.md) nhưng chưa có 01-requirements — trích tiếp yêu cầu 🔶 từ nguồn', true);
   else if (!côLõi('00-brainstorm.md')) suggest('ba-discover', 'Chưa có brainstorm lẫn requirements — chạy trọn GĐ1 (vision/stakeholder/persona/brainstorm/process). Đã có sẵn tài liệu rời của khách → /ba-reverse-doc trước');
   else suggest('ba-init', 'Đã có 00-brainstorm — vào GĐ2: requirements → functions → screens → per-màn');
-  if (!has('00-personas.md')) suggest('ba-discover persona', 'Chưa có 00-personas.md — dựng chân dung người dùng + hành trình để rút ứng viên U-.. trước khi viết yêu cầu', false);
+  if (!has('00-personas.md')) suggest('ba-discover persona', 'Chưa có 00-personas.md — dựng chân dung người dùng + hành trình để rút ứng viên nhóm người dùng (mã U-..) trước khi viết yêu cầu', false);
   if (!has('00-urd.md')) suggest('ba-discover urd', 'Chưa có 00-urd.md — chốt NHU CẦU người dùng (UN-..) + tiêu chí thành công (USC-..) trước khi viết yêu cầu hệ thống', false);
 } else if (!côLõi('02-functions.md')) {
   giaiĐoạn = 'GĐ2 — Đặc tả'; suggest('ba-functions', 'Có requirements nhưng chưa có 02-functions.md');
@@ -370,7 +370,7 @@ if (!côLõi('01-requirements.md') && protoFirst) {
   // Phạm vi docs: tài liệu đủ = xong việc của repo này. Bàn giao = gate tổng sạch → RTM → (UAT) → portal.
   giaiĐoạn = 'GĐ3 — Bàn giao tài liệu';
   const gapsCũ = !has('00-gaps.md');
-  if (gapsCũ) suggest('ba-review all', 'Tài liệu đủ nhưng chưa có gate tổng (00-gaps.md) — chạy scope all trước khi bàn giao', true);
+  if (gapsCũ) suggest('ba-review all', 'Tài liệu đủ nhưng chưa có lượt rà soát tổng (00-gaps.md) — rà cả dự án trước khi bàn giao', true);
   if (!has('00-traceability.md')) suggest('ba-trace', 'Xuất ma trận truy vết BR→…→TC (00-traceability.md) — bằng chứng độ phủ khi bàn giao', !gapsCũ);
   if (!has('09-uat.md')) suggest('ba-accept uat', 'Kế hoạch nghiệm thu người dùng (09-uat.md) — tiêu chí để đội build/khách ký, tùy chọn', false);
   if (!arch) suggest('ba-architecture', 'Chưa có 10-architecture.md — nếu bàn giao cho đội build thì chốt kiến trúc là tài liệu họ cần đầu tiên, tùy chọn', false);
@@ -460,8 +460,8 @@ if (pdTreo.length) {
 if (gapCount['🔴']) suggest('ba-review', `00-gaps.md còn ${gapCount['🔴']} gap 🔴 CHẶN — xử trước mọi bước khác`, true);
 // Nợ 🟠 có hạn chót là ba-build/dev-run/ba-accept → sang GĐ3 mà chưa sạch là ĐÃ QUÁ HẠN, không còn là nợ
 // Phạm vi docs không có ba-build/dev-run/ba-accept → mốc thu nợ là `ba-review all` cuối GĐ2 (bàn giao).
-if (gapCount['🟠'] && /GĐ[34]/.test(giaiĐoạn)) suggest('ba-review all', `${gapCount['🟠']} nợ 🟠 quá hạn — mốc phải sạch (${chỉDocs ? 'bàn giao tài liệu = ba-review all' : 'ba-build/dev-run/ba-accept'}) đã tới`, true);
-else if (gapCount['🟠']) suggest('ba-review all', `${gapCount['🟠']} nợ 🟠 chưa tới hạn — xem mục "Nợ có hạn" của 00-gaps.md trước khi ${chỉDocs ? 'bàn giao' : 'chạy ba-build'}`, false);
+if (gapCount['🟠'] && /GĐ[34]/.test(giaiĐoạn)) suggest('ba-review all', `${gapCount['🟠']} nợ có hạn chót 🟠 đã QUÁ HẠN — hạn chót (${chỉDocs ? 'bàn giao tài liệu = ba-review all' : 'ba-build/dev-run/ba-accept'}) đã tới, phải xử xong`, true);
+else if (gapCount['🟠']) suggest('ba-review all', `${gapCount['🟠']} nợ có hạn chót 🟠 chưa tới hạn — xem mục "Nợ có hạn" của 00-gaps.md trước khi ${chỉDocs ? 'bàn giao' : 'chạy ba-build'}`, false);
 // Báo cáo gap chỉ phủ một phần → đừng để người dùng tưởng dự án sạch vì con số nhỏ
 else if (gapCảnhBáo) suggest('ba-review all', `${gapCảnhBáo} — chạy scope all để có số thật`, false);
 // Hàng đợi thay đổi tài liệu ĐÃ CHỐT do hook ghi — tồn đọng nghĩa là có người sửa baseline mà chưa ai rà
@@ -474,8 +474,8 @@ try {
   const j = JSON.parse(fs.readFileSync(path.join(path.dirname(DOCS), '.claude', 'ba-hook-debt.json'), 'utf8'));
   nợHook = (Array.isArray(j && j.mo) ? j.mo : []).map((d) => ({ id: d.id, luat: d.luat, man: d.man, ids: d.ids || [], ts: d.ts, chiTiet: d.chiTiet || '' }));
 } catch { /* chưa có sổ nợ / hỏng → không nợ (hook ghi lại ở lượt sau) */ }
-if (nợHook.length) suggest('ba-change-request', `🟠 ${nợHook.length} nợ hook — tài liệu đã chốt bị đổi mà chưa có CR khớp (${nợHook.slice(0, 4).map((d) => `${d.id} ${d.man}`).join(', ')}${nợHook.length > 4 ? '…' : ''}): mở CR nhắc mã màn/ID vừa đổi, hoặc trả file về HEAD`, /GĐ[34]/.test(giaiĐoạn));
-if (changeQueue && !tắt.changelog) suggest('ba-changelog', `${changeQueue} thay đổi trên tài liệu ĐÃ CHỐT chưa vào sổ — có thể có người đổi baseline mà chưa mở CR`, changeQueue >= 5);
+if (nợHook.length) suggest('ba-change-request', `🟠 ${nợHook.length} chỗ sửa bản đã chốt chưa có CR — nợ có hạn chót (${nợHook.slice(0, 4).map((d) => `${d.id} ${d.man}`).join(', ')}${nợHook.length > 4 ? '…' : ''}): mở CR nhắc mã màn/ID vừa đổi, hoặc trả file về HEAD`, /GĐ[34]/.test(giaiĐoạn));
+if (changeQueue && !tắt.changelog) suggest('ba-changelog', `${changeQueue} thay đổi trên tài liệu ĐÃ CHỐT chưa vào sổ — có thể có người đổi bản đã chốt mà chưa mở CR`, changeQueue >= 5);
 // Dashboard: chỉ gợi khi dự án đã đủ lớn để có gì mà báo cáo (đã sang GĐ3+)
 if (devStarted && !has('00-dashboard.md')) suggest('ba-dashboard', 'Chưa có báo cáo điều hành — gom tiến độ/CR/WI/UAT/gap thành một trang cho PM', false);
 // Chỉ CR ĐANG LÀM DỞ mới là bước tiếp theo. CR chờ kiểm tay là việc kiểm thử tay, không phải
@@ -494,12 +494,12 @@ console.log(`\nTài liệu hệ thống: ${sys.filter(s => s.có).length}/${sys.
 if (screens.length) {
   console.log(`Màn hình (${screens.length}):`);
   for (const s of screens) console.log(`  ${s.trạngThái} ${s.code} ${s.tên}${s.dev !== '⬜' ? ` · dev ${s.dev}` : ''}${s.e2e !== '⬜' ? ` · e2e ${s.e2e}` : ''}${s.figma !== '⬜' ? ` · figma ${s.figma}` : ''}`);
-} else console.log('Màn hình: chưa có tracking (chạy ba-screens hoặc refresh.js của ba-track).');
+} else console.log('Màn hình: chưa có bảng theo dõi màn (00-tracking.md) — dự án mới chạy `/ba-screens`; đã có folder màn thì `/ba-track` để dựng lại.');
 if (pdTreo.length) console.log(`Quyết định nghiệp vụ TREO: ${pdTreo.length} (00-decisions.md) — chờ người, máy không thay được`);
 if (gapCount['🔴'] + gapCount['🟡'] + gapCount['🟠']) console.log(`Gaps: 🔴 ${gapCount['🔴']} · 🟡 ${gapCount['🟡']} · 🟠 ${gapCount['🟠']} nợ (00-gaps.md${gapNgày ? ` · ${gapNgày}` : ''}${gapToànCục ? '' : gapĐãPhủ ? ` · mới phủ ${gapĐãPhủ}` : ''}${gapĐãĐóng ? ` · ${gapĐãĐóng} dòng đã đóng, không tính` : ''})`);
 else if (gapĐãĐóng) console.log(`Gaps: sạch — ${gapĐãĐóng} dòng trong 00-gaps.md đều đã đóng`);
 if (gapCảnhBáo) console.log(`⚠️  ${gapCảnhBáo}`);
-if (nợHook.length) console.log(`🟠 Nợ hook: ${nợHook.length} (.claude/ba-hook-debt.json) — ${nợHook.slice(0, 4).map((d) => `${d.id} ${d.luat} ${d.man}${d.ids.length ? ' [' + d.ids.slice(0, 3).join(', ') + (d.ids.length > 3 ? '…' : '') + ']' : ''}`).join(' · ')}`);
+if (nợHook.length) console.log(`🟠 Sửa bản đã chốt chưa có CR: ${nợHook.length} (sửa: \`/ba-change-request\`) — ${nợHook.slice(0, 4).map((d) => `${d.id} ${d.man}${d.ids.length ? ' [' + d.ids.slice(0, 3).join(', ') + (d.ids.length > 3 ? '…' : '') + ']' : ''}`).join(' · ')}`);
 if (adrDraft) console.log('Kiến trúc: ⚠️ ADR còn Draft — chưa qua cổng chốt.');
 if (crOpen + crChờKiểm + crĐãĐóng) {
   console.log(`CR: ${crOpen} đang làm · ${crChờKiểm} đã triển khai (chờ kiểm tay) · ${crĐãĐóng} đã nghiệm thu`);
@@ -507,8 +507,8 @@ if (crOpen + crChờKiểm + crĐãĐóng) {
 if (wiOpen) console.log(`Work Item đang mở: ${wiOpen}${wiBlocked ? ` · Blocked: ${wiBlocked}` : ''}`);
 if (momCount) console.log(`Biên bản họp: ${momCount}${actOpen ? ` · ACT chưa xong: ${actOpen}` : ''}`);
 if (tínhNăngTắt.length) {
-  console.log('\n⚙️ Tính năng đang tắt vì thiếu (thieu.js — bổ sung thì checker mới đếm được):');
-  for (const g of tínhNăngTắt) console.log(`  ${g.khoá}: ${g.màn.length ? g.màn.join(', ') : '(dự án)'} (${g.tat.length} checker)`);
+  console.log('\n⚙️ Tính năng đang tắt vì tài liệu còn thiếu mục (bổ sung thì bộ kiểm tra mới đếm được):');
+  for (const g of tínhNăngTắt) console.log(`  ${g.khoá}: ${g.màn.length ? g.màn.join(', ') : '(dự án)'} (${g.tat.length} bộ kiểm tra)`);
 }
 console.log('\n👉 Đề xuất tiếp theo:');
 for (const d of đềXuất.sort((a, b) => (b.gấp ? 1 : 0) - (a.gấp ? 1 : 0))) console.log(`  ${d.gấp ? '❗' : '·'} ${d.skill.startsWith('(') ? d.skill : '/' + d.skill} — ${d.lýDo}${d.chưaCài ? `\n      ⤷ chưa cài skill này: ${d.lệnhCài}` : ''}`);

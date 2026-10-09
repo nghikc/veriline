@@ -14,7 +14,7 @@ Người dùng KHÔNG cần thuộc cả pipeline. `ba-next` = một lệnh duy 
    node .claude/skills/ba-next/scripts/status.js [docsDir=docs]
    ```
    Script tự tính: giai đoạn (GĐ1→GĐ4), tài liệu hệ thống `00-*` + `01`–`12` có/thiếu, trạng thái màn (kèm cột `dev` và `e2e`) từ `00-tracking.md`, gap 🔴/🟡 từ `00-gaps.md` (chỉ đếm dòng bảng), ADR Draft từ `10-architecture.md`, CR mở từ `00-cr.md`, **Work Item mở từ `00-backlog.md`** (Blocked = gấp), action item `ACT` chưa Xong trong `docs/Ho-so/meetings/` — kèm danh sách đề xuất (❗ = gấp); khối **⚙️ Tính năng đang tắt vì thiếu** (từ `ba-toolkit/scripts/thieu.js`: tài liệu cũ thiếu bảng phần tử / ma trận E / cột Cách chạy / §4b / data-chosen / Trace-Proof / verification mới → checker im) kèm một đề xuất không gấp `--bo-sung`.
-2. **Diễn giải** cho người dùng: in nguyên bảng của script + bổ sung ngữ cảnh nếu biết thêm (vd cuộc trò chuyện đang dở việc gì).
+2. **Diễn giải** cho người dùng: in nguyên bảng của script + bổ sung ngữ cảnh nếu biết thêm (vd cuộc trò chuyện đang dở việc gì). Lời diễn giải dùng chữ người dùng hiểu — "cổng", "bản đã chốt", "nợ có hạn chót", "bộ kiểm tra" (không "gate/baseline/checker"); mã như `S2`, `GĐ-03` để cuối câu trong ngoặc (`explain/README.md` → "Thuật ngữ bạn sẽ gặp").
 3. **Đối chiếu nhanh** (script không thấy được): tracking có lệch hiện trạng file không → nghi ngờ thì chạy `node .claude/skills/ba-track/scripts/refresh.js --dry` trước.
 4. **AskUserQuestion** với các đề xuất của script làm option (tối đa 4, ❗ lên đầu, option đầu ghi "(Khuyến nghị)") + để người dùng chọn.
 5. Người dùng chọn → **invoke skill đó luôn** (qua Skill tool). Không chọn → dừng, chỉ để lại bảng trạng thái.

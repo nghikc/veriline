@@ -56,7 +56,7 @@ function group(items, { step = 20 } = {}) {
 }
 
 const OAN = 'node .claude/skills/ba-toolkit/scripts/oan.js';
-const oanLine = (checker) => `Báo oan (checker sai, đừng lách): ${OAN} add --checker ${checker || '<skill/script>'} --code <MÃ> --where <file:dòng> --reason "…"`;
+const oanLine = (checker) => `Bộ kiểm báo sai? Ghi lại thay vì sửa tài liệu để qua mặt: ${OAN} add --checker ${checker || '<skill/script>'} --code <MÃ> --where <file:dòng> --reason "…"`;
 
 function render(items, { cap = 50, step = 20, checked = [], unchecked = [], oan = '', oanHint = true } = {}) {
   const gs = group(items, { step });

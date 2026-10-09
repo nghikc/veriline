@@ -87,7 +87,7 @@ function walk(dir, gốc, ra) {
 }
 const files = [];
 for (const v of vào) {
-  if (!fs.existsSync(v)) { console.error(`Không thấy: ${v}`); process.exitCode = 2; continue; }
+  if (!fs.existsSync(v)) { console.error(`Không thấy: ${v}\nSửa: dựng file HTML trước (\`/ba-portal\`) hoặc kiểm lại đường dẫn.`); process.exitCode = 2; continue; }
   if (fs.statSync(v).isDirectory()) files.push(...walk(v, v, []).sort());
   else files.push(v);
 }

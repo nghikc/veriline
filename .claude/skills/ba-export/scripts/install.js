@@ -151,7 +151,7 @@ const allowUnsafe = argv.includes('--allow-unsafe');
 const destRoot = path.resolve(optVal('--to') || process.cwd());
 const scopeArg = optVal('--scope');
 if (scopeArg && !['docs', 'full'].includes(scopeArg)) {
-  console.error(`Error: --scope ${scopeArg} — chỉ nhận docs | full.`);
+  console.error(`Lỗi: --scope ${scopeArg} — chỉ nhận docs | full.\nSửa: chạy lại với --scope docs (chỉ làm tài liệu) hoặc bỏ cờ này (cài đủ).`);
   process.exit(2);
 }
 
@@ -206,11 +206,11 @@ const scope = scopeArg || (manifest.scope === 'docs' ? 'docs' : 'full');
 const docsOnly = scope === 'docs';
 // Hồ sơ cài (M6): cờ → manifest → (đích đã có manifest mà chưa có trường = cài trước M6 = full) → core cho lần cài đầu.
 const profileArg = optVal('--profile') || (argv.includes('--mini') ? 'mini' : null);
-if (profileArg && !['core', 'mini', 'full'].includes(profileArg)) { console.error(`Error: --profile ${profileArg} — chỉ nhận core | mini | full.`); process.exit(2); }
+if (profileArg && !['core', 'mini', 'full'].includes(profileArg)) { console.error(`Lỗi: --profile ${profileArg} — chỉ nhận core | mini | full.\nSửa: chạy lại với --profile core (mặc định), mini hoặc full.`); process.exit(2); }
 const lầnĐầu = !fs.existsSync(manifestPath);
 const installProfile = profileArg || manifest.installProfile || (lầnĐầu ? 'core' : 'full');
 const devArg = argv.includes('--dev') ? true : argv.includes('--no-dev') ? false : null;
-if (devArg && docsOnly) { console.error('Error: --dev cùng --scope docs — phạm vi docs là dự án KHÔNG viết code, bộ dev vô nghĩa. Bỏ một trong hai.'); process.exit(2); }
+if (devArg && docsOnly) { console.error('Lỗi: --dev cùng --scope docs — phạm vi docs là dự án KHÔNG viết code, bộ dev vô nghĩa.\nSửa: bỏ một trong hai cờ rồi chạy lại.'); process.exit(2); }
 const withDev = installProfile === 'full' ? !docsOnly : devArg !== null ? devArg : !!manifest.dev;
 
 // Nguồn: --from → manifest của đích (chạy từ dự án tiêu dùng) → repo cạnh script → ba-source.txt
@@ -313,30 +313,30 @@ if (!fs.existsSync(skillsSrc) || !looksLikeToolkit(srcRoot)) {
     // Có đủ skill ba-* nhưng thiếu `example/` → đây là một dự án ĐANG DÙNG toolkit,
     // không phải repo nguồn. Xảy ra khi chạy từ dự án tiêu dùng mà chưa có manifest
     // (vd bản cài từ trước khi có tính năng manifest).
-    console.error(`Error: "${srcRoot}" trông như một dự án ĐANG DÙNG toolkit, không phải repo nguồn.`);
+    console.error(`Lỗi: "${srcRoot}" trông như một dự án ĐANG DÙNG toolkit, không phải repo nguồn.`);
     console.error(`Chưa có ${MANIFEST_REL} nên script không biết repo toolkit nằm ở đâu.`);
     console.error(`Chạy MỘT lần kèm --from để tạo dấu vết, từ lần sau không cần nữa:`);
     console.error(`  node "${__filename}" --from <đường-dẫn-repo-BA_toolkit>`);
   } else {
-    console.error(`Error: nguồn không phải repo BA toolkit (thiếu skill ba-* hoặc example/docs/00-tracking.md): ${srcRoot}`);
+    console.error(`Lỗi: nguồn không phải repo BA toolkit (thiếu skill ba-* hoặc example/docs/00-tracking.md): ${srcRoot}`);
     if (recordedSrc) console.error(`Đã thử 'ba-source.txt' = ${recordedSrc} nhưng không hợp lệ.`);
-    console.error(`Dùng --from <đường-dẫn-repo-BA_toolkit> để chỉ định nguồn.`);
+    console.error(`Sửa: thêm --from <đường-dẫn-repo-BA_toolkit> để chỉ định nguồn.`);
   }
   process.exit(1);
 }
 if (srcRoot === destRoot) {
-  console.error(`Error: đích trùng nguồn (${destRoot}) — không tự cài đè chính mình.`);
-  console.error(`Hãy chạy từ trong dự án đích, hoặc dùng --to <path khác>.`);
+  console.error(`Lỗi: đích trùng nguồn (${destRoot}) — không tự cài đè chính mình.`);
+  console.error(`Sửa: chạy từ trong dự án đích, hoặc thêm --to <thư mục dự án>.`);
   process.exit(1);
 }
 // Nguồn DIRTY: bản cài sẽ mang skill đang sửa dở — thứ không commit nào ghi lại, manifest trỏ tới một
 // commit KHÔNG chứa nó, và lần update sau không so được. Chặn khi đích là dự án thật (có .git).
 const nguồnDirty = dirtyPaths(srcRoot) || [];
 if (nguồnDirty.length && !dryRun && !allowDirty && fs.existsSync(path.join(destRoot, '.git'))) {
-  console.error(`Error: nguồn còn ${nguồnDirty.length} thay đổi CHƯA COMMIT trong phần sẽ copy — từ chối cài vào dự án thật.`);
+  console.error(`Lỗi: nguồn còn ${nguồnDirty.length} thay đổi CHƯA COMMIT trong phần sẽ copy — từ chối cài vào dự án thật.`);
   for (const f of nguồnDirty.slice(0, 10)) console.error(`   ${f}`);
   if (nguồnDirty.length > 10) console.error(`   … và ${nguồnDirty.length - 10} file nữa`);
-  console.error('Commit ở nguồn trước, hoặc chạy lại kèm --allow-dirty (manifest sẽ ghi lại nguồn dirty).');
+  console.error('Sửa: commit ở nguồn trước, hoặc chạy lại kèm --allow-dirty (bộ cài sẽ ghi lại là nguồn chưa commit).');
   process.exit(1);
 }
 if (nguồnDirty.length) console.log(`⚠️  Nguồn còn ${nguồnDirty.length} thay đổi chưa commit trong phần sẽ copy${allowDirty ? ' (--allow-dirty)' : ''} — bản cài sẽ không khớp commit nào.\n`);
@@ -368,7 +368,7 @@ if (quétĐỏ || quétNguồn.thiếu || (quétNguồn.canhBao || []).length) {
   for (const c of (quétNguồn.canhBao || []).slice(0, 10)) inRa(`   ⚠️  ${c}`);
   if (quétĐỏ && !dryRun && !allowUnsafe) {
     console.error('Từ chối cài: skill/hook từ nguồn này sẽ chạy trong dự án đích. Soi từng hit ở nguồn (node .claude/skills/ba-toolkit/scripts/scan-skills.js .claude);');
-    console.error('hợp lệ → thêm mục có hạn vào ba-toolkit/references/security-allowlist.json; đã soi và chấp nhận rủi ro → chạy lại kèm --allow-unsafe.');
+    console.error('Sửa: hợp lệ → thêm mục có hạn vào ba-toolkit/references/security-allowlist.json; đã soi và chấp nhận rủi ro → chạy lại kèm --allow-unsafe.');
     process.exit(1);
   }
   if (quétĐỏ && allowUnsafe && !dryRun) console.log('   (--allow-unsafe — vẫn cài; manifest ghi lại kết quả quét)');
@@ -415,11 +415,11 @@ const devCanon = regKey('scope.dev.skills');
 // gõ rõ --profile core|mini mà khoá vắng → lỗi, không đoán bừa bộ skill.
 let installProfileThật = installProfile;
 if (installProfile !== 'full' && !(installProfile === 'mini' ? miniCanon : coreCanon).length) {
-  if (profileArg) { console.error(`Error: --profile ${installProfile} nhưng conv-registry.md không có khóa profile.${installProfile}.skills — không đoán bừa bộ skill. Dùng --profile full.`); process.exit(2); }
+  if (profileArg) { console.error(`Lỗi: --profile ${installProfile} nhưng bản nguồn này chưa khai bộ skill "${installProfile}" — không đoán bừa bộ skill.\nSửa: chạy lại với --profile full, hoặc cập nhật bản nguồn (git pull).`); process.exit(2); }
   installProfileThật = 'full';
 }
 if (docsOnly && !devCanon.length) {
-  console.error('Error: --scope docs nhưng conv-registry.md không có khóa scope.dev.skills — không đoán bừa bộ skill dev.');
+  console.error('Lỗi: --scope docs nhưng bản nguồn này chưa khai danh sách skill dev — không đoán bừa bộ skill dev.\nSửa: cập nhật bản nguồn (git pull) rồi chạy lại, hoặc bỏ --scope docs.');
   process.exit(2);
 }
 let skillNames = fs.readdirSync(skillsSrc, { withFileTypes: true })
@@ -481,7 +481,7 @@ if (expCanon.length) {
   if (expCài.length) console.log(`${tag}⚗️ thử nghiệm: cài ${expCài.length} skill theo --with-experimental — ${expCài.join(', ')}\n`);
   if (expGiữ.length) console.log(`${tag}⚗️ thử nghiệm: đích đã có ${expGiữ.join(', ')} — GIỮ và cập nhật (không tự gỡ).\n`);
 } else if (withExp) {
-  console.log(`${tag}⚠️  --with-experimental nhưng conv-registry.md chưa có khoá skills.experimental — cài như cũ (mọi skill).\n`);
+  console.log(`${tag}⚠️  --with-experimental nhưng bản nguồn này chưa khai skill thử nghiệm nào — cài như cũ (mọi skill).\n`);
 }
 // Agent chỉ phục vụ một skill thử nghiệm (canon `agents.experimental`, dạng `agent:skill`) đi theo skill đó:
 // skill không cài thì agent không cài — agent trỏ vào reference của skill vắng là lối đi cụt.
@@ -583,14 +583,15 @@ if (staleNames.length) {
 // 2) File hướng dẫn (prepend banner)
 const guides = [
   { src: 'README.md', dest: 'BA-TOOLKIT-README.md' },
-  { src: path.join('site', 'huong-dan.md'), dest: 'BA-TOOLKIT-HUONG-DAN.md' },   // hướng dẫn sử dụng 8 mục (15/09/2026), cùng nguồn với site/
+  // tuỳChọn (M8): bản công khai không mang site/ (hướng dẫn cũ, số skill/đường dẫn của repo phát triển) — vắng thì im, không báo "không thấy"
+  { src: path.join('site', 'huong-dan.md'), dest: 'BA-TOOLKIT-HUONG-DAN.md', tuỳChọn: true },   // hướng dẫn sử dụng 8 mục (15/09/2026), cùng nguồn với site/
   { src: path.join('example', 'GUIDELINE.md'), dest: 'BA-TOOLKIT-GUIDELINE.md' },
 ];
 let guideCount = 0;
 for (const g of guides) {
   const s = path.join(srcRoot, g.src);
   if (!fs.existsSync(s)) {
-    console.log(`  ${tag}(bỏ qua ${g.src} — không thấy)`);
+    if (!g.tuỳChọn) console.log(`  ${tag}(bỏ qua ${g.src} — không thấy)`);
     continue;
   }
   const r = writeTracked(g.dest, Buffer.from(IMPORT_BANNER + fs.readFileSync(s, 'utf8'), 'utf8'));
@@ -988,7 +989,7 @@ if (checkOnly) {
   }
   if (claudePending) {
     console.log(`📥 CLAUDE.md — khối briefing \`BA-TOOLKIT:briefing\` chưa khớp bản nguồn (sẽ được ghi khi cập nhật).`);
-    console.log(`   Đây là thứ agent ở dự án đích LUÔN nạp — thiếu/cũ thì nó không biết pipeline, gate, bổn phận cập nhật docs/.`);
+    console.log(`   Đây là thứ agent ở dự án đích LUÔN nạp — thiếu/cũ thì nó không biết pipeline, các cổng, bổn phận cập nhật docs/.`);
   }
   if (keptLocal.length || conflicts.length) {
     console.log(`\n⚠️  ${keptLocal.length + conflicts.length} file ĐÃ SỬA CỤC BỘ ở đích (sẽ được GIỮ NGUYÊN khi cập nhật):`);
@@ -998,7 +999,7 @@ if (checkOnly) {
     if (conflicts.length) console.log(`   → ${conflicts.length} file xung đột: bản cục bộ đang che mất cập nhật từ nguồn. Xử lý bằng --force (ghi đè) sau khi tự merge.`);
   }
   if (expGiữ.length || expBỏ.length) {
-    console.log(`\n⚗️ Skill thử nghiệm (canon skills.experimental — chưa từng chạy thật trên dự án nào):`);
+    console.log(`\n⚗️ Skill thử nghiệm (chưa từng chạy thật trên dự án nào):`);
     for (const n of expGiữ) console.log(`   ${n}  (đã cài — thử nghiệm, giữ và cập nhật)`);
     for (const n of expBỏ) console.log(`   ${n}  (thử nghiệm — chưa cài; muốn dùng thì thêm --with-experimental)`);
   }
@@ -1009,7 +1010,7 @@ if (checkOnly) {
   }
   const depChờ = depHere.filter((x) => x.gỡ);
   if (depHere.length) {
-    console.log(`\n🔀 ${depHere.length} skill ĐÃ GỘP còn ở đích (canon deprecated.skills):`);
+    console.log(`\n🔀 ${depHere.length} skill ĐÃ GỘP vào skill khác mà còn bản cũ ở đích:`);
     for (const x of depHere) console.log(`   ${x.cũ} → ${x.mới}${x.gỡ ? '  (cập nhật sẽ gỡ bản cũ)' : `  (GIỮ — ${x.sửa.length} file sửa cục bộ)`}`);
   }
   // Có gì đổi ở NGUỒN kể từ commit đích đang bám — đọc được trước khi quyết cập nhật.
@@ -1102,13 +1103,13 @@ const DỜI_FILE = [   // đường dẫn CŨ ở đích — chỉ đọc/xoá k
 // không đáng để người dùng phải nhớ (0,15s cho 96 file).
 // KHÔNG được để bước này làm hỏng lần cài: chỉ mục là thứ SINH RA, thiếu nó thì mọi thứ khác
 // vẫn chạy. Node < 22 không có `node:sqlite` → báo rõ rồi đi tiếp, không ném lỗi.
-if (!dryRun) {
+// M8: gói không có ba-index (vd `core`) → im hẳn; gợi lệnh của skill không được cài là chỉ người dùng vào ngõ cụt.
+const buildJsĐích = path.join(destRoot, '.claude', 'skills', 'ba-index', 'scripts', 'build.js');
+if (!dryRun && fs.existsSync(buildJsĐích)) {
   const docsĐích = path.join(destRoot, 'docs');
-  const buildJs = path.join(destRoot, '.claude', 'skills', 'ba-index', 'scripts', 'build.js');
+  const buildJs = buildJsĐích;
   if (!fs.existsSync(docsĐích)) {
     console.log(`  ${tag}chỉ mục — bỏ qua: đích chưa có docs/ (dựng sau bằng: node .claude/skills/ba-index/scripts/build.js docs)`);
-  } else if (!fs.existsSync(buildJs)) {
-    console.log(`  ${tag}chỉ mục — bỏ qua: không thấy ba-index/build.js`);
   } else {
     const r = spawnSync(process.execPath, [buildJs, docsĐích], { cwd: destRoot, encoding: 'utf8' });
     if (r.status === 0) {

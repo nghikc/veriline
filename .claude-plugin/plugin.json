@@ -1,0 +1,10 @@
+{
+  "name": "veriline",
+  "version": "1.0.0-beta.2",
+  "description": "Cửa cài Veriline: một skill veriline-setup cài bộ BA toolkit (skill, agent, hook, khối CLAUDE.md) vào dự án đang mở bằng install.js trong cache plugin.",
+  "author": { "name": "Veriline" },
+  "homepage": "https://github.com/nghikc/veriline",
+  "repository": "https://github.com/nghikc/veriline",
+  "license": "MIT",
+  "keywords": ["business-analysis", "requirements", "srs", "test-case", "vietnamese"]
+}

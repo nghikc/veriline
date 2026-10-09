@@ -449,12 +449,12 @@ if (require.main === module) {
     cờ.ban = true;
     if (sửa) {
       process.stderr.write(
-        `[ba-toolkit hook · FG] TỪ CHỐI sửa \`${đích}\` — ${vì}.\n`
+        `[Veriline · chặn sửa cấu hình hook] TỪ CHỐI sửa \`${đích}\` — ${vì} (FG).\n`
         + '  Đổi hook/cấu hình hook ở dự án đích là việc của NGƯỜI: sửa tay, hoặc cập nhật toolkit bằng\n'
         + '  `ba-export` (install.js). Ngưỡng/công tắc riêng → nhờ người dùng sửa `.claude/ba-hooks.json`.\n');
     } else {
       process.stderr.write(
-        `[ba-toolkit hook · FG] TỪ CHỐI đọc \`${đích}\` — ${vì}.\n`
+        `[Veriline · chặn đọc file bí mật] TỪ CHỐI đọc \`${đích}\` — ${vì} (FG).\n`
         + '  Đây là phép kiểm DUY NHẤT của toolkit chặn cứng thay vì cảnh báo: một cảnh báo sai mất vài\n'
         + '  giây, còn một bí mật đã vào context thì không rút lại được.\n'
         + '  Cần giá trị trong đó → hỏi người dùng, hoặc đọc bản mẫu (`.env.example`) vốn được cho qua.\n');

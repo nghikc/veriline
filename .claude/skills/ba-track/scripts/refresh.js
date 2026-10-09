@@ -38,7 +38,7 @@ const FORCE = process.argv.includes('--force');
 const DOCS = path.resolve(argv[0] || 'docs');
 const TRACKING = path.join(DOCS, '00-tracking.md');
 
-if (!fs.existsSync(DOCS)) { console.error(`Không thấy ${DOCS}`); process.exit(2); }
+if (!fs.existsSync(DOCS)) { console.error(`Không thấy ${DOCS}\nSửa: chạy từ gốc dự án (nơi có docs/), hoặc truyền đúng thư mục: node .claude/skills/ba-track/scripts/refresh.js docs`); process.exit(2); }
 
 // Bộ file BA mỗi màn — thứ tự cột chuẩn. KHÔNG hardcode 9 file: hồ sơ `mini` chỉ có 5
 // (conv-gates.md → "Hồ sơ dự án"), nên danh sách lấy từ profile.js. html map ra html-design.html.
@@ -240,7 +240,7 @@ for (const code of Object.keys(old)) {
 if (mất.length && !DRY && !FORCE) {
   console.error(`\n✋ Từ chối ghi: ${mất.length}/${Object.keys(old).length} dòng sẽ bị bỏ (${mất.join(', ')}).`);
   console.error(`   Quét ra ${screens.length} folder màn trong ${DOCS}.`);
-  console.error('   Kiểm tra docsDir + quy ước tên folder trước. Nếu ĐÚNG là đã xoá màn: chạy lại với --force.');
+  console.error('   Sửa: kiểm thư mục tài liệu + quy ước tên folder màn (`<Mã> - <Tên>`) trước; nếu ĐÚNG là đã bỏ màn thì dùng `/ba-remove`, hoặc chạy lại với --force.');
   process.exit(2);
 }
 
@@ -256,7 +256,7 @@ if (dòngKhôngMã.length) changes.push(`giữ nguyên ${dòngKhôngMã.length} 
 // Chốt cuối: dòng chữ NGOÀI bảng không được ít đi. Có ít đi là script này đang xoá chữ người viết — từ chối như mục 3.
 const ngoàiBảng = (t) => t.split('\n').filter(l => l.trim() && !/^\|/.test(l)).length;
 if (vănBảnCũ && ngoàiBảng(out) < ngoàiBảng(vănBảnCũ) && !FORCE) {
-  console.error(`\n✋ Từ chối ghi: bản mới mất ${ngoàiBảng(vănBảnCũ) - ngoàiBảng(out)} dòng chữ ngoài bảng so với ${path.basename(TRACKING)} hiện tại. Chạy lại với --force nếu chủ ý.`);
+  console.error(`\n✋ Từ chối ghi: bản mới mất ${ngoàiBảng(vănBảnCũ) - ngoàiBảng(out)} dòng chữ ngoài bảng so với ${path.basename(TRACKING)} hiện tại.\n   Sửa: chép đoạn chữ ngoài bảng ra chỗ khác trước, hoặc chạy lại với --force nếu chủ ý bỏ.`);
   process.exit(2);
 }
 

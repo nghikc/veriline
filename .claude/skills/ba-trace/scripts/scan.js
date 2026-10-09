@@ -38,7 +38,7 @@ const DOCS = path.resolve(argv[0] || 'docs');
 const { readProfile } = require(path.join(__dirname, '..', '..', 'ba-toolkit', 'scripts', 'profile.js'));
 const HỒ_SƠ = readProfile(DOCS);
 const MINI = HỒ_SƠ === 'mini';
-if (!fs.existsSync(DOCS)) { console.error(`Không thấy ${DOCS}`); process.exit(2); }
+if (!fs.existsSync(DOCS)) { console.error(`Không thấy ${DOCS}\nSửa: chạy từ gốc dự án (nơi có docs/), hoặc truyền đúng thư mục tài liệu làm tham số đầu.`); process.exit(2); }
 const read = (p) => { try { return fs.readFileSync(p, 'utf8'); } catch { return ''; } };
 
 /* ---- Mẫu ID theo conventions.md (registry id.prefixes) ---- */

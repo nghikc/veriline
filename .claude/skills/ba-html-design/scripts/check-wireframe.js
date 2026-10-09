@@ -75,7 +75,7 @@ for (const [mã, vs] of Object.entries(PA)) {
   for (const v of vs) {
     const lý = (v.lýDo || '').normalize('NFC');
     const vế = lý.split('·').map(x => x.trim());
-    if (vế.length !== 3 || vế.some(x => !x)) fail(`WF-VAR-REASON ${mã} ${tên(v)}: \`data-reason\` phải đủ 3 vế "việc chính ở đâu · khác phương án kia gì · đánh đổi" (đang có ${lý ? vế.filter(Boolean).length : 0} vế)`);
+    if (vế.length !== 3 || vế.some(x => !x)) fail(`WF-VAR-REASON ${mã} ${tên(v)}: \`data-reason\` phải đủ 3 ý "việc chính ở đâu · khác phương án kia gì · đánh đổi" (đang có ${lý ? vế.filter(Boolean).length : 0} ý)`);
     const sáo = SÁO.filter(c => new RegExp(`(^|[^\\p{L}])${c}(?=[^\\p{L}]|$)`, 'iu').test(lý));
     if (sáo.length) fail(`WF-VAR-CLICHE ${mã} ${tên(v)}: lý do dùng lời sáo "${sáo.join('", "')}" — phải gọi tên việc chính của màn, không khen hình`);
     const dup = v.sốs.filter((n, i) => v.sốs.indexOf(n) !== i);

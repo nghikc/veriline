@@ -142,7 +142,7 @@ for (const v of seen) {
   for (const m of scope.matchAll(/<button[^>]*class="[^"]*icon-btn[^"]*"[\s\S]{0,300}?<\/button>/g)) {
     if (/class="badge"/.test(m[0])) bad.add('"badge" (huy hiệu đếm trên icon) → "badge-count"');
   }
-  if (bad.size) fail(`${v.screen}: tên class khung lệch canon — ${[...bad].join(' · ')}`);
+  if (bad.size) fail(`${v.screen}: tên class khung lệch chuẩn (shell.md) — ${[...bad].join(' · ')}`);
 }
 
 /* ---- 5b. Emoji trong khung ----
@@ -176,7 +176,7 @@ for (const v of seen) {
     // nhóm ui phải thuộc tập canon — đó mới là chỗ đã trôi (Idle/Default/Empty/Lọc rỗng).
     if (!uiBtns.map(bare).includes('Mặc định')) fail(`${v.screen}: nhóm \`ui\` thiếu nút "Mặc định" (đang có: ${uiBtns.join(', ') || 'trống'})`);
     const strange = uiBtns.filter((l) => !UI_LABELS.includes(bare(l)));
-    if (strange.length) fail(`${v.screen}: nhóm \`ui\` có nhãn ngoài tập canon — ${strange.map((x) => `"${x}"`).join(', ')} (chỉ được dùng: ${UI_LABELS.join(' · ')}; ca cụ thể để ở nhóm error/biz)`);
+    if (strange.length) fail(`${v.screen}: nhóm \`ui\` có nhãn ngoài tập chuẩn — ${strange.map((x) => `"${x}"`).join(', ')} (chỉ được dùng: ${UI_LABELS.join(' · ')}; ca cụ thể để ở nhóm error/biz)`);
   }
   // MỌI nút ca lỗi phải nối được về một dòng `E-S..` của ma trận lỗi. Một nút không có mã nghĩa là
   // hoặc ca đó chưa được đặc tả (thiếu dòng trong srs), hoặc nút bịa ra khi dựng HTML — cả hai đều
@@ -199,7 +199,7 @@ if (JSON_MODE) {
     findings: out.filter((o) => o.lv === '❌' || o.lv === '⚠️ ').map((o) => o.lv.trim() + ' ' + o.m),
   }, null, 2));
 } else {
-  console.log('\n=== Soát khung html-design (canon: ba-html-design/shell.md) ===');
+  console.log('\n=== Soát khung html-design (chuẩn: ba-html-design/shell.md) ===');
   for (const o of out) console.log(`  ${o.lv} ${o.m}`);
   console.log(`\n=== ${errors} lỗi · ${warns} cảnh báo ===`);
 }

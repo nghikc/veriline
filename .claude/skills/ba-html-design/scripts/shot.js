@@ -93,7 +93,7 @@ function walk(dir, gốc, ra) {
 const files = []; // { abs, rel, code }
 let đầuVàoHỏng = false;
 for (const v of vào) {
-  if (!fs.existsSync(v)) { console.error(`Không thấy: ${v}`); đầuVàoHỏng = true; continue; }
+  if (!fs.existsSync(v)) { console.error(`Không thấy: ${v}\nSửa: dựng html-design.html của màn trước (\`/ba-html-design <màn>\`) hoặc kiểm lại đường dẫn.`); đầuVàoHỏng = true; continue; }
   if (fs.statSync(v).isDirectory()) for (const f of walk(v, v, []).sort()) files.push({ abs: path.resolve(f), rel: path.relative(v, f).split(path.sep).join('/') });
   else files.push({ abs: path.resolve(v), rel: path.basename(path.dirname(path.resolve(v))) + '/' + path.basename(v) });
 }

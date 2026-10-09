@@ -58,12 +58,13 @@ if (CMD === 'check') {
   if (lỗi.length) { for (const l of lỗi) console.log('  ❌ ' + l); process.exit(1); }
   console.log(`  ✓ ${Object.keys(LÁT).length - 1} lát quy ước, mọi mục khai đều có trong references/`); process.exit(0);
 }
+const CẢ_BỘ = ['conventions', 'conv-mermaid', 'conv-ledgers', 'conv-gates', 'conv-registry'];   // tên file (không phải chữ in ra)
 if (CMD === 'slice') {
-  const skill = argv[1]; if (!skill) { console.error('slice <skill>'); process.exit(2); }
+  const skill = argv[1]; if (!skill) { console.error('Thiếu tên skill.\nSửa: conventions.js slice <skill> (vd conventions.js slice ba-review).'); process.exit(2); }
   const refs = LÁT[skill] || LÁT._mặcĐịnh; const phần = refs.map(tìm); const thiếu = phần.filter((p) => p.lỗi);
   if (thiếu.length) { for (const t of thiếu) console.error('❌ ' + t.lỗi); process.exit(1); }
   const md = `# Lát quy ước cho \`${skill}\` — ${phần.length} mục từ conventions.md/phụ lục (nguồn sự thật vẫn là file gốc)\n\n> Sinh bởi \`conventions.js slice ${skill}\`. Cần mục khác → \`node .claude/skills/ba-toolkit/scripts/conventions.js list\`.\n\n` + phần.map((p) => p.text.trim()).join('\n\n---\n\n') + '\n';
-  const out = opt('--out'); if (out) { fs.writeFileSync(out, md); console.log(`→ ${out} (${(Buffer.byteLength(md) / 1024).toFixed(0)} KB, ${phần.length} mục; cả bộ ${(['conventions', 'conv-mermaid', 'conv-ledgers', 'conv-gates', 'conv-registry'].reduce((a, f) => a + fs.statSync(path.join(DIR, f + '.md')).size, 0) / 1024).toFixed(0)} KB)`); }
+  const out = opt('--out'); if (out) { fs.writeFileSync(out, md); console.log(`→ ${out} (${(Buffer.byteLength(md) / 1024).toFixed(0)} KB, ${phần.length} mục; cả bộ ${(CẢ_BỘ.reduce((a, f) => a + fs.statSync(path.join(DIR, f + '.md')).size, 0) / 1024).toFixed(0)} KB)`); }
   else process.stdout.write(md);
   process.exit(0);
 }

@@ -52,7 +52,7 @@ const [DIR_ARG, KIND] = pos;
 const dừng = (m) => { console.error(m); process.exit(2); };
 if (!DIR_ARG || !LOẠI.includes(KIND)) dừng(`Dùng: bo-sung.js <folder màn> ${LOẠI.join('|')} [--root <code>] [--write] [--json]`);
 const DIR = path.resolve(DIR_ARG);
-if (!fs.existsSync(DIR) || !fs.statSync(DIR).isDirectory()) dừng(`Không thấy folder màn: ${DIR_ARG}`);
+if (!fs.existsSync(DIR) || !fs.statSync(DIR).isDirectory()) dừng(`Không thấy folder màn: ${DIR_ARG}\nSửa: truyền đúng folder màn (vd "docs/Screen-spec/S01 - Login"); chưa có thì chạy \`/ba-screens\`.`);
 const MÃ = (path.basename(DIR).match(/^(S\d+)/) || [])[1] || null;
 const SỐ = MÃ ? MÃ.slice(1) : 'xx';
 const đọc = (f) => { try { return fs.readFileSync(f, 'utf8'); } catch { return null; } };
@@ -316,7 +316,7 @@ function bảngTC(L) {
 const MÃ_TC = /^\|\s*\*{0,2}(TC-S\d+-\d+)\*{0,2}[^|]*\|/;
 function cáchChạy() {
   const f = path.join(DIR, 'test.md'); const txt = đọc(f);
-  if (txt == null) dừng(`Không có test.md trong ${DIR_ARG}`);
+  if (txt == null) dừng(`Không có test.md trong ${DIR_ARG}\nSửa: chạy \`/ba-test <màn>\` trước.`);
   const ROOT = path.resolve(opt('--root') || path.dirname(DOCS));
   const map = gomTestCode(ROOT);
   const L = txt.split('\n'); const bs = bảngTC(L); const thiếu = bs.filter((b) => !b.cóCách);
@@ -348,7 +348,7 @@ function chènSrs(txt, md, trước) {
 const kq = KIND === 'bang-phan-tu' ? bảngPhầnTử() : KIND === 'ma-tran-loi' ? maTrậnLỗi() : cáchChạy();
 const srsF = path.join(DIR, 'srs.md');
 const srsTxt = KIND === 'cach-chay' ? null : đọc(srsF);
-if (KIND !== 'cach-chay' && srsTxt == null) dừng(`Không có srs.md trong ${DIR_ARG}`);
+if (KIND !== 'cach-chay' && srsTxt == null) dừng(`Không có srs.md trong ${DIR_ARG}\nSửa: chạy \`/ba-screen-spec <màn>\` trước.`);
 const đãCó = KIND === 'bang-phan-tu' ? SE.parse(srsTxt) !== null
   : KIND === 'ma-tran-loi' ? /^\|\s*E-S\d+-\d+\s*\|/m.test(srsTxt)
   : kq.bs.length > 0 && kq.thiếu.length === 0;
@@ -356,7 +356,7 @@ const đãCó = KIND === 'bang-phan-tu' ? SE.parse(srsTxt) !== null
 let ghi = null;
 if (WRITE) {
   if (đãCó) { console.error(`Đã có ${KIND} trong ${KIND === 'cach-chay' ? 'test.md' : 'srs.md'} — không ghi đè (sửa tay, hoặc mở CR nếu tài liệu đã chốt).`); process.exit(2); }
-  if (!kq.dòng.length) { console.error(`Không dựng được dòng nào cho ${KIND} — ${kq.ghiChú.join('; ') || 'thiếu nguồn'}.`); process.exit(1); }
+  if (!kq.dòng.length) { console.error(`Không dựng được dòng nào cho ${KIND} — ${kq.ghiChú.join('; ') || 'thiếu nguồn'}.\nSửa: điền tay mục ${KIND} trong tài liệu của màn (máy không có đủ nguồn để dựng).`); process.exit(1); }
   if (KIND === 'bang-phan-tu') { fs.writeFileSync(srsF, chènSrs(srsTxt, kq.md, [/^##\s+Yêu cầu dữ liệu/i, /^##\s+Ma trận lỗi/i, /^##\s+Phụ thuộc ngoài/i, /^##\s+Giả định/i])); ghi = srsF; }
   else if (KIND === 'ma-tran-loi') {
     const L = srsTxt.split('\n'); const i = L.findIndex((l) => /^##\s+Ma trận lỗi/i.test(l));

@@ -55,7 +55,7 @@ if (singleMode) {
   }
   singleInput = path.resolve(argv[1]);
   if (!fs.existsSync(singleInput)) {
-    console.error(`Error: file does not exist: ${singleInput}`);
+    console.error(`Lỗi: không thấy file ${singleInput}\nSửa: kiểm lại đường dẫn file .md muốn dựng (vd docs/01-requirements.md).`);
     process.exit(1);
   }
   outFile = path.resolve(argv[2] || singleInput.replace(/\.md$/i, '.html'));
@@ -66,7 +66,7 @@ if (singleMode) {
   // tại đó, không tự dời output của người ta sang chỗ mới sau một lần nâng cấp toolkit.
   outFile = path.resolve(argv[1] || require('../../ba-toolkit/scripts/docpath.js').writePathFor(docsDir, 'portal.html'));
   if (!fs.existsSync(docsDir)) {
-    console.error(`Error: docsDir does not exist: ${docsDir}`);
+    console.error(`Lỗi: không thấy thư mục tài liệu ${docsDir}\nSửa: chạy từ gốc dự án (nơi có docs/) hoặc truyền đúng thư mục: node .claude/skills/ba-portal/scripts/build.js docs`);
     process.exit(1);
   }
 }

@@ -236,4 +236,12 @@ gate.hook.events = PreToolUse:hook-guard.js PostToolUse:hook-lint.js Stop:hook-g
 # `vendor/` là lỗi · mọi SKILL.md có `upstream: <gói>@<bản>/…` phải có frontmatter `license:` trỏ notices, và notices
 # nhắc tên skill + `<gói>` + `<bản>`. Thêm vendor/clone mới mà quên notice là đỏ.
 release.notices = LICENSE THIRD_PARTY_NOTICES.md
+# Ngôn ngữ người dùng (M8, docs/decisions/34) — lint 45: chuỗi IN RA (console.*, process.std*.write, systemMessage/reason, mảng
+# thông báo `[Veriline ·`) của script thuộc skill `profile.core.skills` + ba-toolkit không mang các từ nội bộ dưới đây. `_` = dấu
+# cách; từ có chữ HOA so phân biệt hoa/thường (TRẢ ≠ trả). "cổng"/"Cổng phương án" là từ người dùng — GIỮ, không nằm ở đây.
+lang.internal.terms = oan lách bánh_cóc vế TRẢ canon gate conv-registry cost-defaults.json ba-hook-debt.json
+# Script bảo trì (in cho người bảo trì, không cho người dùng) — bỏ khỏi quét.
+lang.internal.skip = agent-golden.js realrun.js real-run.js real-cut.js rule-cover.js trigger-eval.js scan-skills.js check-agents.js lint.js test.js collect-reports.js upstream-diff.js
+# Ngoại lệ HẸP `<skill>/<script không đuôi>:<từ>` — mục không còn bắn là lỗi (thừa thì xoá). Hiện không cần mục nào.
+lang.internal.allow =
 ```

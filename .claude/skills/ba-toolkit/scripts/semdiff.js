@@ -145,10 +145,10 @@ if (require.main === module) {
   const HEAD = cờ('--head', null); // null = cây làm việc
   const DOCS = path.resolve(args.find((a) => !a.startsWith('--') && a !== BASE && a !== HEAD) || 'docs');
 
-  if (!fs.existsSync(DOCS)) { console.error(`Không thấy ${DOCS}`); process.exit(2); }
+  if (!fs.existsSync(DOCS)) { console.error(`Không thấy ${DOCS}\nSửa: chạy từ gốc dự án (nơi có docs/), hoặc truyền đúng thư mục tài liệu.`); process.exit(2); }
   /* ── So sánh ─────────────────────────────────────────────────────────────────────────────── */
   let files;
-  try { files = gomMd(DOCS).sort(); } catch (e) { console.error(e.message); process.exit(2); }
+  try { files = gomMd(DOCS).sort(); } catch (e) { console.error(`Không đọc được tài liệu trong ${DOCS}: ${e.message}\nSửa: kiểm quyền đọc thư mục/tên file lạ rồi chạy lại.`); process.exit(2); }
 
   const thayĐổi = [];
   const cảnhBáoBảng = [];
