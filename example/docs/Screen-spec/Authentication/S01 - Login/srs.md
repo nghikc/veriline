@@ -273,6 +273,28 @@ stateDiagram-v2
   class ACTIVE,INACTIVE task
 ```
 
+**Bảng chuyển trạng thái**
+
+> Dữ liệu: `NguoiDung.trang_thai` (`05-data-model.md`)
+
+| Trạng thái | Tên | Mã dữ liệu | Loại |
+|---|---|---|---|
+| ACTIVE | Đang hoạt động | ACTIVE | đầu |
+| TEMP_LOCKED | Khoá tạm | TEMP_LOCKED | giữa |
+| PERM_LOCKED | Khoá vĩnh viễn | PERM_LOCKED | giữa |
+| INACTIVE | Vô hiệu hoá | INACTIVE | giữa |
+
+| Từ | Sự kiện | Điều kiện | Sang | Ai thực hiện | Trace |
+|---|---|---|---|---|---|
+| ACTIVE | Đăng nhập thành công / sai mật khẩu | `fail_count` < 5 | ACTIVE | Người dùng | BRule-S01-01 |
+| ACTIVE | Sai mật khẩu lần thứ 5 | trong cửa sổ 15 phút | TEMP_LOCKED | Hệ thống | BRule-S01-01 |
+| TEMP_LOCKED | Hết thời gian khoá | đủ 15 phút | ACTIVE | Hệ thống | BRule-S01-02 |
+| TEMP_LOCKED | Cố đăng nhập khi đang khoá | — (API vẫn trả 423) | TEMP_LOCKED | Người dùng | BRule-S01-04 |
+| ACTIVE | Sai tiếp sau 3 lần khoá tạm / khoá thủ công | `so_lan_khoa_tam` = 3, hoặc Admin chủ động | PERM_LOCKED | Hệ thống · Org Admin | BRule-S01-03, UC-S01-04 |
+| PERM_LOCKED | Mở khoá thủ công | — | ACTIVE | Org Admin | R-S05-21 |
+| ACTIVE | Vô hiệu hoá tài khoản | — | INACTIVE | Org Admin | BRule-S01-08 |
+| INACTIVE | Kích hoạt lại | — | ACTIVE | Org Admin | — |
+
 ### 5. Quy trình đăng xuất (Activity)
 
 ```mermaid

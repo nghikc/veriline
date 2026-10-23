@@ -58,7 +58,7 @@ Cho một màn hình (folder `docs/Screen-spec/<Nhóm>/<Màn>/`), sinh 6 file: `
 
 ## Lưu ý
 - srs: yêu cầu chức năng `R-S..` trace `F`/`FR`; phi chức năng `R-S..-N..` trace `NFR`/`BR`; mỗi yêu cầu có acceptance criteria đo được.
-- srs còn 2 mục sơ đồ (Mermaid): **Sơ đồ luồng** — vẽ MỌI luồng của màn, mỗi luồng chọn loại phù hợp (Use case/Activity/Sequence/State); và **ERD** (mục riêng) — thực thể màn đụng tới.
+- srs còn 2 mục sơ đồ (Mermaid): **Sơ đồ luồng** — vẽ MỌI luồng của màn, mỗi luồng chọn loại phù hợp (Use case/Activity/Sequence/State); và **ERD** (mục riêng) — thực thể màn đụng tới. Sơ đồ **State** luôn kèm **bảng chuyển trạng thái** ngay dưới (trạng thái · mã dữ liệu · Loại; từ · sự kiện · điều kiện · sang · ai thực hiện) rồi chạy `node .claude/skills/ba-toolkit/scripts/check-state.js <srs.md> --plain` — mỗi phát hiện `ST-*` sửa trước khi báo xong (khuôn: `assets/templates.md` → "Bảng chuyển trạng thái").
 - userstory: heading mỗi story theo format `US-S0x-NN: <Tên màn hình> - <Nội dung title>`; tiêu chí chấp nhận viết **Given-When-Then**, có kiểm INVEST và story point.
 - design-spec: UI brief cho Designer — bắt buộc liệt kê UI States (Empty/Loading/Error/Success), CTA (Primary/Secondary), microcopy, edge case UX, **Animation chuyển cảnh** (chuyển màn vào/ra + section in/out); **không** vẽ ASCII, **không** quy định mã màu/font.
 - usecase và userstory phải khớp các luồng trong srs.

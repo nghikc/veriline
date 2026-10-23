@@ -9,7 +9,7 @@ Veriline là bộ skill cho [Claude Code](https://claude.com/claude-code) làm *
 
 ## Trong bộ có gì
 
-- **49 skill** (35 `ba-*` phân tích nghiệp vụ · 11 `dev-*` kỷ luật code/QA · 3 `ac-*` kiểm chứng và review), **9 agent** review chuyên trách, **88 script** Node không phụ thuộc thư viện ngoài.
+- **49 skill** (35 `ba-*` phân tích nghiệp vụ · 11 `dev-*` kỷ luật code/QA · 3 `ac-*` kiểm chứng và review), **9 agent** review chuyên trách, **99 script** Node không phụ thuộc thư viện ngoài.
 - **Lõi** (32 skill): pipeline BA chính, cổng review, truy vết, change request, portal, cổng kiểm chứng và bộ `dev-*`.
 - **Mở rộng** (17 skill): discovery (vision, persona, quy trình AS-IS/TO-BE), kiến trúc, API, dữ liệu, prototype, nghiệm thu, cẩm nang… Một số skill gắn nhãn *thử nghiệm* chỉ cài khi bạn chọn.
 - Hook cho Claude Code: chặn đọc file bí mật (`.env`, khoá), nhắc cập nhật ma trận theo dõi, cảnh báo sửa tài liệu đã chốt mà chưa có change request.
@@ -88,20 +88,18 @@ open example/docs/Ho-so/portal.html        # Linux: xdg-open
 
 Bản phát hành không kèm các trang HTML sinh ra (portal, sitemap, onepager); lệnh dựng lại nằm ở `example/GUIDELINE.md` mục 0. Hướng dẫn từng bước trên ví dụ: `example/GUIDELINE.md`. Giải thích từng skill bằng ngôn ngữ nghiệp vụ: `explain/README.md`.
 
-## Gói Cộng đồng và Pro
+## Gói Cộng đồng và Advance
 
-| | **Cộng đồng** (repo này, MIT) | **Pro** (liên hệ) |
+| | **Cộng đồng** (repo này, MIT) | **Advance** (liên hệ) |
 |---|---|---|
 | Pipeline BA đầy đủ, hồ sơ tiếng Việt, portal offline | ✅ | ✅ |
 | Truy vết, cổng review, change request, backlog | ✅ | ✅ |
 | Cổng chống PASS giả: kiểm chứng độc lập, gieo lỗi, review theo bằng chứng | ✅ | ✅ |
 | Đội agent tự chạy cả một phase (điều phối, chia lô, hội đồng bỏ phiếu, chấm điểm) | | ✅ |
-| Đồng bộ Jira/Confluence, sinh tài liệu ngược từ code hay tài liệu cũ | | ✅ |
 | Kiến trúc tích hợp nhiều hệ, mô hình đe doạ, lộ trình tách hệ thống cũ | | ✅ |
-| Báo cáo điều hành, bài tổng quan cho lãnh đạo, nhật ký thay đổi tài liệu đã chốt | | ✅ |
 | Mẫu hồ sơ theo ngành, xuất Word theo mẫu công ty, hỗ trợ triển khai | | ✅ |
 
-Quan tâm gói Pro: mở một issue gắn nhãn `pro`.
+Quan tâm gói Advance: mở một issue gắn nhãn `advance`.
 
 ## Tài liệu bạn sinh ra thuộc về bạn
 

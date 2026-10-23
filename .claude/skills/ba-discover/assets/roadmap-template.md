@@ -44,22 +44,24 @@
 
 ```mermaid
 gantt
-    title Lo trinh phat hanh — truc tuong doi (tuan), cho PO chot ngay
+    title Lộ trình phát hành — trục tương đối (tuần), chờ PO chốt ngày
     dateFormat  YYYY-MM-DD
     axisFormat  Tuan %W
+    excludes    weekends
+    %% Số ngày = ngày làm (5d = 1 tuần). Người làm (không bắt buộc) ghi sau " · " trong tên — vd F01 Đăng nhập · Dev 1
 
-    section Now - MVP (Must)
-    F01 Dang nhap (nen)    :crit, f01, 2026-01-05, 1w
-    F02 Quan ly cong viec  :crit, f02, after f01, 2w
-    Milestone MVP          :milestone, m1, after f02, 0d
+    section Now — MVP (Must)
+    F01 Đăng nhập (nền)    :crit, f01, 2026-01-05, 5d
+    F02 Quản lý công việc  :crit, f02, after f01, 10d
+    Mốc MVP                :milestone, m1, after f02, 0d
 
     section Next (Should)
-    F03 Cong tac nhom      :f03, after f02, 2w
-    F04 Bao cao            :f04, after f02, 1w
-    Milestone R2           :milestone, m2, after f03, 0d
+    F03 Cộng tác nhóm      :f03, after f02, 10d
+    F04 Báo cáo            :f04, after f02, 5d
+    Mốc R2                 :milestone, m2, after f03, 0d
 
     section Later (Could)
-    F05 Goi y thong minh   :f05, after f04, 3w
+    F05 Gợi ý thông minh   :f05, after f04, 15d
 ```
 
 > **Song song ở đây:** `F03` và `F04` cùng `after f02` (không phụ thuộc nhau) → hai thanh khởi động cùng lúc, chạy song song trong phase Next. Nếu chúng phụ thuộc nhau thật thì mới nối `F04 :after f03`.
@@ -69,11 +71,11 @@ gantt
 
 ```mermaid
 flowchart LR
-    F01["F01 Dang nhap"]:::now
-    F02["F02 Quan ly cong viec"]:::now
-    F03["F03 Cong tac nhom"]:::next
-    F04["F04 Bao cao"]:::next
-    F05["F05 Goi y thong minh"]:::later
+    F01["F01 Đăng nhập"]:::now
+    F02["F02 Quản lý công việc"]:::now
+    F03["F03 Cộng tác nhóm"]:::next
+    F04["F04 Báo cáo"]:::next
+    F05["F05 Gợi ý thông minh"]:::later
 
     F01 --> F02
     F02 --> F03

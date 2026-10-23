@@ -159,6 +159,10 @@ Một câu để nhớ ranh giới: **`ba-screens` là bước cuối cùng làm
 
 **Khác skill gần kề.** `ascii-screen` là phác bằng ký tự cho BA tự dùng; `ba-html-design` không đối số là bản đầy đủ có màu cho designer và dev; `ba-proto-first html` là bản **bấm được** để chốt nghiệp vụ. Bản lo-fi này nằm giữa, và chỉ dùng một lần rồi thôi.
 
+**Khi đã có design Figma của team design.** Bản dựng lấy đúng **ảnh, icon và phông** của design (tải từ Figma về `docs/Ho-so/figma-assets/`), không vẽ lại ảnh hay dùng phông tạm. Phông thương mại chưa có tệp thì dùng phông gần giống cho tới khi designer gửi tệp. Chỗ đặc tả có mà design chưa vẽ được dựng theo cùng kiểu và đánh dấu để designer bổ sung.
+
+**Bản bấm được để show khách — chế độ `prototype`.** Sau khi đã dựng các màn, `/ba-html-design prototype` gom chúng thành **một tệp** `docs/Ho-so/prototype-hifi.html`: mở bằng trình duyệt là bấm qua lại như app thật (thanh tab, nút xem chi tiết, giỏ, đặt hàng…), có nút gợi ý chỗ bấm được và danh sách màn. Chỗ bấm được lấy từ mô tả phần tử trong đặc tả ("mở S06", "chạm → S13"); chỗ đặc tả không ghi đích thì bổ sung trong `Ho-so/prototype-nav.json`. Khác `ba-proto-first html`: bản kia là bản bấm được **trước khi đặc tả**, để chốt nghiệp vụ; bản này là bản **đầy đủ giao diện sau khi đặc tả**, để trình chiếu.
+
 ## ba-feasible — Tài liệu này viết ra phần mềm được chưa?
 
 **Làm gì.** Đọc lại toàn bộ tài liệu bằng con mắt của người sắp ngồi xuống code, rồi chỉ ra những chỗ **đọc thì xuôi mà làm thì không làm được**. Ba ví dụ có thật:

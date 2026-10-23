@@ -69,6 +69,11 @@ docs/
     ├── meetings/<ngày>-<chủ-đề>.md  # biên bản họp MoM (tùy chọn, ba-discover meet); KHÔNG vào portal — feed 00-cr khi là thay đổi
     ├── releases/<phase>.md    # gói phát hành theo phase (tùy chọn, ba-accept release); render lẻ, KHÔNG vào portal
     ├── wireframe.html        # wireframe lo-fi đen trắng gom mọi màn (tùy chọn, ba-html-design lofi); KHÔNG vào portal
+    ├── ui-source/            # ảnh mẫu 1–3 màn của app đang chạy thật (ui-source.js) — nguồn giao diện khi dựng; KHÔNG vào portal
+    ├── design-canvas.html    # canvas duyệt mọi html-design (canvas.js gallery) — Duyệt/Cần sửa từng màn; sinh lại được; KHÔNG vào portal
+    ├── prototype-hifi.html   # prototype bấm được gom mọi html-design (ba-html-design prototype) — show khách; sinh lại được; KHÔNG vào portal
+    ├── prototype-nav.json    # bổ sung điều hướng cho prototype-hifi chỗ srs không nói đích (tùy chọn, người viết)
+    ├── figma-assets/         # ảnh/icon/phông xuất từ design Figma + manifest.json (ba-html-design, nguồn là Figma — references/figma-source.md)
     ├── 00-figma-sync.md      # SỔ đối soát Figma (ba-figma-draw push/pull, `figma-sync.js`) — một dòng = màn × nấc lofi|hifi; không xoá dòng
     ├── dbschema/             # schema vật lý DBML sinh từ 05-data-model (tùy chọn, `ba-data-model dbml`)
     ├── api-test/             # kiểm thử API (tùy chọn): checklist.md + api.http (đều do ba-api-test sinh)

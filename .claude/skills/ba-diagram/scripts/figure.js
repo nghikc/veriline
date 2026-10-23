@@ -41,6 +41,9 @@ const CHROME = ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   .find((p) => { try { return p.startsWith('/') ? fs.existsSync(p) : spawnSync('which', [p]).status === 0; } catch { return false; } });
 
 const VENDOR = path.join(__dirname, '..', '..', 'ba-portal', 'assets', 'vendor', 'mermaid.min.js');
+// `gantt` có bộ vẽ riêng (bảng Công việc · Người làm · Bắt đầu · Số ngày + thanh) — không cần Chrome. Cú pháp nó chưa đọc
+// được thì rơi về Mermaid như mọi sơ đồ khác (decision 39).
+const GANTT = require(path.join(__dirname, '..', '..', 'ba-toolkit', 'scripts', 'gantt.js'));
 
 /** Bóc mọi khối ```mermaid, kèm tiêu đề gần nhất phía trên để đặt tên file cho có nghĩa. */
 function bócSơĐồ(nội) {
@@ -132,9 +135,12 @@ const chọn = TẤT_CẢ ? sơĐồ : [sơĐồ[CHỈ_SỐ - 1]].filter(Boolean
 if (!chọn.length) { console.error(`--index ${CHỈ_SỐ} vượt quá ${sơĐồ.length} sơ đồ có trong file`); process.exit(2); }
 
 fs.mkdirSync(OUT, { recursive: true });
-const kq = renderNhiều(chọn);
+const gantt = chọn.map((d) => { if (!GANTT.làGantt(d.mã)) return null; const g = GANTT.đọcGantt(d.mã); if (!g.ok) console.log(`  · gantt dòng ${d.dòng}: ${g.lýDo} — vẽ bằng Mermaid`); return g.ok ? GANTT.vẽGantt(g) : null; });
+const cầnChrome = chọn.filter((_, i) => !gantt[i]);
+const kqMermaid = cầnChrome.length ? renderNhiều(cầnChrome) : { svgs: [] };
+const kq = kqMermaid && !kqMermaid.lỗi ? (() => { let k = 0; return { svgs: chọn.map((_, i) => gantt[i] || kqMermaid.svgs[k++]) }; })() : kqMermaid;
 
-if (!CHROME) {
+if (!CHROME && cầnChrome.length) {
   console.error('Không tìm thấy Chrome/Chromium — không biên dịch được SVG.');
   console.error('  Cần Chrome để render Mermaid thành SVG tĩnh. Không có thì dùng `ba-portal` (vẽ lúc mở trang, nặng 3,4 MB).');
   process.exit(1);
@@ -156,7 +162,7 @@ chọn.forEach((d, i) => {
   console.log(`  ✓ ${tên}.svg (${kb(svg.length)}) + ${tên}.html (${kb(fs.statSync(path.join(OUT, `${tên}.html`)).size)})`
     + (tương
       ? `  ·  ${g.nodes.length} node · ${g.cạnh.length} cạnh${g.mơHồ ? ` · ${g.mơHồ} cạnh không phân giải được id` : ''}`
-      : '  ·  SVG tĩnh (loại sơ đồ này không có node bấm được — ERD/sequence/state)'));
+      : gantt[i] ? '  ·  gantt dựng bằng bộ vẽ riêng (bảng + thanh, không cần Chrome)' : '  ·  SVG tĩnh (loại sơ đồ này không có node bấm được — ERD/sequence/state)'));
   xong++;
 });
 console.log(`\n${xong}/${chọn.length} hình → ${OUT}`);

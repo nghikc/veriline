@@ -263,6 +263,21 @@ stateDiagram-v2
   class DaDangXuat task
 ```
 
+**Bảng chuyển trạng thái**
+
+> Phiên không có cột trạng thái ở `PhienDangNhap` — phiên bị thu hồi/đăng xuất là bản ghi bị vô hiệu, không phải một giá trị enum — nên bảng không có dòng "Dữ liệu".
+
+| Trạng thái | Tên | Mã dữ liệu | Loại |
+|---|---|---|---|
+| DangHoatDong | Đang hoạt động | — | đầu |
+| BiThuHoi | Bị thu hồi | — | cuối |
+| DaDangXuat | Đã đăng xuất | — | cuối |
+
+| Từ | Sự kiện | Điều kiện | Sang | Ai thực hiện | Trace |
+|---|---|---|---|---|---|
+| DangHoatDong | Đổi mật khẩu ở thiết bị khác | không phải phiên đang thao tác đổi | BiThuHoi | Hệ thống (khi người dùng đổi mật khẩu) | BRule-S04-06, R-S04-15 |
+| DangHoatDong | Tự đăng xuất | — | DaDangXuat | Người dùng | F02 |
+
 ## Mô hình dữ liệu màn hình (ERD)
 
 Trích từ `05-data-model.md` — các thực thể màn này đụng tới:

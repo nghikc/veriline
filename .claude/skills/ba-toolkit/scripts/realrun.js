@@ -28,7 +28,7 @@
  * chạy thật hoặc không còn tồn tại (buộc thu hẹp — danh sách chỉ được giảm) · một lần chạy sai dạng (thiếu ngày/kết quả).
  * `--write-baseline` từ chối nới (thêm khoá) trừ khi `--allow-grow`.
  * Bản công khai (08/10/2026): realrun.json là dữ liệu dev giữ riêng (manifest devOnly) — vắng file (không --data) → in
- *   "không áp" exit 0 (vẫn đếm sổ báo oan; --write-baseline từ chối exit 2); khoá baseline của skill không có mặt (gói Pro/devOnly) không tính "baseline thừa".
+ *   "không áp" exit 0 (vẫn đếm sổ báo oan; --write-baseline từ chối exit 2); khoá baseline của skill không có mặt (gói Advance/devOnly) không tính "baseline thừa".
  *
  * gioiHan: chỉ đếm — không biết lần chạy ghi trong realrun.json có thật không (ref là để người soát lần theo), không
  * biết "một lần chạy" có đủ đại diện. Không nhìn agent (ac-verifier, ac-judge…): chúng không phải script. Checker không
@@ -107,7 +107,7 @@ function soát() {
   else {
     for (const k of chưa) if (!dsBl.includes(k)) viPhạm.push(`${k}: checker MỚI chưa có lần chạy thật — chạy trên một dự án thật rồi ghi realrun.json`);
     for (const k of dsBl) {
-      if (!tập.includes(k) && !fs.existsSync(path.join(GỐC, k.split('/')[0]))) continue;   // skill gói Pro/devOnly vắng ở bản này
+      if (!tập.includes(k) && !fs.existsSync(path.join(GỐC, k.split('/')[0]))) continue;   // skill gói Advance/devOnly vắng ở bản này
       if (!tập.includes(k)) viPhạm.push(`${k}: baseline thừa — checker không còn tồn tại (xoá khỏi baseline)`);
       else if (cóThật(k)) viPhạm.push(`${k}: baseline thừa — đã có lần chạy thật (xoá khỏi baseline, bánh cóc chỉ thu hẹp)`);
     }

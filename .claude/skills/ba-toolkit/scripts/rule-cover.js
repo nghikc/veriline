@@ -18,13 +18,13 @@
  *
  * Checker opt-in (thêm checker = thêm một dòng CHECKER + `--rules` + gọi `ghi()` ở checker đó):
  *   validate-done (V…) · check-eval (E…) · accept (A…) · scan-feasible luật 9 (F9…) · check-design (DS-…) · check-el (EL-…) · figma-sync (FS-…) ·
- *   check-video (VS-…/VB-…) · scan-lach (LACH-…)
+ *   check-video (VS-…/VB-…) · scan-lach (LACH-…) · check-flow (FL-…) · check-state (ST-…)
  *
  * Vì sao có: tlc-spec-lean `selftest.py` — "mutate the artifact once per rule and require every mutant to be killed". Nhóm
  * đối kháng của test.js chứng minh checker KHÔNG luôn-exit-0, nhưng không nói luật nào chưa từng bị thử: một luật viết
  * sai regex (không bao giờ bắn) vẫn để CI xanh. Đếm theo mã luật biến "có ca đối kháng" thành "mỗi luật có ca đối kháng".
  *
- * Checker của skill vắng (gói Pro/devOnly ở repo công khai, 08/10/2026): `existsSync` sai → ghi "vắng — không áp", không đỏ,
+ * Checker của skill vắng (gói Advance/devOnly ở repo công khai, 08/10/2026): `existsSync` sai → ghi "vắng — không áp", không đỏ,
  *   và mã của nó trong baseline không tính "baseline thừa".
  *
  * gioiHan: "đã phủ" = mã luật XUẤT HIỆN ít nhất một lần khi test.js chạy — không biết ca đó cố ý thử luật này hay bắn ké
@@ -42,7 +42,7 @@ const { spawnSync } = require('child_process');
 const SK = path.resolve(__dirname, '..', '..');
 const CHECKER = [
   ['validate-done', 'ac-verify/scripts/validate-done.js'],
-  ['check-eval', 'ac-eval/scripts/check-eval.js'],                 // gói Pro — vắng (existsSync) → 'không áp'
+  ['check-eval', 'ac-eval/scripts/check-eval.js'],                 // gói Advance — vắng (existsSync) → 'không áp'
   ['accept', 'ac-verify/scripts/accept.js'],
   ['scan-feasible', 'ba-feasible/scripts/scan-feasible.js'],
   ['check-design', 'ba-html-design/scripts/check-design.js'],
@@ -50,6 +50,8 @@ const CHECKER = [
   ['figma-sync', 'ba-figma-draw/scripts/figma-sync.js'],            // devOnly — vắng (existsSync) → 'không áp'
   ['check-video', 'ba-userguide-video/scripts/check-video.js'],      // devOnly — vắng (existsSync) → 'không áp'
   ['scan-lach', 'ba-toolkit/scripts/scan-lach.js'],
+  ['check-flow', 'ba-toolkit/scripts/check-flow.js'],
+  ['check-state', 'ba-toolkit/scripts/check-state.js'],
 ];
 const BASELINE = path.join(SK, 'ba-toolkit', 'references', 'rule-cover.baseline.json');
 
@@ -114,7 +116,7 @@ if (require.main === module) {
     const T = kq.reduce((a, k) => a + k.tổng, 0), P = kq.reduce((a, k) => a + k.đãPhủ, 0);
     console.log(`rule-cover: ${P}/${T} luật có fixture gãy bắn · ${viPhạm.length ? `${viPhạm.length} vi phạm bánh cóc` : 'bánh cóc giữ'}`);
     for (const k of kq) {
-      if (k.vắng) { console.log(`  ${k.checker.padEnd(14)} vắng (skill gói Pro/devOnly không có ở bản này) — không áp`); continue; }
+      if (k.vắng) { console.log(`  ${k.checker.padEnd(14)} vắng (skill gói Advance/devOnly không có ở bản này) — không áp`); continue; }
       console.log(`  ${k.checker.padEnd(14)} ${k.đãPhủ}/${k.tổng} phủ${k.chưaPhủ.length ? ` · chưa: ${k.chưaPhủ.map((x) => x.mã).join(' ')}` : ''}`);
       for (const x of k.chưaPhủ) console.log(`      ${x.mã.padEnd(6)} ${x.môTả}`);
     }

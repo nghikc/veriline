@@ -349,6 +349,28 @@ stateDiagram-v2
   class VoHieu error
 ```
 
+**Bảng chuyển trạng thái**
+
+> Dữ liệu: `NguoiDung.trang_thai` (`05-data-model.md`)
+
+| Trạng thái | Tên | Mã dữ liệu | Loại |
+|---|---|---|---|
+| HoatDong | Đang hoạt động | ACTIVE | đầu |
+| KhoaTam | Khoá tạm | TEMP_LOCKED | giữa |
+| KhoaVinhVien | Khoá vĩnh viễn | PERM_LOCKED | giữa |
+| VoHieu | Vô hiệu hoá | INACTIVE | cuối |
+
+| Từ | Sự kiện | Điều kiện | Sang | Ai thực hiện | Trace |
+|---|---|---|---|---|---|
+| HoatDong | Sai mật khẩu lần thứ 5 | trong cửa sổ 15 phút | KhoaTam | Hệ thống | BRule-S01-01 |
+| KhoaTam | Hết thời gian khoá | đủ 15 phút | HoatDong | Hệ thống | BRule-S01-02 |
+| HoatDong | Đăng nhập sai vượt ngưỡng (đặt ở S01) | sau 3 lần khoá tạm liên tiếp | KhoaVinhVien | Hệ thống | BRule-S01-03, E-S01-07 |
+| KhoaVinhVien | Mở khoá | — | HoatDong | Org Admin | BRule-S05-13, R-S05-21 |
+| HoatDong | Vô hiệu hoá | không phải Org Admin hoạt động cuối cùng | VoHieu | Org Admin | BRule-S05-03, BRule-S05-04, BRule-S05-05 |
+| VoHieu | Kích hoạt lại | — | HoatDong | Org Admin | BRule-S05-03 |
+
+> ⚠️ Lệch với vòng đời cùng cột ở S01 (`S01 - Login/srs.md` mục 4), ghi gap 🟡 ở `00-gaps.md`: sơ đồ này vẽ VoHieu là trạng thái cuối (`VoHieu --> [*]`) mà vẫn có chuyển "Kích hoạt lại" đi ra, S01 coi INACTIVE là trạng thái giữa; và thiếu chuyển "Admin khoá thủ công" HoatDong → KhoaVinhVien (`UC-S01-04`) mà S01 có. Sửa sơ đồ là đổi bản đã chốt → qua CR.
+
 ## Mô hình dữ liệu màn hình (ERD)
 
 Trích từ `05-data-model.md` — các thực thể màn này đụng tới:

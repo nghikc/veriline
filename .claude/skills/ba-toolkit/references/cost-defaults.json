@@ -7,6 +7,7 @@
     "ba-userguide-video": { "donVi": "trang", "tokens": [70000], "phut": [6.5], "do": "2 clip = 140k, 13 phút (một clip một trang how-to)" },
     "ba-batch": { "donVi": "man", "tokens": [317000], "phut": [26], "do": "16/09/2026: spec + test + html một màn mỗi subagent (ba-batch/SKILL.md)" },
     "ba-html-design-lofi": { "donVi": "man", "tokens": [80000], "phut": [2], "do": "chế độ lofi của ba-html-design (trước là ba-wireframe-lofi) — 1 màn, 3 phương án" },
+    "ba-html-design-figma": { "donVi": "man", "tokens": [115000], "phut": [4], "do": "13/10/2026 dự án mobile 13 màn: dựng lại high-fi với ảnh/icon/phông Figma thật (5 subagent ~570k mỗi 2–3 màn)" },
     "ba-design-system": { "donVi": "lan", "tokens": [137000], "phut": [5], "do": "cập nhật 07-design-system.md" },
     "agent-checker": { "donVi": "lan", "tokens": [110000, 270000], "phut": [5, 15], "do": "agent nhỏ dựng một checker + test" }
   },

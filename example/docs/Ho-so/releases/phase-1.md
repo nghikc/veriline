@@ -38,24 +38,25 @@
 ```mermaid
 %%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#4F46E5','primaryTextColor':'#111827','taskBkgColor':'#EEF0FF','taskBorderColor':'#4F46E5','activeTaskBkgColor':'#C7CCFF','activeTaskBorderColor':'#4F46E5','doneTaskBkgColor':'#E5E7EB','doneTaskBorderColor':'#6B7280','sectionBkgColor':'#F5F6FF','gridColor':'#D1D5DB'}}}%%
 gantt
-  title Tien do Phase 1 - MVP TeamTasks - theo nhan su (2 dev + QA), truc tuong doi, cho PO chot ngay
+  title Tiến độ Phase 1 — MVP TeamTasks — theo nhân sự (2 dev + QA), trục tương đối, chờ PO chốt ngày
   dateFormat YYYY-MM-DD
   axisFormat Tuan %W
-  section Track A - Dev 1 (Auth & To chuc)
-    F01 Dang nhap (nen)     :crit, f01, 2026-01-05, 1w
-    F02 Dang xuat           :f02, after f01, 3d
-    F12 Dang ky & to chuc   :crit, f12, after f02, 2w
-    F13 Quan tri thanh vien :f13, after f12, 1w
-  section Track B - Dev 2 (Cong viec & thong bao)
-    F03 Dashboard           :crit, f03, after f01, 2w
-    F04 Tao cong viec       :crit, f04, after f03, 2w
-    F05 Chi tiet cong viec  :f05, after f04, 1w
-    F06 Cap nhat trang thai :crit, f06, after f05, 1w
-    F08 Thong bao in-app    :f08, after f06, 1w
-  section Track C - QA
-    Test ky thuat per man   :t_test, after f06, 2w
-    UAT-01 den UAT-06       :t_uat, after t_test, 1w
-    MVP ban giao            :milestone, m1, after t_uat, 0d
+  excludes weekends
+  section Track A — Auth & tổ chức
+    F01 Đăng nhập (nền) · Dev 1     :crit, f01, 2026-01-05, 5d
+    F02 Đăng xuất · Dev 1           :f02, after f01, 3d
+    F12 Đăng ký & tổ chức · Dev 1   :crit, f12, after f02, 10d
+    F13 Quản trị thành viên · Dev 1 :f13, after f12, 5d
+  section Track B — Công việc & thông báo
+    F03 Dashboard · Dev 2           :crit, f03, after f01, 10d
+    F04 Tạo công việc · Dev 2       :crit, f04, after f03, 10d
+    F05 Chi tiết công việc · Dev 2  :f05, after f04, 5d
+    F06 Cập nhật trạng thái · Dev 2 :crit, f06, after f05, 5d
+    F08 Thông báo in-app · Dev 2    :f08, after f06, 5d
+  section Track C — Kiểm thử
+    Test kỹ thuật từng màn · QA     :t_test, after f06, 10d
+    UAT-01 đến UAT-06 · QA          :t_uat, after t_test, 5d
+    MVP bàn giao                    :milestone, m1, after t_uat, 0d
 ```
 
 > **Đọc song song theo nhân sự:** sau `F01`, Track A (đăng ký/tổ chức) và Track B (công việc) chạy **song song trên 2 dev**; QA vào cuộc khi lõi công việc xong (`after f06`). Roadmap §4.1 cho thấy 3 nhánh độc lập sau F01 (F02/F12/F03) — nhưng chỉ 2 dev nên xếp thành **2 track**, F02+F12 dồn vào Track A tuần tự. Đường-găng (`:crit`) F01→F03→F04→F06→(QA) quyết thời gian tối thiểu ≈ MVP 3 tháng; thêm dev thứ 3 chỉ rút được nếu còn nhánh song song để chia.
@@ -68,15 +69,15 @@ gantt
 
 ```mermaid
 flowchart LR
-    F01["F01 Dang nhap"]:::now
-    F02["F02 Dang xuat"]:::now
-    F12["F12 Dang ky va tao to chuc"]:::now
-    F03["F03 Dashboard tong quan"]:::now
-    F04["F04 Tao cong viec"]:::now
-    F05["F05 Chi tiet cong viec"]:::now
-    F06["F06 Cap nhat trang thai"]:::now
-    F08["F08 Thong bao in-app"]:::now
-    F13["F13 Quan tri thanh vien"]:::now
+    F01["F01 Đăng nhập"]:::now
+    F02["F02 Đăng xuất"]:::now
+    F12["F12 Đăng ký và tạo tổ chức"]:::now
+    F03["F03 Dashboard tổng quan"]:::now
+    F04["F04 Tạo công việc"]:::now
+    F05["F05 Chi tiết công việc"]:::now
+    F06["F06 Cập nhật trạng thái"]:::now
+    F08["F08 Thông báo in-app"]:::now
+    F13["F13 Quản trị thành viên"]:::now
 
     F01 --> F12
     F01 --> F02

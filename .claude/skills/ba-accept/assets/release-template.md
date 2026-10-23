@@ -22,24 +22,26 @@
 
 ```mermaid
 gantt
-  title Tien do Phase 1 — theo nhan su (2 track), truc tuong doi, cho PO chot ngay
+  title Tiến độ Phase 1 — theo nhân sự (2 track), trục tương đối, chờ PO chốt ngày
   dateFormat YYYY-MM-DD
   axisFormat Tuan %W
+  excludes weekends
+  %% Số ngày = ngày làm (5d = 1 tuần); người làm ghi sau " · " trong tên việc → cột "Người làm"
 
-  section Track A - Dev 1
-    F01 Dang nhap (nen)     :crit, f01, 2026-01-05, 1w
-    F12 Dang ky & to chuc   :crit, f12, after f01, 2w
-    F04 Tao cong viec       :f04, after f12, 2w
-    F06 Cap nhat trang thai :f06, after f04, 1w
+  section Track A
+    F01 Đăng nhập (nền) · Dev 1     :crit, f01, 2026-01-05, 5d
+    F12 Đăng ký & tổ chức · Dev 1   :crit, f12, after f01, 10d
+    F04 Tạo công việc · Dev 1       :f04, after f12, 10d
+    F06 Cập nhật trạng thái · Dev 1 :f06, after f04, 5d
 
-  section Track B - Dev 2
-    F03 Dashboard           :f03, after f01, 2w
-    F05 Chi tiet cong viec  :f05, after f03, 2w
-    F08 Thong bao in-app    :f08, after f06, 1w
-    F13 Quan tri thanh vien :f13, after f05, 1w
+  section Track B
+    F03 Dashboard · Dev 2           :f03, after f01, 10d
+    F05 Chi tiết công việc · Dev 2  :f05, after f03, 10d
+    F08 Thông báo in-app · Dev 2    :f08, after f06, 5d
+    F13 Quản trị thành viên · Dev 2 :f13, after f05, 5d
 
-  section Moc
-    MVP ban giao            :milestone, m1, after f08, 0d
+  section Mốc
+    MVP bàn giao                    :milestone, m1, after f08, 0d
 ```
 
 > **Re-level theo nhân sự:** 2 track = 2 dev → tối đa 2 chức năng chạy cùng lúc (dù roadmap cho thấy 3 nhánh độc lập sau F01, chỉ 2 người nên xếp thành 2 track). Đường-găng (`:crit`) quyết thời gian tối thiểu; thêm người = thêm track (nếu còn việc song song để chia), nhưng không rút được đường-găng.

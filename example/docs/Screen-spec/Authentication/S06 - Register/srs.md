@@ -276,6 +276,32 @@ stateDiagram-v2
   class THANH_CONG task
 ```
 
+**Bảng chuyển trạng thái**
+
+> Trạng thái của biểu mẫu trên giao diện, không lưu xuống dữ liệu — bảng không có dòng "Dữ liệu", cột mã để trống.
+
+| Trạng thái | Tên | Mã dữ liệu | Loại |
+|---|---|---|---|
+| TRONG | Biểu mẫu trống | — | đầu |
+| DANG_NHAP | Đang nhập | — | giữa |
+| CO_LOI_CLIENT | Có lỗi nhập | — | giữa |
+| DANG_GUI | Đang gửi | — | giữa |
+| THANH_CONG | Đăng ký thành công | — | cuối |
+| CO_LOI_SERVER | Email đã được dùng | — | giữa |
+| LOI_MANG | Lỗi mạng | — | giữa |
+
+| Từ | Sự kiện | Điều kiện | Sang | Ai thực hiện | Trace |
+|---|---|---|---|---|---|
+| TRONG | Bắt đầu điền thông tin | — | DANG_NHAP | Người dùng | R-S06-01 |
+| DANG_NHAP | Rời khỏi trường | giá trị không hợp lệ | CO_LOI_CLIENT | Hệ thống (kiểm phía client) | E-S06-01, E-S06-04, E-S06-05, E-S06-06 |
+| CO_LOI_CLIENT | Sửa lỗi | — | DANG_NHAP | Người dùng | R-S06-02 |
+| DANG_NHAP | Nhấn "Tạo tài khoản" | mọi trường hợp lệ | DANG_GUI | Người dùng | BRule-S06-03, BRule-S06-04 |
+| DANG_GUI | API trả 201 | — | THANH_CONG | Hệ thống | BRule-S06-05 |
+| DANG_GUI | API trả 409 `EMAIL_ALREADY_EXISTS` | — | CO_LOI_SERVER | Hệ thống | E-S06-03, BRule-S06-01 |
+| DANG_GUI | Timeout / mất mạng | — | LOI_MANG | Hệ thống | E-S06-08 |
+| CO_LOI_SERVER | Sửa email | — | DANG_NHAP | Người dùng | E-S06-03 |
+| LOI_MANG | Thử lại | — | DANG_NHAP | Người dùng | E-S06-08 |
+
 ### Trạng thái giao diện — người dùng thấy gì ở mỗi trạng thái
 
 > Sơ đồ trên mô tả **máy trạng thái** của form. Bảng này là mặt còn lại: ở mỗi trạng thái, người dùng nhìn thấy gì và làm được gì. Thiếu bảng này thì hành vi chỉ tồn tại trong nhãn cạnh của sơ đồ — nơi mà người viết code giao diện không đọc, và không TC nào kiểm.

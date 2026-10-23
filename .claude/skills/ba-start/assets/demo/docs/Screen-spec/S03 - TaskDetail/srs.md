@@ -242,6 +242,30 @@ stateDiagram-v2
   class DaHuy error
 ```
 
+**Bảng chuyển trạng thái**
+
+> Dữ liệu: `CongViec.trang_thai` (`05-data-model.md`)
+
+| Trạng thái | Tên | Mã dữ liệu | Loại |
+|---|---|---|---|
+| CanLam | Cần làm | TODO | đầu |
+| DangLam | Đang làm | IN_PROGRESS | giữa |
+| ChoDuyet | Chờ duyệt | IN_REVIEW | giữa |
+| HoanThanh | Hoàn thành | DONE | cuối |
+| DaHuy | Đã huỷ | CANCELLED | cuối |
+
+| Từ | Sự kiện | Điều kiện | Sang | Ai thực hiện | Trace |
+|---|---|---|---|---|---|
+| CanLam | Bắt đầu làm | là người thực hiện (`nguoi_nhan_id`) | DangLam | Người thực hiện | BRule-S03-01, BRule-S03-03 |
+| DangLam | Gửi duyệt | là người thực hiện | ChoDuyet | Người thực hiện | BRule-S03-01, BRule-S03-03 |
+| ChoDuyet | Duyệt hoàn thành | — | HoanThanh | Team Lead / Org Admin | BRule-S03-01, BRule-S03-04 |
+| ChoDuyet | Từ chối | có lý do 1–1000 ký tự | DangLam | Team Lead / Org Admin | BRule-S03-04, BRule-S03-05 |
+| CanLam | Huỷ công việc | — | DaHuy | Team Lead / Org Admin | BRule-S03-01, BRule-S03-04 |
+| DangLam | Huỷ công việc | — | DaHuy | Team Lead / Org Admin | BRule-S03-01, BRule-S03-04 |
+| ChoDuyet | Huỷ công việc | — | DaHuy | Team Lead / Org Admin | BRule-S03-01, BRule-S03-04 |
+
+> Mọi chuyển đều bị từ chối khi `cap_nhat_luc` gửi lên lệch bản ghi (`BRule-S03-12`); HoanThanh và DaHuy không có chuyển ra (`BRule-S03-02`, `E-S03-09`).
+
 ### 3. Làm việc và duyệt — luồng 3 vai trò (Swimlane)
 
 > Ba vai trò có bàn giao qua lại (người thực hiện → hệ thống → người duyệt → quay lại người thực hiện) nên phải dùng swimlane, không dùng flowchart (`conventions.md` §Luật ưu tiên vai trò).

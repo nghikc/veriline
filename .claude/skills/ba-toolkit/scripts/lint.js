@@ -75,7 +75,7 @@ function parseRegistry(txt) {
   return reg;
 }
 const REG = parseRegistry(fs.existsSync(CONVREG) ? read(CONVREG) : read(CONV));
-// GÓI PHÁT HÀNH (08/10/2026, docs/decisions/32): skill gói Pro (`skills.pro`) và giữ riêng (`skills.devonly`) KHÔNG có trong repo
+// GÓI PHÁT HÀNH (08/10/2026, docs/decisions/32): skill gói Advance (`skills.pro`) và giữ riêng (`skills.devonly`) KHÔNG có trong repo
 // công khai. Check nào đọc danh sách skill/agent từ registry thì chỉ soát skill thuộc hai tập này KHI NÓ CÓ MẶT — vắng là hợp lệ,
 // không phải registry trỏ hỏng. Skill NGOÀI hai tập vẫn phải tồn tại như cũ (xoá nhầm skill công khai vẫn đỏ).
 const NGOÀI_GÓI = new Set([...((REG && REG['skills.pro']) || []), ...((REG && REG['skills.devonly']) || [])]);

@@ -272,6 +272,19 @@ stateDiagram-v2
   class DaDoc task
 ```
 
+**Bảng chuyển trạng thái**
+
+> Đã đọc lưu ở `ThongBao.da_doc` (boolean, không phải enum) nên bảng không có dòng "Dữ liệu".
+
+| Trạng thái | Tên | Mã dữ liệu | Loại |
+|---|---|---|---|
+| ChuaDoc | Chưa đọc | `da_doc = false` | đầu |
+| DaDoc | Đã đọc | `da_doc = true` | cuối |
+
+| Từ | Sự kiện | Điều kiện | Sang | Ai thực hiện | Trace |
+|---|---|---|---|---|---|
+| ChuaDoc | Click một thông báo, hoặc "Đọc tất cả" | thông báo của chính người dùng | DaDoc | Người nhận thông báo | R-S02-12 |
+
 ## Mô hình dữ liệu màn hình (ERD)
 
 Trích từ `05-data-model.md` — các thực thể màn này đụng tới:

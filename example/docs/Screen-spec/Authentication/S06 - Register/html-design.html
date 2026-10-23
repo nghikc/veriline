@@ -296,11 +296,17 @@
 /* `body.auth-shell` = vùng CHƯA đăng nhập (canon: ba-html-design/shell.md §1.5).
    Không có app-header/app-nav là ĐÚNG, không phải thiếu. Layout căn giữa đã nằm ở rule `body` trên. */
 /* ── Thanh trạng thái UI (canon: ba-html-design/shell.md §2.3) ────────────── */
-.statebar{position:static;z-index:40;background:var(--surface-app,#f9fafb);
-  border-bottom:1px dashed var(--border,#e5e7eb);font-size:12px}
-.statebar__toggle{display:block;width:100%;text-align:left;padding:6px 16px;background:none;
-  border:0;color:var(--text-placeholder,#9ca3af);cursor:pointer;font-size:11px;letter-spacing:.02em}
-.statebar__body{display:none;padding:0 16px 8px;flex-direction:column;gap:6px}
+.statebar__toggle{position:relative;width:34px;height:20px;padding:0;border:0;border-radius:999px;background:var(--border,#d1d5db);
+  cursor:pointer;opacity:.55;transition:opacity .15s,background .15s}
+.statebar__toggle::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;
+  box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+.statebar__toggle:hover,.statebar__toggle:focus-visible,.statebar__toggle[aria-expanded="true"]{opacity:1}
+.statebar__toggle[aria-expanded="true"]{background:var(--brand-primary,#4f46e5)}
+.statebar__toggle[aria-expanded="true"]::after{transform:translateX(14px)}
+.statebar{position:fixed;right:16px;bottom:16px;z-index:1000;display:flex;flex-direction:column;align-items:flex-end;gap:8px;font-size:12px}
+.statebar__body{display:none;flex-direction:column;gap:6px;width:min(560px,calc(100vw - 32px));max-height:min(70vh,560px);overflow:auto;
+  padding:12px 14px;background:var(--surface-card,#fff);border:1px solid var(--border,#d1d5db);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.16)}
+.statebar__note{margin:0 0 4px;color:var(--text-placeholder,#9ca3af);font-size:11px}
 .statebar[data-open="true"] .statebar__body{display:flex}
 .statebar__group{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .statebar__label{flex:0 0 104px;color:var(--text-placeholder,#9ca3af);font-size:11px}
@@ -317,9 +323,9 @@
 
   <!-- Demo state switcher (cho tài liệu BA, không có trong production) -->
   <!-- ▼ UI-STATE-BAR — chỉ có trong html-design, KHÔNG có trong production -->
-<div class="statebar" id="statebar" data-open="true">
-  <button class="statebar__toggle" aria-expanded="true" aria-controls="statebarBody" onclick="statebarToggle(this)">◆ Trạng thái giao diện (bản đặc tả BA — không có trong production) <span aria-hidden="true">▾</span></button>
-  <div class="statebar__body" id="statebarBody">
+<div class="statebar" id="statebar" data-open="false">
+  <div class="statebar__body" id="statebarBody" role="region" aria-label="Trạng thái giao diện">
+    <p class="statebar__note">Trạng thái giao diện — bản đặc tả BA, không có trong production</p>
     <div class="statebar__group" data-group="ui">
       <span class="statebar__label">Trạng thái UI</span>
       <button class="statebar__btn is-active" onclick="setState('idle')">Mặc định</button>
@@ -339,6 +345,7 @@
       <button class="statebar__btn" onclick="setState('success')">Thành công</button>
     </div>
   </div>
+  <button class="statebar__toggle" aria-expanded="false" aria-controls="statebarBody" aria-label="Trạng thái giao diện" title="Trạng thái giao diện (bản đặc tả BA)" onclick="statebarToggle(this)"></button>
 </div>
 <!-- ▲ UI-STATE-BAR -->
 
@@ -780,6 +787,7 @@
       }
     }
   
+document.addEventListener('keydown', function (e) { if (e.key !== 'Escape') return; var t = document.querySelector('.statebar[data-open="true"] .statebar__toggle'); if (t) statebarToggle(t); });
 function statebarToggle(btn){
   const box = btn.closest('.statebar');
   const open = box.dataset.open !== 'true';

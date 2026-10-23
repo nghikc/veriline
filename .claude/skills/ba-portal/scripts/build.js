@@ -28,6 +28,9 @@ const clientMode = rawArgv.includes('--client'); // portal GỌN cho khách: ch�
 const argv = rawArgv.filter(a => a !== '--all' && a !== '--no-toc' && a !== '--client');
 const singleMode = argv[0] === '--single';
 
+const GANTT = require(path.join(__dirname, '..', '..', 'ba-toolkit', 'scripts', 'gantt.js')); // gantt dựng sẵn (decision 39)
+// Co gantt vừa khung đọc, nhưng không nhỏ hơn 65% (chữ 12px → ~8px vẫn đọc được); hẹp hơn thì khung cuộn ngang, bấm để phóng to.
+const vừaKhung = (svg) => { const w = +((/width="(\d+(?:\.\d+)?)"/.exec(svg) || [])[1] || 0); return w ? svg.replace('<svg ', `<svg style="width:100%;height:auto;max-width:${w}px;min-width:${Math.round(w * 0.65)}px" `) : svg; };
 const SWIM_LR_MAX_NODE = 8, SWIM_LR_MAX_LANE = 3; // swimlane LR quá ngưỡng → gợi TD (cùng bẫy TDZ với mermaidWarnings)
 const mermaidWarnings = []; // khai báo TRƯỚC --lint mode (lintMermaid hoisted nhưng const thì không — TDZ)
 // Cùng bẫy TDZ: `--lint` gọi lintMermaid ngay bên dưới, nên hằng nó dùng phải nằm TRÊN đây.
@@ -250,7 +253,7 @@ const LIGHTBOX_CSS = `
 #lightbox .lb-close{position:fixed;top:10px;right:18px;width:44px;height:44px;font-size:30px;line-height:1;color:#fff;background:rgba(0,0,0,.35);border:none;border-radius:50%;cursor:pointer;z-index:1}
 #lightbox .lb-close:hover{background:rgba(0,0,0,.6)}
 `;
-const LIGHTBOX_JS = `(function(){var lb=document.createElement('div');lb.id='lightbox';lb.innerHTML='<button class="lb-close" aria-label="Dong (Esc)">\\u00d7</button><div class="lb-stage"></div>';document.body.appendChild(lb);var stage=lb.querySelector('.lb-stage');function open(node){stage.innerHTML='';stage.appendChild(node);lb.classList.add('open');document.documentElement.style.overflow='hidden';}function close(){lb.classList.remove('open');stage.innerHTML='';document.documentElement.style.overflow='';}document.addEventListener('click',function(e){var t=e.target;if(!t||!t.closest)return;var img=t.closest('img');if(img&&!img.closest('#sidebar,nav,header,#lightbox')){var c=img.cloneNode(true);c.removeAttribute('loading');c.removeAttribute('width');c.removeAttribute('height');open(c);return;}var mm=t.closest('pre.mermaid');if(mm){var svg=mm.querySelector('svg');if(svg){var cs=svg.cloneNode(true);cs.removeAttribute('width');cs.removeAttribute('height');cs.style.maxWidth='none';open(cs);}}});lb.addEventListener('click',function(e){if(e.target===lb||e.target.classList.contains('lb-close'))close();});document.addEventListener('keydown',function(e){if(e.key==='Escape'&&lb.classList.contains('open'))close();});})();`;
+const LIGHTBOX_JS = `(function(){var lb=document.createElement('div');lb.id='lightbox';lb.innerHTML='<button class="lb-close" aria-label="Dong (Esc)">\\u00d7</button><div class="lb-stage"></div>';document.body.appendChild(lb);var stage=lb.querySelector('.lb-stage');function open(node){stage.innerHTML='';stage.appendChild(node);lb.classList.add('open');document.documentElement.style.overflow='hidden';}function close(){lb.classList.remove('open');stage.innerHTML='';document.documentElement.style.overflow='';}document.addEventListener('click',function(e){var t=e.target;if(!t||!t.closest)return;var img=t.closest('img');if(img&&!img.closest('#sidebar,nav,header,#lightbox')){var c=img.cloneNode(true);c.removeAttribute('loading');c.removeAttribute('width');c.removeAttribute('height');open(c);return;}var mm=t.closest('pre.mermaid,.gantt-fig');if(mm&&t.closest('details'))return;if(mm){var svg=mm.querySelector('svg');if(svg){var cs=svg.cloneNode(true);cs.removeAttribute('width');cs.removeAttribute('height');cs.style.maxWidth='none';open(cs);}}});lb.addEventListener('click',function(e){if(e.target===lb||e.target.classList.contains('lb-close'))close();});document.addEventListener('keydown',function(e){if(e.key==='Escape'&&lb.classList.contains('open'))close();});})();`;
 
 // Lint tĩnh lúc build: quét khối ```mermaid trong NGUỒN .md, cảnh báo các pattern hay vỡ
 // (theo "Sơ đồ Mermaid — an toàn cú pháp" trong conventions). KHÔNG chặn build — chỉ nhắc.
@@ -630,8 +633,11 @@ function markdownToHtml(md, opts = {}) {
         inCodeFence = false;
         const content = codeLines.join('\n');
         if (codeLang.toLowerCase() === 'mermaid') {
-          // Mermaid renders client-side; keep raw source as fallback if CDN unavailable.
-          output.push(`<pre class="mermaid">${escHtmlCode(content)}</pre>`);
+          // gantt đọc được → dựng sẵn bằng bộ vẽ riêng (bảng Công việc · Người làm · Bắt đầu · Số ngày + thanh, decision 39);
+          // còn lại Mermaid vẽ phía trình duyệt, giữ nguồn thô làm dự phòng khi không tải được runtime.
+          const g = GANTT.làGantt(content) ? GANTT.đọcGantt(content) : null;
+          if (g && g.ok) output.push(`<div class="gantt-fig">${vừaKhung(GANTT.vẽGantt(g))}<details><summary>Nguồn Mermaid</summary><pre><code>${escHtmlCode(content)}</code></pre></details></div>`);
+          else output.push(`<pre class="mermaid">${escHtmlCode(content)}</pre>`);
         } else {
           const langAttr = codeLang ? ` class="language-${escHtmlCode(codeLang)}"` : '';
           output.push(`<pre><code${langAttr}>${escHtmlCode(content)}</code></pre>`);
@@ -1163,6 +1169,9 @@ pre.mermaid {
   padding: 14px;
 }
 pre.mermaid svg { max-width: 100%; height: auto; }
+.gantt-fig { overflow-x: auto; background: #fff; border: 1px solid #e4e4ec; border-radius: 6px; padding: 10px; margin: 12px 0; cursor: zoom-in; }
+.gantt-fig svg { display: block; }
+.gantt-fig details { font-size: 12px; margin-top: 6px; cursor: auto; }
 
 /* ── Tables ── */
 table {
@@ -1318,6 +1327,9 @@ pre { background: #1e2030; color: #cdd6f4; border-radius: 6px; padding: 16px 20p
 pre code { background: none; padding: 0; color: inherit; font-size: inherit; border-radius: 0; }
 pre.mermaid { background: #fff; color: #334; border: 1px solid #e4e4ec; text-align: center; padding: 14px; }
 pre.mermaid svg { max-width: 100%; height: auto; }
+.gantt-fig { overflow-x: auto; background: #fff; border: 1px solid #e4e4ec; border-radius: 6px; padding: 10px; margin: 12px 0; cursor: zoom-in; }
+.gantt-fig svg { display: block; }
+.gantt-fig details { font-size: 12px; margin-top: 6px; cursor: auto; }
 table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.9rem; }
 th, td { border: 1px solid #d0d8e4; padding: 8px 14px; text-align: left; vertical-align: top; }
 th { background: #e8edf5; font-weight: 700; color: #16213e; }
@@ -1514,7 +1526,8 @@ ${TOC_JS}
 
 // ─── HTML ASSEMBLY ───────────────────────────────────────────────────────────
 
-const timestamp = new Date().toISOString();
+// Giờ máy, dạng người đọc (20/10/2026 10:16) — chuỗi ISO giờ UTC lệch 7 tiếng với giờ VN và khó đọc.
+const timestamp = (() => { const d = new Date(), p = (n) => String(n).padStart(2, '0'); return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`; })();
 const projectTitle = path.basename(docsDir);
 
 const navHtml = buildNav(docs);
@@ -1544,7 +1557,7 @@ ${CSS}${DASH_CSS}${LIGHTBOX_CSS}
     <span></span><span></span><span></span>
   </button>
   <h1>${escHtml(projectTitle)} — Documentation Portal</h1>
-  <span class="timestamp">Generated: ${timestamp}</span>
+  <span class="timestamp">Ngày tạo: ${timestamp}</span>
 </header>
 <div id="layout">
   <div id="sidebar-overlay" hidden></div>

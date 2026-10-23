@@ -5,6 +5,9 @@
  *   SE.parse(srsText)      → null (srs không có tiêu đề bảng) | [{ n, ten, loai }]
  *   SE.forScreen(dir)      → undefined (folder không có srs.md) | null | [{ n, ten, loai }]
  *   SE.scanDocs(docsDir)   → { 'S01': [...] | null, … } — mọi folder `S.. - Tên` (lồng nhóm bao nhiêu cũng được)
+ *   SE.parseFull(srsText)  → null | [{ n, ten, loai, kieu, batBuoc, moTa, trace: ['R-S01-02', …] }] — cùng các dòng như
+ *                            parse(), thêm cột theo TÊN tiêu đề (Data Type · Bắt buộc · Mô tả · Trace); thiếu cột → ''/[].
+ *                            Dùng cho khung Spec của canvas (`screen-spec.js`). parse() giữ nguyên hành vi cũ.
  *
  * Người dùng: `ba-html-design/check-wireframe.js` (khối wireframe ↔ bảng) và `ba-html-design/check-el.js` (`data-el`
  * trên html-design ↔ bảng). Tách ra (spec 2026-10-05 §1) để HAI checker đọc cùng một bảng theo cùng một cách — số `#` trên
@@ -31,6 +34,24 @@ function parse(txt) {
   return [...blk.matchAll(/^\|\s*(\d+)\s*\|\s*([^|]+)\|([^|\n]*)/gm)].map((r) => ({ n: +r[1], ten: r[2].trim(), loai: (r[3] || '').trim() }));
 }
 
+const cells = (line) => line.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map((c) => c.trim());
+function parseFull(txt) {
+  const rows = parse(txt);
+  if (!rows) return null;
+  const blk = txt.split(TIÊU_ĐỀ)[1].split('\n## ')[0];
+  const head = (blk.split('\n').find((l) => /^\s*\|\s*#\s*\|/.test(l)) || '');
+  const h = cells(head).map((x) => x.toLowerCase());
+  const col = (re) => h.findIndex((x) => re.test(x));
+  const iKieu = col(/data\s*type|kiểu dữ liệu/), iBB = col(/bắt buộc/), iMoTa = col(/mô tả/), iTrace = col(/trace|truy vết/);
+  const byN = {};
+  for (const l of blk.split('\n')) { const m = l.match(/^\|\s*(\d+)\s*\|/); if (m && !byN[m[1]]) byN[m[1]] = cells(l); }
+  return rows.map((r) => {
+    const c = byN[r.n] || [];
+    const get = (i) => (i >= 0 && c[i] !== undefined ? c[i] : '');
+    return Object.assign({}, r, { kieu: get(iKieu), batBuoc: get(iBB), moTa: get(iMoTa), trace: [...new Set(get(iTrace).match(/R-S\d+-[A-Z]*\d+/g) || [])] });
+  });
+}
+
 function forScreen(dir) {
   const srs = path.join(dir, 'srs.md');
   if (!fs.existsSync(srs)) return undefined;
@@ -49,4 +70,4 @@ function scanDocs(docs, out = {}) {
   return out;
 }
 
-module.exports = { parse, forScreen, scanDocs, TIÊU_ĐỀ };
+module.exports = { parse, parseFull, forScreen, scanDocs, TIÊU_ĐỀ };

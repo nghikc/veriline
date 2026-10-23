@@ -48,9 +48,32 @@ với hai nhánh rẽ ở khâu quyết định: **Từ chối** (không làm) v
    ```
    Đầu ra là điểm KHỞI ĐẦU của phân tích, không phải kết luận: nó chỉ thấy bảng markdown có ô đầu là ID canon, và **không suy ra tác động** — hai ID cùng đổi không có nghĩa chúng liên quan. Script tự in mục "Không thấy được"; đọc mục đó trước khi kết luận. Có cảnh báo **bảng bị cắt đôi** thì sửa file rồi chạy lại, đừng tin con số.
    *(Vì sao bắt buộc: ngày 31/08/2026 một CR trong repo mẫu đã sửa **2 trong 5** tài liệu cùng nói về một vấn đề, biến mâu thuẫn hai chiều thành ba chiều — và còn sửa theo phe thiểu số. Lần theo chuỗi bằng mắt trượt đúng kiểu đó.)*
-   Rồi mới lần theo **chuỗi truy vết chuẩn**: lần theo **chuỗi truy vết chuẩn** `BR → StR → FR/NFR → F → S → R-S → UC/US → TC` — liệt kê mọi ID bị chạm ở từng cấp (không chỉ màn/CN): yêu cầu gốc nào đổi, chức năng `F..` nào, màn `S..` nào, `R-S..`/`UC..`/`TC..` nào. Ghi **ước lượng** (docs cần sửa + độ lớn code) và **rủi ro**. Kèm một dòng **Không đổi:** — các ID người đọc *tưởng* sẽ đổi mà không đổi (cùng màn, cùng thực thể, tên na ná), mỗi cái một lý do ngắn; để không ai lần tìm, và để người duyệt thấy ranh giới đã được xét chứ không phải bị quên. Điền hết vào mục chi tiết CR → trạng thái **Đang phân tích**.
+   Rồi lần theo **chuỗi truy vết chuẩn** `BR → StR → FR/NFR → F → S → R-S → UC/US → TC` **bằng máy** — từ các ID CR định đổi (hoặc `--base` khi đã sửa nháp), script lan xuôi và liệt kê **mọi tài liệu** nhắc ID bị chạm:
+   ```bash
+   node .claude/skills/ba-change-request/scripts/impact.js docs <ID gốc…> [--term "<chữ>"…] [--base <rev>] [--json]
+   ```
+   **CR đổi một GIÁ TRỊ** (ngưỡng, thời hạn, số tiền, câu chữ thông báo) → **bắt buộc `--term`** cho giá trị cũ **và mọi giá trị suy ra từ nó** — bội số, số còn lại, mốc kế tiếp (đổi 5 → 7 lần sai: `--term "5 lần" --term "lần thứ 5" --term "15 lần" --term "lần thử"`). Con số nghiệp vụ hay được chép bằng lời ở nơi không nhắc mã: NFR gốc, màn khác "cùng ngưỡng", vision, userguide. Chạy thử 15/10/2026: chỉ theo mã ra 12 tệp, thực tế phải sửa 24. **Cấp trên phải đọc**: BRule chỉ cụ thể hoá một NFR/FR thì chính NFR/FR đó đổi theo.
+   Nó in sẵn bảng `Cấp · Tài liệu · ID bị chạm · Nhắc` cùng ba cột `…` (máy đếm, không phán), kèm các mục **Soát bằng mắt** (tệp của màn bị chạm không nhắc mã nào: ascii-screen, design-spec, html-design…), **Sinh lại** (traceability, tracking, portal, verification — chạy lại lệnh, không sửa tay), **Cấp trên** (không lần ngược) và **Cùng màn, ngoài chuỗi**. ID gốc không có trong tài liệu nào → exit 1: gõ sai mã, hoặc là ID **mới** CR sắp thêm → lần từ ID cha của nó.
 
-2. **Cổng duyệt:** trình người dùng bảng ảnh hưởng + ước lượng, hỏi quyết định (AskUserQuestion): **Duyệt / Từ chối / Hoãn**.
+   **Đầu ra bắt buộc của bước này — khối "Đổi X → N tài liệu phải sửa"** (in cho người dùng VÀ chép vào mục chi tiết CR). Lấy bảng của `impact.js`, đọc lát từng tài liệu (`sed -n`/`grep -n` quanh ID — không Read cả file) rồi **điền ba cột cuối cho từng dòng**:
+   ```markdown
+   **Đổi BRule-S01-01 (5 → 7 lần sai) → 11 tài liệu phải sửa** · 2 màn · 9 ID · rủi ro cao nhất 🔴
+
+   | Cấp | Tài liệu | ID bị chạm | Sửa gì (ước tính) | Độ lớn | Rủi ro |
+   |---|---|---|---|---|---|
+   | Yêu cầu | 01-requirements.md | NFR-03 | đổi ngưỡng trong mô tả | nhỏ | 🟢 |
+   | Màn S01 | srs.md | BRule-S01-01, E-S01-06 | đổi điều kiện kích hoạt + câu báo lỗi | nhỏ | 🟠 câu chữ lỗi đã duyệt UX |
+   | Màn S01 | test.md | TC-S01-18…20, TC-S01-22 | sửa dữ liệu vào 5→7, reset Trạng thái | vừa | 🔴 TC Auto đang xanh sẽ đỏ tới khi code đổi |
+   | E2E | e2e/tests/S01-Login.spec.ts | TC-S01-18…20 | vòng lặp 5→7 | nhỏ | 🟠 |
+   ```
+   - **Đủ mọi cấp có dòng**: BR · StR · FR/NFR (`01`) → chức năng (`02`) → danh sách màn (`03`) → dữ liệu/API/kiến trúc (`05`/`06`/`10`/`11`/`12`) → từng màn (srs · usecase · userstory · design-spec · ascii-screen · checklist · test · html-design · plan) → e2e → hồ sơ (uat, userguide, roadmap…). Mục **Soát bằng mắt** cũng thành dòng nếu sau khi đọc thấy phải sửa (vd html-design đổi giao diện); không phải sửa thì đưa vào **Không đổi**.
+   - **Sửa gì**: một cụm động từ cụ thể ("đổi ngưỡng 5→7", "thêm ca biên 7 lần"), không "cập nhật cho khớp". **Độ lớn**: `nhỏ` (≤5 dòng) · `vừa` (một mục/bảng) · `lớn` (viết lại mục hay thêm màn). **Rủi ro**: 🔴 vỡ thứ đang chạy/đã nghiệm thu (TC Auto xanh, e2e, UAT đã ký, API đối tác) · 🟠 đổi thứ người ngoài đã duyệt (câu chữ, luồng, số liệu cam kết) · 🟢 chỉ đồng bộ chữ — kèm 3–8 chữ lý do khi không phải 🟢.
+   - Dòng máy liệt kê mà xét ra **không phải sửa** → bỏ khỏi bảng, chuyển xuống **Không đổi:** kèm lý do — không xoá im lặng; *N* ở tiêu đề là số dòng còn lại sau khi xét.
+   - Dưới bảng: **Sinh lại sau khi áp:** (danh sách của script) · **Không đổi:** — các ID/tài liệu người đọc *tưởng* sẽ đổi mà không đổi (cùng màn, cùng thực thể, tên na ná — lấy gợi ý từ mục "Cùng màn, ngoài chuỗi"), mỗi cái một lý do ngắn; để không ai lần tìm, và để người duyệt thấy ranh giới đã được xét chứ không phải bị quên · **Ước lượng code:** tệp/mô-đun chính + độ lớn (script không lần vào code ngoài e2e — đọc `plan.md` của màn). · **Phá tương thích:** đổi schema CSDL (thêm/bỏ/đổi kiểu cột, đổi giá trị enum) hoặc hợp đồng API (đổi/bỏ trường, mã lỗi, endpoint) không — ghi `không` hoặc từng thứ kèm ai bị ảnh hưởng (bản di trú dữ liệu, client cũ, đối tác ở `12`); có → rủi ro 🔴 ở dòng `05`/`06`/`12` · **TC phải viết lại:** đếm từ dòng `test.md` của bảng — `N TC sửa · M TC bỏ · K TC thêm` (TC bỏ là TC kiểm hành vi không còn).
+
+   Điền hết vào mục chi tiết CR (mục con `#### Ảnh hưởng`) → trạng thái **Đang phân tích**.
+
+2. **Cổng duyệt:** trình người dùng khối **"Đổi X → N tài liệu phải sửa"** của bước 1 (bảng đủ 6 cột + Sinh lại + Không đổi + Ước lượng code + Phá tương thích + TC phải viết lại), hỏi quyết định (AskUserQuestion): **Duyệt / Từ chối / Hoãn**.
    - **Từ chối** → ghi lý do, trạng thái **Từ chối**, dừng (không đụng docs/code).
    - **Hoãn** → ghi điều kiện mở lại, trạng thái **Hoãn**, dừng.
    - **Duyệt** → trạng thái **Đã duyệt**, đi tiếp bước 3.
@@ -68,7 +91,7 @@ với hai nhánh rẽ ở khâu quyết định: **Từ chối** (không làm) v
 9. Code phần đổi (dev-run hoặc theo plan; nhánh `feat/`/`fix/` theo quy ước git của repo).
 10. Invoke `ba-track refresh`.
 11. **Gate chốt (nhất quán chéo doc):** invoke `ba-review all`. Ngoài soát sổ CR (marker `CR-NN` có dòng, CR đóng không còn ⚠️), gate này chạy **`ba-consistency-reviewer` project-mode** — bắt **residue chéo doc** do CR gây: đổi ưu tiên/tách chức năng làm lệch `00-vision`/`08-roadmap`/`NFR`, "chức năng bị chẻ" chưa dọn ở FR/StR cha, rule/định lượng chọi nhau. *(CR là nguồn residue lớn nhất vì sửa mô hình đã có — luôn soát project-mode ở đây.)* Còn 🔴/🟡 → sửa nguồn (quay bước 3/6) rồi chạy lại; chỉ 🟢/sạch → tiếp.
-12. **Đã triển khai:** khi docs đồng bộ + code xong, cập nhật CR → **Đã triển khai**, điền Phạm vi thực tế (danh sách docs + file code chính đã đổi) và Commit/nhánh.
+12. **Đã triển khai:** khi docs đồng bộ + code xong, cập nhật CR → **Đã triển khai**, điền Phạm vi thực tế (danh sách docs + file code chính đã đổi) và Commit/nhánh. **Đối chiếu dự kiến ↔ thực tế** với bảng `#### Ảnh hưởng`: tài liệu dự kiến mà chưa sửa → hoặc sửa, hoặc ghi lý do; tài liệu sửa mà bảng không có → ghi một dòng "ngoài dự kiến" (là chỗ chuỗi truy vết đang thiếu mã).
 13. **Đóng CR:** sau nghiệm thu (test xanh, người dùng chấp nhận) → trạng thái **Đóng** + ngày đóng. CR dừng giữa chừng → giữ **Đang triển khai** kèm ghi chú việc còn lại.
 14. *(Tùy chọn)* nếu dự án có `docs/Ho-so/portal.html`, invoke `ba-portal` để cổng đọc phản ánh thay đổi.
 15. Báo người dùng: mã CR + trạng thái + bảng ảnh hưởng đã đồng bộ.

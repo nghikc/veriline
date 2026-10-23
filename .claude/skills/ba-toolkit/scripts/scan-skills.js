@@ -222,7 +222,7 @@ for (const h of hits) {
   const m = mụcHợpLệ.find((x) => x.file === h.file && x.loai === h.loai);
   if (m) { h.duyet = true; m.dùng++; }
 }
-// Gói phát hành (08/10/2026): mục trỏ file của skill gói Pro/devonly (registry skills.pro/skills.devonly) VẮNG ở bản này (repo công khai)
+// Gói phát hành (08/10/2026): mục trỏ file của skill gói Advance/devonly (registry skills.pro/skills.devonly) VẮNG ở bản này (repo công khai)
 // không phải mồ côi — allowlist đi cùng nguồn chung, file chỉ vắng ở bản xuất. Skill có mặt mà file mất thì vẫn mồ côi.
 const regNgoài = (() => { try { const t = fs.readFileSync(path.join(gốc, 'skills', 'ba-toolkit', 'references', 'conv-registry.md'), 'utf8'); return ['skills.pro', 'skills.devonly'].flatMap((k) => ((t.match(new RegExp(`^${k.replace('.', '\\.')}\\s*=\\s*(.+)$`, 'm')) || [])[1] || '').trim().split(/\s+/).filter(Boolean)); } catch { return []; } })();
 const vắngGói = (f) => { const sk = (String(f).match(/^skills\/([^/]+)\//) || [])[1]; return sk && regNgoài.includes(sk) && !fs.existsSync(path.join(gốc, 'skills', sk)); };

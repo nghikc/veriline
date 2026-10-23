@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * ba-toolkit/state.js — TRẠNG THÁI ĐỘI ngoài hội thoại: `.claude/ac-state.json` ở gốc dự án. Zero-dependency.
- * (Dời từ ac-team/scripts/ 08/10/2026 — dev-run (lõi) và ac-verify cần sổ phái; ac-team (gói Pro) gọi sang đây.)
+ * (Dời từ ac-team/scripts/ 08/10/2026 — dev-run (lõi) và ac-verify cần sổ phái; ac-team (gói Advance) gọi sang đây.)
  *
  *   node .claude/skills/ba-toolkit/scripts/state.js init <Mã> --base <sha> --batches <json-từ-batch-plan> [--autonomy solo] [--mode team|single]
  *   node .claude/skills/ba-toolkit/scripts/state.js batch-done <n> --summary <file.json>     # worker trả tóm tắt

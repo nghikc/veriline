@@ -26,12 +26,13 @@ model: opus
 2. **Đủ nhánh quyết định.** Mỗi điểm quyết định trong fact-list → 1 nhánh rẽ (`if/else`, diamond `{...}`, `alt/opt`) có **≥2 hướng ra CÓ NHÃN**? Quyết định 1 nhánh hoặc nhánh vô nhãn = lỗi.
 3. **Dead-end / loose-end.** Mọi đường dẫn tới một điểm kết (`stop`/end/state cuối)? Có node nào "treo" không đường ra không?
 4. **Orphan branch.** Nhánh nào trong sơ đồ KHÔNG khớp fact nào → có thể bịa; flag để người dùng xác nhận, KHÔNG tự coi là sai.
+4b. **Bàn giao chéo lane (swimlane).** Mỗi cạnh đi từ lane này sang lane khác: nhãn cạnh **hoặc** node nhận có gọi tên thứ vai sau nhận không? Đây là độ phủ (vai sau nhận đủ đầu vào chưa), không phải văn phong. Nhãn chung chung (`Tiếp theo`, `Chuyển`, `Gửi`, `Xử lý`, `OK`, `Xong`) mà node nhận cũng chung chung → 🟡, kèm đề xuất nhãn gọi tên thứ được giao. Cạnh không nhãn mà node nhận đã rõ (`[Duyệt đơn nghỉ phép]`) → **không** flag. Bảng sai → đúng: `ba-diagram/references/recipes.md` §1.
 5. **Thứ tự message (sequence).** Response có đến trước request tương ứng không (sai thứ tự rõ ràng)?
 6. **ERD.** Mỗi thực thể có PK? Mỗi quan hệ có cardinality (`||--o{`…)? Quan hệ n-n đã tách bảng nối?
 
 ## Mức ưu tiên (khớp ba-review: 🔴 / 🟡 / 🟢)
 - **🔴 Chặn:** vai trò trong fact-list vắng hoàn toàn trong sơ đồ; nhánh error/alt có trong fact-list nhưng thiếu; **dead-end** (đường không tới điểm kết); điểm quyết định chỉ 1 hướng ra; ERD thực thể thiếu PK.
-- **🟡 Quan trọng:** thứ tự message nghi sai logic; nhánh nhãn mơ hồ ("nếu lỗi" không nói lỗi gì); orphan branch cần người dùng xác nhận nguồn; quan hệ ERD thiếu cardinality.
+- **🟡 Quan trọng:** thứ tự message nghi sai logic; nhánh nhãn mơ hồ ("nếu lỗi" không nói lỗi gì); bàn giao chéo lane không nói thứ được giao (mục 4b); orphan branch cần người dùng xác nhận nguồn; quan hệ ERD thiếu cardinality.
 - **🟢 Nhỏ:** actor phụ (Hệ thống/DB) chưa ghi rõ quan hệ; sơ đồ quá dài (>15 bước sequence / >10 node activity) nên cân nhắc tách.
 
 ## KHÔNG soát (ngoài phạm vi)

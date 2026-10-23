@@ -73,13 +73,13 @@ const nguồnToolkit = có('example', 'docs', '00-tracking.md');
 const coCode = codeDấu.length > 0, coTàiLiệu = tàiLiệuThật.length > 0;
 const loại = docsDấu.length ? 'có-docs' : coCode && coTàiLiệu ? 'code-và-tài-liệu' : coCode ? 'có-code' : coTàiLiệu ? 'tài-liệu-rời' : 'ý-tưởng';
 
-// Skill sinh tài liệu ngược từ code thuộc gói Pro — có cài thì đề xuất, không thì ba-init (không phụ thuộc cứng, lint 44)
+// Skill sinh tài liệu ngược từ code thuộc gói Advance — có cài thì đề xuất, không thì ba-init (không phụ thuộc cứng, lint 44)
 const SKILLS = path.join(__dirname, '..', '..');
 const cóSkill = (s) => fs.existsSync(path.join(SKILLS, s, 'SKILL.md'));
 const cóReverse = cóSkill('ba-reverse');
 const nhánhCode = cóReverse
   ? { skill: 'ba-reverse', lýDo: 'đọc code có sẵn rồi viết ngược ra tài liệu (phần suy đoán được đánh dấu để bạn xác nhận)' }
-  : { skill: 'ba-init', lýDo: 'bắt đầu từ ý tưởng, Claude đọc code có sẵn làm tham khảo · gói Pro có thêm skill viết tài liệu ngược thẳng từ code' };
+  : { skill: 'ba-init', lýDo: 'bắt đầu từ ý tưởng, Claude đọc code có sẵn làm tham khảo' };
 const ĐỀ_XUẤT = {
   'có-docs': [{ skill: 'ba-next', lýDo: 'dự án đã có tài liệu — xem đang ở bước nào và làm gì tiếp' }],
   'code-và-tài-liệu': [{ skill: 'ba-reverse-doc', lýDo: 'tài liệu khách gửi là nguồn chính — dựng lại yêu cầu có trích nguồn' }, nhánhCode],

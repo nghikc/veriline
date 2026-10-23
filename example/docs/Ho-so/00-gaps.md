@@ -2,6 +2,7 @@
 
 > Scope lần chạy gần nhất: `all` · Ngày: `2026-09-14` · Đã phủ: `all` · Sinh bởi `ba-review`.
 > Bổ sung 15/09/2026: G64–G69 từ dogfood `ac-judge`/`ac-jury` trên code S06 (không phải lần chạy `ba-review`) — giữ làm fixture, chưa mở CR.
+> Bổ sung 22/10/2026: G70 từ `check-state.js` khi thêm bảng chuyển trạng thái cho S05 (không phải lần chạy `ba-review`).
 > Lần phủ toàn dự án trước: `all` ngày `2026-08-04` (lần 4); các lần 5–9 soát hẹp. **Lần này ghi đè cả file** (scope `all`); lịch sử các lần trước còn trong git.
 
 **Vì sao chạy lại `all`:** ba review agent chạy 11/09 để ghi golden đã tìm ra 4 mâu thuẫn thật mà bảng gap lúc đó khai sạch. Tài liệu đã đổi nhiều sau lần `all` gần nhất (04/08): CR-02..06, ADR, `F14`. "Sạch" của gaps là sạch theo lần soát cũ.
@@ -20,7 +21,7 @@
 | Giả định `⚠️ chưa xác nhận` | 10 dòng thật |
 | Agent | `ba-consistency-reviewer` (project) · `ba-srs-quality-reviewer` (S01 — màn phức tạp) · `ba-diagram-reviewer` (sơ đồ 4.1). **Đã soát sâu 1/6 màn** (S01); 5 màn còn lại chỉ kiểm cơ giới — dưới trần 8 agent, chưa chạy screen-mode vì đây là lượt tái lập baseline |
 
-## Gap: 69 — 🔴 5 · 🟡 29 · 🟠 10 · 🟢 25
+## Gap: 70 — 🔴 5 · 🟡 30 · 🟠 10 · 🟢 25
 
 | ID | Mức | Scope | Mô tả | Vị trí | Mốc | Sửa bằng |
 |---|---|---|---|---|---|---|
@@ -93,6 +94,7 @@
 | G67 | 🟢 | S06 | `plan.md` Task 3 ghi "Edit `src/middleware/auth-guard.ts` — mở rộng middleware hiện có" nhưng plan S01 Task 3 mới tạo file đó; đứng một mình S06 thì file chưa tồn tại | plan.md Task 3 | — | ba-build |
 | G68 | 🟡 | S06 | `R-S06-N03` rate limit 429 (>10 req/phút/IP) không task nào trong `plan.md` nhận, không TC nào phủ | srs.md :46 · plan.md | ba-build | ba-build (thêm task) |
 | G69 | 🟢 | S06 | `R-S06-N06` "đúng 4 Tab tới nút" buộc hai nút icon mắt `tabIndex=-1` → người dùng bàn phím không tới được toggle; `R-S06-N07` trace `NFR-07` nhưng NFR-07 là tương thích trình duyệt, dự án không có NFR tiếp cận | srs.md :49-50 · 01-requirements.md :118 | — | ba-requirements (NFR tiếp cận) hoặc PD |
+| G70 | 🟡 | S05 | Vòng đời `NguoiDung.trang_thai` vẽ hai kiểu: S05 cho VoHieu (INACTIVE) là trạng thái cuối (`VoHieu --> [*]`) mà vẫn có chuyển "Kích hoạt lại" ra, S01 coi INACTIVE là trạng thái giữa; S05 thiếu chuyển "Admin khoá thủ công" ACTIVE → PERM_LOCKED (`UC-S01-04`) mà S01 có | S05 srs.md mục 5 · S01 srs.md mục 4 | — | ba-change-request (sửa sơ đồ S05) |
 
 ## Nợ có hạn (🟠)
 

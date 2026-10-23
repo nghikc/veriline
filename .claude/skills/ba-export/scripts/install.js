@@ -244,9 +244,13 @@ function gitInfo(root) {
 const PHẦN_COPY = ['.claude/skills', '.claude/agents', 'explain', 'README.md', 'site/huong-dan.md', 'example/GUIDELINE.md'];
 function dirtyPaths(root) {
   try {
-    const out = execFileSync('git', ['-C', root, 'status', '--porcelain', '--', ...PHẦN_COPY], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
-    // `R  cũ -> mới` (git mv chưa commit): cả hai đường dẫn đều dirty — đường cũ có ở commit mà vắng ở cây làm việc.
-    return out.split('\n').filter(Boolean).flatMap((l) => l.slice(3).split(' -> '));
+    // `-z`: không có nó git bọc đường dẫn có dấu cách/ký tự lạ trong "…" → `dirtyFiles` mang cả dấu nháy, integrity không khớp
+    // được file nào trong `S03 - TaskDetail/` và báo "sửa tại đích" oan (gặp 22/10/2026).
+    const out = execFileSync('git', ['-C', root, 'status', '--porcelain', '-z', '--', ...PHẦN_COPY], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    // Đổi tên (git mv chưa commit): `R  mới\0cũ\0` — cả hai đường dẫn đều dirty, đường cũ có ở commit mà vắng ở cây làm việc.
+    const t = out.split('\0'), kq = [];
+    for (let i = 0; i < t.length; i++) { if (!t[i]) continue; kq.push(t[i].slice(3)); if (/[RC]/.test(t[i].slice(0, 2)) && t[i + 1]) kq.push(t[++i]); }
+    return kq;
   } catch { return null; } // không phải git repo → không biết, không chặn
 }
 const gitOut = (root, args) => { try { return execFileSync('git', ['-C', root, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }); } catch { return null; } };

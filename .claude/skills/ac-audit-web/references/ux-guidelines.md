@@ -61,3 +61,6 @@
 - Web Interface Guidelines (Vercel) — https://github.com/vercel-labs/web-interface-guidelines
 - web.dev — Core Web Vitals (LCP/INP/CLS) — https://web.dev/articles/vitals
 - Lighthouse best-practices audits — https://developer.chrome.com/docs/lighthouse/best-practices/
+
+### Tầng `ảnh` — một ảnh chụp
+Không có DOM để đối chiếu danh sách trên → dùng **phiếu 6 tiêu chí** (`assets/audit-anh-template.md`), cùng mức 🔴/🟠/🟡 của bảng đầu file nhưng chỉ cho điều **thấy được** trên ảnh. Phiếu dựng lại cơ chế của Reqwise `figma-review` (giả định việc chính thay vì hỏi · kiểm ảnh đủ rõ trước · cột "Cố ý nếu" · không px · cấm chữ chung chung) — học ý, viết lại, không chép (nguồn không kèm giấy phép; decision 41).

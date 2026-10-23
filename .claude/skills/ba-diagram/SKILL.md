@@ -17,7 +17,7 @@ Nhận một mô tả ("vẽ sơ đồ cho luồng X / dữ liệu Y / trạng t
 ## Quy trình
 
 ### 1. Đọc mô tả & phân loại (làm rõ nếu thiếu)
-Xác định bản chất thứ cần mô tả + **đếm số vai trò/tác nhân**. Thiếu thông tin cốt lõi → hỏi 1–2 câu **nghiệp vụ** (không kỹ thuật): các bước / vai trò nào làm gì / điểm rẽ nhánh / trạng thái / thực thể.
+Xác định bản chất thứ cần mô tả + **đếm số vai trò/tác nhân**. Thiếu thông tin cốt lõi → hỏi 1–2 câu **nghiệp vụ** (không kỹ thuật): các bước / vai trò nào làm gì / điểm rẽ nhánh / trạng thái / thực thể. **Tối đa 2 vòng hỏi**, mỗi câu kèm một đề xuất để người dùng chỉ cần gật hoặc sửa ("Tôi hiểu người duyệt là Trưởng phòng — đúng không?"). Hết 2 vòng mà vẫn thiếu → vẽ với giả định ghi rõ ngay dưới sơ đồ (`> Giả định: …`), không hỏi vòng thứ ba.
 
 ### 2. CHỌN loại sơ đồ
 Nguồn quyết định = **"Bộ chọn sơ đồ Mermaid"** trong `conventions.md` (bảng "khi nào / KHÔNG dùng"). Luật nhanh:
@@ -33,7 +33,7 @@ Nguồn quyết định = **"Bộ chọn sơ đồ Mermaid"** trong `conventions
 | **Kiến trúc — phân tầng / triển khai / topo service** | **`flowchart TB` + `subgraph`** (tô `classDef`; KHÔNG architecture-beta) |
 | **Kiến trúc — ngữ cảnh** hệ thống | **`flowchart LR` + `subgraph`** (KHÔNG C4Context) |
 | Hành trình người dùng (cảm xúc theo bước) | `journey` |
-| Tiến độ/timeline | `gantt` / `timeline` |
+| Tiến độ/timeline | `gantt` (ra bảng kế hoạch Công việc · Người làm · Bắt đầu · Số ngày — `recipes.md` §9) / `timeline` |
 
 > **Lỗi hay gặp:** mặc định `flowchart` cho luồng đa vai → SAI. **Đếm vai trò trước**; ≥2 vai → swimlane. Cách vẽ chi tiết từng loại: `recipes.md` (cùng thư mục).
 
@@ -50,9 +50,18 @@ Dùng template + cách vẽ của loại đã chọn trong `recipes.md`, đồng
   - `sequenceDiagram`/`erDiagram` không nhận `classDef` → chỉ house theme.
 
 ### 5. Đối chiếu coverage + gate
-Đối chiếu sơ đồ với fact-list ("Kiểm coverage sơ đồ" trong `conventions.md`): đủ vai trò↔lane; mỗi quyết định **≥2 nhánh có nhãn**; **không dead-end**; không orphan branch; (ERD) thực thể có PK + quan hệ có cardinality. Sơ đồ **phức tạp** (≥3 vai trò **HOẶC** ≥5 quyết định **HOẶC** lồng ≥2 tầng **HOẶC** có loop) → chạy **`ba-review diagram <file>`** (agent `ba-diagram-reviewer`) trước khi chốt.
+**Máy đếm trước:** `node .claude/skills/ba-toolkit/scripts/check-flow.js <file.md> --plain` — lỗi cấu trúc của `swimlane-beta`/`flowchart`: quyết định < 2 lối ra (`FL-QD1`), lối ra quyết định không nhãn (`FL-QDN`), node cụt không phải điểm kết (`FL-CUT`), node không lối vào (`FL-COI`), lane rỗng (`FL-LAN`). **Mỗi phát hiện phải được xử lý** — sửa sơ đồ (kết quả cuối thì vẽ thành node kết `([…])`), hỏi người dùng, hoặc ghi một dòng vì sao chấp nhận — không lặng lẽ bỏ qua. Sơ đồ không có node đầu/kết thì máy **không xét** cụt/mồ côi và nói thẳng điều đó.
 
-### 6. Đặt sơ đồ
+Rồi đối chiếu sơ đồ với fact-list ("Kiểm coverage sơ đồ" trong `conventions.md`): đủ vai trò↔lane; mỗi quyết định **≥2 nhánh có nhãn**; **không dead-end**; không orphan branch; (ERD) thực thể có PK + quan hệ có cardinality. Sơ đồ **phức tạp** (≥3 vai trò **HOẶC** ≥5 quyết định **HOẶC** lồng ≥2 tầng **HOẶC** có loop) → chạy **`ba-review diagram <file>`** (agent `ba-diagram-reviewer`) trước khi chốt.
+
+### 6. Báo kết quả — tách theo mức, nói rõ cái máy không kiểm
+Báo xong một sơ đồ bằng bốn dòng, mỗi dòng một mức, **không gộp thành một chữ "đạt"**:
+1. **Cú pháp** — `render-check.js` (parser thật) hoặc "chưa kiểm — không có Chrome".
+2. **Quy ước toolkit** — loại sơ đồ đúng bộ chọn, hướng swimlane, tiếng Việt có dấu, tô màu.
+3. **Cấu trúc** — `check-flow.js`: số phát hiện và mỗi cái đã xử lý thế nào.
+4. **Đúng nghiệp vụ** — đối chiếu fact-list (và `ba-diagram-reviewer` nếu phức tạp). **Máy không kiểm mức này**: thiếu vai trò, nhánh bịa, nhãn bàn giao có nói rõ *giao cái gì* hay không — ghi rõ ai đã soát.
+
+### 7. Đặt sơ đồ
 - Gắn với tài liệu (srs/overview/requirements/data-model…) → chèn đúng chỗ + cập nhật `00-tracking.md` ("Cập nhật cuối") nếu là tài liệu của một màn.
 - Vẽ lẻ → trả về khối ```mermaid``` + gợi ý nơi lưu; muốn xem hình → nhắc chạy `ba-portal --single <file>` để render offline.
 
@@ -70,6 +79,7 @@ Dùng template + cách vẽ của loại đã chọn trong `recipes.md`, đồng
 ## Tham chiếu
 - `.claude/skills/ba-toolkit/references/conventions.md` → **"Bộ chọn sơ đồ Mermaid"** (quyết định) · **"Kiểm coverage sơ đồ"** · **"Sơ đồ Mermaid — an toàn cú pháp"** · **"Bảng màu phân vai node"**.
 - `recipes.md` (cùng thư mục) — cách vẽ + template + tô màu từng loại.
+- `ba-toolkit/scripts/check-flow.js` — đếm lỗi cấu trúc sơ đồ luồng (bước 5); `--rules` liệt kê mã luật. Lý do: `docs/decisions/38-kiem-cau-truc-so-do.md`.
 - Agent `ba-diagram-reviewer` — soát coverage cho sơ đồ phức tạp (qua `ba-review diagram`).
 
 ## Chế độ `export` — một sơ đồ → SVG tĩnh + trang tương tác
@@ -81,7 +91,8 @@ node .claude/skills/ba-diagram/scripts/figure.js <file.mmd> [--out <thư mục>]
 ```
 - `--index N` — sơ đồ thứ N (mặc định 1). `--all` — mọi sơ đồ, **một lần mở Chrome** cho cả lô. Tên file lấy từ **tiêu đề gần nhất phía trên** sơ đồ.
 - Đầu ra: `<tên>.svg` + `<tên>.html` (tự chứa, nhúng lại nguồn Mermaid trong comment để sửa sau). Chỉ đọc `.md` nguồn, ghi ra `--out`.
-- **Cần Chrome/Chromium** — không có thì báo lỗi và dừng; cố ý không có đường "nhúng runtime cho xong" (đó là đúng thứ `ba-portal` đã làm).
+- **`gantt` không cần Chrome** — vẽ bằng `ba-toolkit/scripts/gantt.js` thành bảng kế hoạch (cột Công việc · Người làm · Bắt đầu · Số ngày + thanh, nhóm theo `section`); cú pháp nó chưa đọc thì về Mermaid như dưới.
+- **Cần Chrome/Chromium** (mọi loại khác) — không có thì báo lỗi và dừng; cố ý không có đường "nhúng runtime cho xong" (đó là đúng thứ `ba-portal` đã làm).
 - Sơ đồ hỏng cú pháp → **dừng mã 1**, không ghi file nửa vời.
 - **Tương tác chỉ có với `flowchart`/`graph`/`swimlane-beta`** (bấm node soi luồng, lọc theo tên, sáng/tối, tải SVG/PNG). ERD/sequence/state ra SVG đẹp nhưng không bấm được — dòng kết quả nói thẳng và trang ẩn các nút tương tác.
 - Giới hạn: id node có `_` làm cạnh `L_a_b_n` mơ hồ → chỉ nhận cạnh khi **cả hai** nửa là node thật, cạnh không phân giải được thì **đếm và báo**; nhãn cạnh không mờ theo khi chọn node; đổi sáng/tối chỉ đổi nền trang.

@@ -34,7 +34,7 @@ e2e.legacy = docs/Screen-spec/<Màn>/e2e.spec.ts
 hoso.dir = Ho-so
 # Tài liệu thuộc Ho-so/ (tên file giữ nguyên, kể cả số). Script phân giải qua docpath.js —
 # vẫn tìm ở gốc docs/ cho dự án cài trước 13/08/2026.
-hoso.docs = removed 00-vision.md 00-personas.md 00-process.md 00-urd.md 00-brainstorm.md 00-flows.md prototype.html 00-intake.md 00-glossary.md 04-stakeholders.md 08-roadmap.md 09-uat.md 00-traceability.md 00-gaps.md 00-conformance.md 00-introduction.md 00-onepager.md 00-onepager.html 00-dashboard.md sitemap.md sitemap-flows.md sitemap.html portal.html dev-notes.md userguide releases meetings api-test dbschema wireframe.html notes 00-lessons.md reviews eval jury 00-threat-model.md 00-migration.md audit po 00-figma-sync.md
+hoso.docs = removed 00-vision.md 00-personas.md 00-process.md 00-urd.md 00-brainstorm.md 00-flows.md prototype.html 00-intake.md 00-glossary.md 04-stakeholders.md 08-roadmap.md 09-uat.md 00-traceability.md 00-gaps.md 00-conformance.md 00-introduction.md 00-onepager.md 00-onepager.html 00-dashboard.md sitemap.md sitemap-flows.md sitemap.html portal.html dev-notes.md userguide releases meetings api-test dbschema wireframe.html design-canvas.html prototype-hifi.html prototype-nav.json figma-assets ui-source notes 00-lessons.md reviews eval jury 00-threat-model.md 00-migration.md audit po 00-figma-sync.md
 # Skill BẮT BUỘC có "Cổng phương án" (mục cùng tên ở trên). lint.js soát: mỗi skill dưới đây
 # phải có chuỗi "Cổng phương án" trong SKILL.md. Thêm orchestrator/skill ghi-nhiều-file mới
 # thì thêm vào đây, không thì lint không bắt được lúc nó quên cổng.
@@ -90,7 +90,7 @@ agents.experimental = ac-juror:ac-jury
 # Agent đi theo skill CHỦ (M6): agent:skill1|skill2 — install.js chỉ cài agent khi ≥1 skill chủ được cài (agent trỏ vào
 # reference của skill vắng là lối đi cụt). Lint 44: mỗi agent trong agents.roster có dòng ở đây.
 agents.owner = ba-consistency-reviewer:ba-review ba-srs-quality-reviewer:ba-review ba-diagram-reviewer:ba-review|ba-diagram ba-inference-reviewer:ba-reverse|ba-conformance ba-manual-reviewer:ba-accept ba-change-observer:ba-changelog ac-verifier:ac-verify ac-builder:dev-run|ac-team ac-judge:ac-judge ac-evaluator:ac-eval ac-juror:ac-jury ac-auditor:ac-audit-web
-# GÓI PHÁT HÀNH (CHỐT 08/10/2026 — docs/decisions/32, release/manifest.json): skill gói Pro và skill giữ riêng (devonly) KHÔNG có
+# GÓI PHÁT HÀNH (CHỐT 08/10/2026 — docs/decisions/32, release/manifest.json): skill gói Advance và skill giữ riêng (devonly) KHÔNG có
 # trong repo công khai. Mọi check đọc danh sách skill/agent ở registry (gate.plan.*, gate.cost.skills, scope.dev.skills, profile.aware,
 # agents.roster, po.*…) chỉ soát skill thuộc hai tập này KHI NÓ CÓ MẶT. Lint 45: file của skill KHÔNG thuộc hai tập (và agent công khai)
 # mà require/đường dẫn cứng tới skill trong hai tập → lỗi, trừ chỗ có điều kiện existsSync rõ ràng. Phải khớp manifest khi file đó có.

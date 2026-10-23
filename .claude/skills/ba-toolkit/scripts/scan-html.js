@@ -46,7 +46,8 @@ const argv = process.argv.slice(2);
 const JSON_MODE = argv.includes('--json');
 const INCLUDE_SHELL = argv.includes('--include-shell');
 const target = argv.find((a) => !a.startsWith('--'));
-if (!target || !fs.existsSync(target)) {
+// Chỉ chặn khi chạy như CLI: ac-auditor `require()` file này để lấy contrast/parseColor — chặn ở cấp nạp thì nó exit 2 (gặp 23/10/2026)
+if (require.main === module && (!target || !fs.existsSync(target))) {
   console.error('Dùng: scan-html.js <file.html | thư mục> [--include-shell] [--plain|--json]');
   process.exit(2);
 }

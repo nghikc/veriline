@@ -74,8 +74,13 @@ Biến thể **colorblind-safe** (Okabe-Ito — thay khối trên khi làm báo 
    - Mỗi **điểm quyết định** → 1 nhánh rẽ có **≥2 hướng ra CÓ NHÃN** (không có quyết định 1 nhánh, không nhánh vô nhãn).
    - **Không dead-end / loose-end:** mọi đường dẫn tới một điểm kết (`stop`/end/state cuối). Không node "treo".
    - **Không orphan branch:** nhánh trong sơ đồ mà fact-list KHÔNG có = có thể bịa → hỏi lại người dùng, không tự coi là đúng.
+   - (swimlane) **Bàn giao nói thứ được giao:** mỗi cạnh chéo lane — nhãn cạnh hoặc node nhận gọi tên thứ vai sau nhận; nhãn chung chung (`Tiếp theo`, `Chuyển`, `Xử lý`, `OK`) = 🟡. Bảng sai → đúng: `ba-diagram/references/recipes.md` §1. Phán đoán, máy không đếm.
    - (ERD) mỗi thực thể có **PK**; mỗi quan hệ có **cardinality**.
 3. Thiếu mục nào → bổ sung sơ đồ, không âm thầm báo "xong".
+
+**Phần máy đếm được:** quyết định ≥2 lối ra có nhãn, không dead-end, không node mồ côi, không lane rỗng — `node .claude/skills/ba-toolkit/scripts/check-flow.js <file|docs> --plain` (mã `FL-*`, exit = số phát hiện). Chạy trước khi tự đối chiếu; mỗi phát hiện phải sửa, hỏi lại, hoặc ghi lý do chấp nhận. Máy **không** kiểm đủ vai trò, nhánh bịa, nhãn bàn giao có nghĩa — phần đó vẫn là fact-list và agent.
+
+**Sơ đồ State:** luôn kèm **bảng chuyển trạng thái** ngay dưới (khuôn `ba-screen-spec/assets/templates.md`) — `node .claude/skills/ba-toolkit/scripts/check-state.js <file|docs> --plain` so mũi tên ↔ bảng, ghi đủ ai thực hiện, Loại đầu/cuối, và mã dữ liệu ↔ enum ở `05-data-model.md` (mã `ST-*`). Sơ đồ chưa có bảng → "không xét".
 
 **Ngưỡng dùng gate:** sơ đồ **phức tạp** (≥3 vai trò/lane **HOẶC** ≥5 điểm quyết định **HOẶC** rẽ nhánh lồng ≥2 tầng **HOẶC** có loop) → chạy **`ba-review diagram <file>`** (dùng agent `ba-diagram-reviewer`) để soát coverage độc lập trước khi chốt. Dưới ngưỡng → skill tự đối chiếu theo checklist trên là đủ (khỏi tốn 1 lần review).
 

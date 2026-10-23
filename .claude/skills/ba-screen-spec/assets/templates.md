@@ -121,6 +121,8 @@ Trace: F0x → FR-0x → BR-0x.
 
 **Mức:** `blocker` = không hoàn tất được việc chính, không có đường vòng · `major` = chặn luồng nhưng có lối thoát · `minor` = sửa tại chỗ rồi đi tiếp.
 
+**Cột tuỳ chọn — chỉ thêm khi dự án cần, và luôn thêm SAU `Lối thoát`** (script đọc 7 cột đầu theo vị trí): `HTTP` (mã phản hồi API cho lỗi này, vd `409`, `423` — dự án có API mà client/đối tác bên ngoài gọi; khớp `06-api-spec.md`) · `Khoá dịch` (khoá i18n của câu báo lỗi, vd `auth.locked` — dự án đa ngôn ngữ; câu ở cột *Người dùng thấy gì* là bản tiếng Việt của khoá đó). Lỗi không đi qua API thì ghi `—` ở cột `HTTP`.
+
 Kiểm khi viết xong: mọi **luồng ngoại lệ** trong `usecase.md` có dòng ở đây · mọi dòng ở đây có **lối thoát** (không để người dùng kẹt) · thông báo ghi **nguyên văn** (để `test.md`/`html-design` dùng lại đúng chữ, không diễn đạt lại).
 
 ## Phụ thuộc ngoài
@@ -257,6 +259,22 @@ stateDiagram-v2
   TamKhoa --> HoatDong: hết 15 phút
   HoatDong --> [*]: đăng xuất
 ```
+
+**Bảng chuyển trạng thái** — BẮT BUỘC ngay dưới mỗi sơ đồ State, trước tiêu đề kế. Sơ đồ chỉ có mũi tên và nhãn tự do; bảng ghi thứ sơ đồ không có chỗ: **điều kiện chặn**, **ai được chuyển**, **mã lưu ở CSDL**. Một dòng một mũi tên (trừ mũi tên từ/tới `[*]` — Loại "đầu"/"cuối" thay chúng). Đối tượng có cột enum ở `05-data-model.md` → thêm dòng `Dữ liệu:` để máy so vòng đời với enum.
+
+> Dữ liệu: `NguoiDung.trang_thai` (`05-data-model.md`)
+
+| Trạng thái | Tên | Mã dữ liệu | Loại |
+|---|---|---|---|
+| HoatDong | Đang hoạt động | ACTIVE | đầu · cuối |
+| TamKhoa | Tạm khoá | TEMP_LOCKED | giữa |
+
+| Từ | Sự kiện | Điều kiện | Sang | Ai thực hiện | Trace |
+|---|---|---|---|---|---|
+| HoatDong | Đăng nhập sai | sai lần thứ 5 trong 15 phút | TamKhoa | Hệ thống | BRule-S01-01 |
+| TamKhoa | Hết thời gian khoá | đủ 15 phút từ lần khoá | HoatDong | Hệ thống | BRule-S01-02 |
+
+> Soát bằng máy: `node .claude/skills/ba-toolkit/scripts/check-state.js <srs.md> --plain` — mũi tên thiếu/thừa so với bảng (`ST-THIEU`/`ST-THUA`), dòng không ghi ai thực hiện (`ST-AI`), trạng thái lệch hai bảng (`ST-NODE`), Loại đầu/cuối sai (`ST-LOAI`), mã không thuộc enum (`ST-ENUM`), giá trị enum không trạng thái nào mang (`ST-SOT`), dòng `Dữ liệu:` trỏ sai (`ST-REF`), trạng thái không đi tới được từ `[*]` (`ST-TOI` — xét cả sơ đồ chưa có bảng). Không có enum (trạng thái chỉ sống trên giao diện) → bỏ dòng `Dữ liệu:` và ghi `—` ở cột Mã.
 
 **Use case (flowchart):**
 ```mermaid

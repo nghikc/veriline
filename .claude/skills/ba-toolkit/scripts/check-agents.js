@@ -71,7 +71,7 @@ for (const f of files) {
 // (--with-experimental không bật) — agent đó chỉ vắng vì skill của nó vắng, không phải roster sai.
 // Khoá chưa có trong registry → reg() trả [] → hành vi cũ (mọi agent thiếu file đều bị bắt).
 const expAgents = {};
-for (const e of [...reg('agents.experimental'), ...reg('agents.pro')]) {   // agents.pro (08/10/2026): agent của skill gói Pro vắng ở bản công khai
+for (const e of [...reg('agents.experimental'), ...reg('agents.pro')]) {   // agents.pro (08/10/2026): agent của skill gói Advance vắng ở bản công khai
   const [name, skill] = e.split(':');
   if (name && skill) expAgents[name] = skill;
 }

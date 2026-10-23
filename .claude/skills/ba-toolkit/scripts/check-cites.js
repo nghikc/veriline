@@ -66,5 +66,5 @@ for (const s of skills) {
   for (const r of refs) { nTên++; if (!known.has(r) && !IGNORE.has(r) && vắng(r)) { vắngHợpLệ++; continue; } if (!known.has(r) && !IGNORE.has(r)) lỗi.push(`${s} tham chiếu skill/agent không tồn tại: ${r}`); }
 }
 if (JSON_MODE) console.log(JSON.stringify({ files: files.length, cites: n, tên: nTên, vắngHợpLệ, lỗi }, null, 2));
-else { console.log(`check-cites: ${files.length} file · ${n} đường dẫn trích · ${nTên} tên skill/agent${vắngHợpLệ ? ` · ${vắngHợpLệ} trỏ skill/agent gói Pro/devonly vắng (hợp lệ)` : ''}`); for (const l of lỗi) console.log(`  ❌ ${l}`); if (!lỗi.length) console.log('  ✓ mọi đường dẫn trích và tên skill/agent đều tồn tại'); }
+else { console.log(`check-cites: ${files.length} file · ${n} đường dẫn trích · ${nTên} tên skill/agent${vắngHợpLệ ? ` · ${vắngHợpLệ} trỏ skill/agent gói Advance/devonly vắng (hợp lệ)` : ''}`); for (const l of lỗi) console.log(`  ❌ ${l}`); if (!lỗi.length) console.log('  ✓ mọi đường dẫn trích và tên skill/agent đều tồn tại'); }
 process.exit(lỗi.length);

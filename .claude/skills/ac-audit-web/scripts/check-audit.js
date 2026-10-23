@@ -17,6 +17,12 @@
  *   4. dòng `**Verdict:** ĐẠT|CHƯA ĐẠT` khớp mức: có 🔴 → CHƯA ĐẠT; không 🔴 → ĐẠT. Số 🔴/🟠/🟡 ghi cạnh verdict
  *      (nếu có) phải bằng số đếm từ bảng.
  *   5. không còn placeholder `<…>`/TODO ngoài backtick.
+ *   6. `tầng: ảnh` (một ảnh chụp, không có file/URL để mở — decision 41) thêm: header `việc chính:` (ai vào đây làm gì) ·
+ *      trục chỉ UX (WCAG/CWV cần mã/URL) · Tiêu chí ∈ 6 tiêu chí của phiếu · Vị trí = tên ảnh + `(vùng trên ảnh)` ·
+ *      cột `Cố ý nếu` bác bằng thứ thấy được ("→ không, vì …" | "dù cố ý, …") · không số px (ảnh dán đã mất tỉ lệ) · không
+ *      từ chung chung (cải thiện, tối ưu, trực quan, hiện đại, chuyên nghiệp, thoáng hơn, đẹp hơn) · mục "Phiếu 6 tiêu chí"
+ *      đủ 6 dòng, Mức ∈ Tốt/Tạm/Cần sửa/— khớp phát hiện (Tốt = không AU · Tạm = chỉ 🟡 · Cần sửa = có 🔴/🟠) ·
+ *      ≥ 3 dòng "—" ⇔ Verdict `CHƯA ĐỦ ẢNH`.
  * Exit = số lỗi; ≠ 0 = bản audit không hợp lệ, không được dùng làm bằng chứng cho NFR/TC.
  *
  * Vì sao có: một bản audit a11y không có tiêu chí WCAG thì không tranh luận được ("xấu" không phải lỗi); không có
@@ -37,6 +43,10 @@ const rỗng = (s) => !(s || '').replace(/[—\-\s]/g, '');
 const cóFileLine = (s) => /[\w./ \-()]+\.\w+:\d+(\s*[-–,]\s*\d+)?/.test(s);
 const cóUrlSelector = (s) => /https?:\/\/\S+/.test(s) && (s.replace(/https?:\/\/\S+/, '').replace(/[`\s·]/g, '').length > 0);
 const TRỤC = new Set(['WCAG', 'UX', 'CWV']); const MỨC = new Set(['🔴', '🟠', '🟡']);
+// Tầng ảnh (decision 41): phiếu 6 tiêu chí — ý từ Reqwise figma-review, viết lại
+const TIÊU_CHÍ_ẢNH = ['Thứ bậc', 'Nhóm, khoảng cách', 'Dễ đọc', 'Câu chữ', 'Nhất quán', 'Trạng thái, phản hồi'];
+const cóVùngẢnh = (s) => /[\w./\-]+\.(png|jpe?g|webp|gif)\b[^|]*\([^)]*\S[^)]*\)/i.test(s);
+const TỪ_CHUNG = /(?:^|[^\p{L}])(cải thiện|tối ưu|trực quan|hiện đại|chuyên nghiệp|thoáng hơn|đẹp hơn)/iu; // \b của JS chỉ hiểu ASCII
 
 /** Bảng markdown đầu tiên có header khớp `cột` → { header, rows }. */
 function bảng(txt, cột) {
@@ -56,6 +66,9 @@ function kiểm(file) {
   const lỗi = []; const txt = fs.readFileSync(file, 'utf8');
   const header = (k) => new RegExp(`^>?\\s*(?:.*·\\s*)?${k}:\\s*\\S`, 'mi').test(txt);
   for (const k of ['model', 'ngày', 'màn', 'tầng', 'đầu vào']) if (!header(k)) lỗi.push(`header thiếu \`${k}:\``);
+  const ẢNH = /tầng:\s*ảnh\b/i.test(txt);
+  if (ẢNH && !header('việc chính')) lỗi.push('tầng ảnh: header thiếu `việc chính:` — ai vào màn này để làm gì (mức Chặn/Nặng phải nói hại cho việc này)');
+  const theoTC = new Map();                       // tầng ảnh: tiêu chí → các mức phát hiện
 
   // 2. Bảng phát hiện
   const b = bảng(mục(txt, /^Phát hiện/i) || txt, /^Mã$/i);
@@ -64,6 +77,8 @@ function kiểm(file) {
   else {
     const col = (re) => b.header.findIndex((x) => re.test(x));
     const I = { trục: col(/^Trục$/i), mức: col(/^Mức$/i), vị: col(/^Vị trí$/i), tc: col(/^Tiêu chí$/i), vđ: col(/^Vấn đề$/i), sửa: col(/^Cách sửa$/i), trace: col(/^Trace$/i) };
+    const iCố = col(/^Cố ý nếu$/i);
+    if (ẢNH && iCố < 0) lỗi.push('tầng ảnh: bảng "Phát hiện" thiếu cột `Cố ý nếu`');
     for (const [k, v] of Object.entries(I)) if (v < 0) lỗi.push(`bảng "Phát hiện" thiếu cột \`${{ trục: 'Trục', mức: 'Mức', vị: 'Vị trí', tc: 'Tiêu chí', vđ: 'Vấn đề', sửa: 'Cách sửa', trace: 'Trace' }[k]}\``);
     if (!lỗi.some((l) => l.startsWith('bảng "Phát hiện" thiếu cột'))) {
       const thấy = new Set();
@@ -74,7 +89,15 @@ function kiểm(file) {
         const trục = r[I.trục], mức = r[I.mức], vị = r[I.vị] || '', tc = r[I.tc] || '', vđ = r[I.vđ], sửa = r[I.sửa], trace = r[I.trace];
         if (!TRỤC.has(trục)) lỗi.push(`${mã}: trục "${trục}" không thuộc {WCAG, UX, CWV}`);
         if (!MỨC.has(mức)) lỗi.push(`${mã}: mức "${mức}" không thuộc {🔴, 🟠, 🟡}`); else đếm[mức]++;
-        if (!(cóFileLine(vị) || cóUrlSelector(vị))) lỗi.push(`${mã}: vị trí "${vị.slice(0, 40)}" không có \`file:line\` hay URL + selector`);
+        if (ẢNH) {
+          if (trục !== 'UX') lỗi.push(`${mã}: tầng ảnh chỉ phán được trục UX — ${trục} cần file:line hoặc URL để mở`);
+          if (!TIÊU_CHÍ_ẢNH.includes(tc)) lỗi.push(`${mã}: tiêu chí "${tc.slice(0, 30)}" không thuộc 6 tiêu chí của phiếu (${TIÊU_CHÍ_ẢNH.join(' · ')})`);
+          else { if (!theoTC.has(tc)) theoTC.set(tc, []); theoTC.get(tc).push(mức); }
+          if (!cóVùngẢnh(vị)) lỗi.push(`${mã}: vị trí "${vị.slice(0, 40)}" phải là tên ảnh + (vùng trên ảnh), vd \`s01.png (góc trên phải)\``);
+          if (/\d\s*px\b/i.test(`${vđ} ${sửa}`)) lỗi.push(`${mã}: có số px — ảnh dán đã mất tỉ lệ, so sánh tương đối ("bằng khoảng 1/3 chữ nhãn")`);
+          const từ = `${vđ} ${sửa}`.match(TỪ_CHUNG); if (từ) lỗi.push(`${mã}: chữ chung chung "${từ[1]}" — nói phần tử nào đổi thành gì`);
+          if (iCố >= 0 && !/không,?\s*vì\s*\S|dù cố ý\s*,?\s*\S/i.test(r[iCố] || '')) lỗi.push(`${mã}: cột Cố ý nếu phải bác bằng thứ thấy trên ảnh ("→ không, vì …" hoặc "dù cố ý, …")`);
+        } else if (!(cóFileLine(vị) || cóUrlSelector(vị))) lỗi.push(`${mã}: vị trí "${vị.slice(0, 40)}" không có \`file:line\` hay URL + selector`);
         if (trục === 'WCAG' && !/^\d\.\d+\.\d+\b/.test(tc)) lỗi.push(`${mã}: trục WCAG mà tiêu chí "${tc.slice(0, 30)}" không phải dạng x.y.z (vd 1.4.3)`);
         if (trục === 'CWV') { cóCWV = true; if (!/\b(LCP|INP|CLS|TBT|FCP)\b/.test(tc)) lỗi.push(`${mã}: trục CWV mà tiêu chí "${tc.slice(0, 30)}" không phải LCP/INP/CLS/TBT/FCP`); }
         if (trục === 'UX' && rỗng(tc)) lỗi.push(`${mã}: trục UX mà không ghi guideline nào`);
@@ -105,10 +128,32 @@ function kiểm(file) {
   }
   if (cóCWV && !cóSốĐo) lỗi.push('có phát hiện trục CWV mà bảng Core Web Vitals không có số đo nào có nguồn — không đo thì không phán CWV');
 
+  // 6. Tầng ảnh: phiếu 6 tiêu chí
+  let sốTrống = 0;
+  if (ẢNH) {
+    const bp = bảng(mục(txt, /^Phiếu 6 tiêu chí/i), /^Tiêu chí$/i);
+    if (!bp) lỗi.push('tầng ảnh: không có mục "## Phiếu 6 tiêu chí" với bảng cột đầu `Tiêu chí`');
+    else {
+      const iM = bp.header.findIndex((x) => /^Mức$/i.test(x));
+      for (const tên of TIÊU_CHÍ_ẢNH) {
+        const r = bp.rows.find((x) => x[0] === tên);
+        if (!r) { lỗi.push(`phiếu thiếu dòng "${tên}"`); continue; }
+        const m = (r[iM] || '').trim(), có = theoTC.get(tên) || [];
+        if (m === '—') { sốTrống++; if (có.length) lỗi.push(`phiếu: "${tên}" ghi — mà có ${có.length} phát hiện`); continue; }
+        if (!/^(Tốt|Tạm|Cần sửa)$/.test(m)) { lỗi.push(`phiếu: "${tên}" mức "${m}" không thuộc Tốt/Tạm/Cần sửa/—`); continue; }
+        const nặng = có.some((x) => x !== '🟡');
+        const mong = nặng ? 'Cần sửa' : có.length ? 'Tạm' : 'Tốt';
+        if (m !== mong) lỗi.push(`phiếu: "${tên}" ghi ${m} nhưng phát hiện dưới nó → phải là ${mong}`);
+      }
+    }
+  }
+
   // 4. Verdict
-  const v = txt.match(/\*\*Verdict:\*\*\s*(ĐẠT|CHƯA ĐẠT)\b([^\n]*)/);
+  const v = txt.match(/\*\*Verdict:\*\*\s*(CHƯA ĐỦ ẢNH|ĐẠT|CHƯA ĐẠT)(?![\p{L}])([^\n]*)/u);
   if (!v) lỗi.push('không có dòng `**Verdict:** ĐẠT` hoặc `CHƯA ĐẠT`');
-  else {
+  else if (ẢNH && (sốTrống >= 3) !== (v[1] === 'CHƯA ĐỦ ẢNH')) lỗi.push(sốTrống >= 3 ? `phiếu có ${sốTrống} tiêu chí — → Verdict phải là CHƯA ĐỦ ẢNH (xin ảnh rõ/đủ hơn, không chấm)` : `Verdict CHƯA ĐỦ ẢNH mà phiếu chỉ có ${sốTrống} tiêu chí — (cần ≥ 3)`);
+  else if (!ẢNH && v[1] === 'CHƯA ĐỦ ẢNH') lỗi.push('Verdict CHƯA ĐỦ ẢNH chỉ dùng cho tầng ảnh');
+  else if (v[1] !== 'CHƯA ĐỦ ẢNH') {
     const mong = đếm['🔴'] > 0 ? 'CHƯA ĐẠT' : 'ĐẠT';
     if (v[1] !== mong) lỗi.push(`Verdict ghi ${v[1]} nhưng bảng có ${đếm['🔴']} 🔴 → phải là ${mong}`);
     for (const m of ['🔴', '🟠', '🟡']) { const n = (v[2].match(new RegExp(`(\\d+)\\s*${m}`)) || [])[1]; if (n !== undefined && +n !== đếm[m]) lỗi.push(`Verdict ghi ${n} ${m} nhưng bảng đếm được ${đếm[m]}`); }

@@ -1,0 +1,107 @@
+/* ba-canvas — CSS dùng chung cho Ho-so/wireframe.html (chèn giữa hai mốc ba-canvas) và Ho-so/design-canvas.html.
+   CHỈ thang xám, không đổ bóng, không dải màu chuyển: khối này nằm TRONG wireframe nên check-wireframe phải còn sạch. */
+@media screen {
+  body.cv-on { overflow: hidden !important; }
+  body.cv-on > *:not(#cv-root) { display: none !important; }
+  body:not(.cv-on) > #cv-root { display: none !important; }
+}
+#cv-root { position: fixed; inset: 0; z-index: 2147483000; display: flex; flex-direction: column; background: #e6e6e6; color: #111; font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+#cv-root *, #cv-root *::before, #cv-root *::after { box-sizing: border-box; }
+#cv-root [hidden] { display: none !important; }
+#cv-root button { font: inherit; color: #111; background: #fff; border: 1px solid #767676; border-radius: 6px; padding: 4px 10px; min-height: 32px; cursor: pointer; white-space: nowrap; }
+#cv-root button:hover { background: #eee; }
+#cv-root button[aria-pressed="true"] { background: #111; color: #fff; border-color: #111; }
+#cv-root button:disabled { color: #767676; cursor: default; background: #f4f4f4; }
+#cv-root button:focus-visible, #cv-root input:focus-visible, #cv-root textarea:focus-visible, #cv-fab:focus-visible { outline: 3px solid #000; outline-offset: 2px; }
+#cv-root input, #cv-root textarea { font: inherit; color: #111; background: #fff; border: 1px solid #767676; border-radius: 4px; padding: 4px 6px; }
+
+.cv-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 12px; background: #fff; border-bottom: 1px solid #bbb; }
+.cv-title { margin-right: auto; font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cv-title small { font-weight: 400; color: #444; margin-left: 8px; }
+.cv-zoom { min-width: 56px; text-align: center; font-variant-numeric: tabular-nums; }
+.cv-sep { width: 1px; align-self: stretch; background: #ccc; margin: 0 4px; }
+
+.cv-stage { position: relative; flex: 1; overflow: hidden; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+.cv-stage.cv-drag { cursor: grabbing; }
+.cv-world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.cv-frame { position: absolute; background: #fff; border: 1px solid #8a8a8a; overflow: hidden; }
+.cv-frame iframe { display: block; width: 100%; border: 0; background: #fff; pointer-events: none; }
+.cv-frame.cv-final { border: 3px solid #111; }
+.cv-labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.cv-rowtitle { position: absolute; transform: translateY(-100%); font-size: 22px; font-weight: 800; color: #111; white-space: nowrap; letter-spacing: -0.01em; }
+.cv-rowtitle small { font-size: 13px; font-weight: 400; color: #444; margin-left: 10px; }
+.cv-label { position: absolute; transform: translateY(-100%); padding-bottom: 6px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cv-label > * { pointer-events: auto; }
+.cv-ltop { display: flex; align-items: center; gap: 6px; min-width: 0; }
+#cv-root .cv-name { border: 0; background: transparent; padding: 0 2px; min-height: 24px; font-weight: 700; text-align: left; min-width: 3.2em; display: flex; align-items: center; white-space: nowrap; flex: 0 1 auto; }
+#cv-root .cv-name .cv-code { flex: none; }
+#cv-root .cv-name .cv-long, #cv-root .cv-name .cv-short { margin-left: .3em; }
+#cv-root .cv-name .cv-long { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+#cv-root .cv-name:hover { background: transparent; text-decoration: underline; }
+#cv-root .cv-ltop button:not(.cv-name) { min-height: 26px; padding: 1px 8px; font-size: 13px; flex: none; }
+.cv-reason { font-size: 12px; color: #444; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cv-note { width: 100%; max-width: 420px; font-size: 13px; }
+.cv-label.cv-tight .cv-reason, .cv-label.cv-tight .cv-long { display: none; }
+.cv-label:not(.cv-tight) .cv-short { display: none; }
+
+.cv-foot { display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px; background: #fff; border-top: 1px solid #bbb; flex-wrap: wrap; }
+.cv-foot-l { display: flex; flex-direction: column; gap: 2px; flex: 1 1 320px; min-width: 0; }
+.cv-foot-h { font-size: 12px; color: #444; }
+.cv-out { margin: 0; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre; overflow: auto; max-height: 88px; background: #f4f4f4; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; }
+.cv-copybox { width: 100%; height: 72px; font: 13px ui-monospace, Menlo, Consolas, monospace; }
+.cv-msg { font-size: 12px; color: #222; min-height: 1em; }
+
+#cv-focus { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; background: #efefef; }
+.cv-fhead { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 12px; background: #fff; border-bottom: 1px solid #bbb; }
+.cv-fhead-t { margin-right: auto; min-width: 0; }
+.cv-fhead-t strong { display: block; font-size: 16px; }
+.cv-fhead-t span { display: block; font-size: 13px; color: #444; }
+.cv-fbody { flex: 1; min-height: 0; display: flex; }
+.cv-fmain { flex: 1; min-width: 0; overflow: auto; padding: 24px; }
+.cv-fframe { flex: none; position: relative; background: #fff; border: 1px solid #8a8a8a; }
+.cv-fframe iframe { display: block; border: 0; width: 100%; background: #fff; }
+.cv-legend { flex: 0 0 340px; align-self: flex-start; max-height: calc(100% - 48px); overflow: auto; margin: 24px 24px 24px 0; background: #fff; border: 1px solid #bbb; padding: 12px; font-size: 13px; }
+.cv-legend h3 { margin: 0 0 8px; font-size: 14px; }
+.cv-legend table { border-collapse: collapse; width: 100%; }
+.cv-legend th, .cv-legend td { border: 1px solid #ccc; padding: 3px 6px; text-align: left; vertical-align: top; }
+@media (max-width: 900px) { .cv-fbody { flex-direction: column; } .cv-legend { flex: 0 0 auto; align-self: stretch; max-height: 35%; margin: 0 12px 12px; } }
+
+#cv-fab { position: fixed; top: 12px; right: 12px; z-index: 2147483000; font: 14px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #fff; background: #111; border: 1px solid #111; border-radius: 6px; padding: 8px 12px; cursor: pointer; }
+
+/* Chú thích phần tử (#): viền nét đứt + chấm số, vẽ ở lớp phủ ngoài iframe. Màu lấy từ --cv-accent (gallery khai màu
+   nhấn trong trang của nó; wireframe không khai → đen, đúng luật thang xám). */
+.cv-ann { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; }
+#cv-root.cv-ann-off .cv-ann { display: none; }
+.cv-ab { position: absolute; border: 2px dashed var(--cv-accent, #111); border-radius: 3px; }
+#cv-root .cv-dot { position: absolute; pointer-events: auto; width: 22px; height: 22px; min-height: 0; padding: 0; border-radius: 50%; border: 2px solid #fff; background: var(--cv-accent, #111); color: #fff; font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; }
+#cv-root .cv-dot:hover { background: #000; }
+
+/* Khung Spec: artboard cạnh màn trên canvas, panel phải trong xem tập trung. */
+.cv-spec { position: absolute; background: #fff; border: 1px solid #8a8a8a; padding: 20px; font-size: 14px; line-height: 1.45; color: #111; }
+.cv-card.cv-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; margin: 0 0 6px; white-space: nowrap; overflow: hidden; }
+.cv-card.cv-row b { flex: none; }
+.cv-card.cv-row .cv-one { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; color: #444; margin: 0; }
+.cv-stlist.cv-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.cv-stlist.cv-chips li { margin: 0; }
+.cv-label.cv-xtight .cv-ltop button:not(.cv-name) { display: none; }
+.cv-spec li.cv-old { color: #666; }
+.cv-spec li.cv-more { list-style: none; margin-left: -18px; color: #555; font-size: 12px; }
+.cv-spec.cv-spec-in { position: static; flex: 0 0 440px; max-width: 100%; max-height: calc(100% - 48px); overflow: auto; margin: 24px 24px 24px 0; align-self: flex-start; }
+.cv-spec-h { font-size: 18px; font-weight: 800; margin: 0 0 14px; }
+.cv-card { border: 1px solid #ccc; border-radius: 8px; padding: 12px 14px; margin: 0 0 12px; background: #fff; }
+.cv-card.cv-hot { outline: 3px solid var(--cv-accent, #111); outline-offset: 1px; background: #f4f4f4; }
+.cv-card-h { display: flex; align-items: center; gap: 8px; font-weight: 700; margin: 0 0 6px; }
+.cv-num { flex: none; display: inline-block; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; background: var(--cv-accent, #111); color: #fff; font-size: 11px; line-height: 22px; text-align: center; }
+.cv-num0 { background: #444; }
+.cv-lab { margin: 8px 0 2px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #444; }
+.cv-spec ul { margin: 0; padding-left: 18px; }
+.cv-spec li { margin: 2px 0; }
+.cv-spec .cv-miss { color: #555; font-style: italic; }
+.cv-stlist { list-style: none; padding-left: 0 !important; }
+.cv-stlist li { display: flex; align-items: baseline; gap: 8px; margin: 4px 0; }
+#cv-root .cv-st { flex: none; min-height: 26px; padding: 1px 10px; font-size: 13px; border-radius: 13px; }
+#cv-root .cv-st[aria-pressed="true"] { background: var(--cv-accent, #111); border-color: var(--cv-accent, #111); color: #fff; }
+.cv-stdesc { font-size: 12px; color: #444; }
+@media (max-width: 900px) { .cv-spec.cv-spec-in { flex: 0 0 auto; align-self: stretch; max-height: 40%; margin: 0 12px 12px; } }
+
+@media print { #cv-root, #cv-fab { display: none !important; } }

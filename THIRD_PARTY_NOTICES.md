@@ -3,7 +3,7 @@
 Repo này phát hành phần **lõi** theo giấy phép MIT (xem [`LICENSE`](LICENSE), Copyright (c) 2026 Nghi KC). Các thành phần
 liệt kê dưới đây là mã/tài liệu của bên thứ ba, **giữ nguyên giấy phép gốc**; giấy phép MIT của lõi không thay thế chúng.
 
-**Gói Pro.** Các thư mục thuộc gói Pro không nằm trong bản phát hành công khai và có giấy phép riêng; file này không áp cho chúng.
+**Gói Advance.** Các thư mục thuộc gói Advance không nằm trong bản phát hành công khai và có giấy phép riêng; file này không áp cho chúng.
 
 Lập ngày 07/10/2026. Văn bản giấy phép được lấy từ repo gốc bằng `gh api` (ghi rõ tag nếu lấy theo tag; còn lại là nhánh
 mặc định ngày 07/10/2026). Kiểm máy: `lint.js` mục 44 (khoá registry `release.notices`) đòi mọi thư mục `vendor/` có

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * ac-verify/accept.js — PO NHẬN hay TRẢ một màn, CHỈ bằng bằng chứng máy đã có. Zero-dependency.
- * (Dời từ ac-po/scripts/ 08/10/2026 — cổng NHẬN là lõi công khai; ac-po (gói Pro) gọi sang đây.)
+ * (Dời từ ac-po/scripts/ 08/10/2026 — cổng NHẬN là lõi công khai; ac-po (gói Advance) gọi sang đây.)
  *
  *   node .claude/skills/ac-verify/scripts/accept.js docs <Mã màn> [--root <code>] [--eval-min 80] [--plain|--json]
  *
@@ -15,7 +15,7 @@
  *               `> diff: a..b` trong verification.md → ✗ "chạy ac-verify vòng kế" (verifier chưa thấy commit đó; trảLoại 'code')
  *   2. review  — docs/Ho-so/reviews/<Mã>-*.md MỚI NHẤT: verdict ≠ REQUEST_CHANGES (qua ac-judge/review-gate.js) VÀ mới hơn code:
  *               không có commit scope `(<Mã>)` chạm file ngoài docs/.claude sau `b` của `> diff: a..b` (sha ghi thêm trên dòng = đã đọc)
- *   3. eval    — TUỲ CHỌN: skill ac-eval (gói Pro) vắng → cổng "không áp", không đỏ, không đọc bản chấm.
+ *   3. eval    — TUỲ CHỌN: skill ac-eval (gói Advance) vắng → cổng "không áp", không đỏ, không đọc bản chấm.
  *               docs/Ho-so/eval/<Mã>-*.md MỚI NHẤT (nếu có): Điểm cuối ≥ --eval-min; không có bản chấm → "chưa chấm", không phạt.
  *               Bản chấm phải còn đại diện cho test.md + code HIỆN TẠI (24/09, dự án helpdesk S15 ✓ 94,8% trong khi eval thiếu
  *               TC-S15-81/82 do `6c2938d` thêm sau): ac-eval/check-eval.js (subprocess) báo case chưa chấm/trùng/lạ (E2e/E2f/E2g)
@@ -66,7 +66,7 @@ RC.inLuật(argv, [
   ['A3c', 'eval: check-eval báo case chưa chấm/trùng/lạ hay Điểm cuối lệch — không phủ test.md hiện tại'], ['A3d', 'eval: cũ hơn commit scope (<Mã>) chạm code hoặc test.md đổi sau bản chấm'],
   ['A4', 'tc-layer: check-tc-layer exit ≠ 0'], ['A4c', 'tc-layer: chuaKiem — TC ở bảng không cột Cách chạy, cổng không đọc được'],
   ['A0', 'integrity: toolkit lệch nguồn không duyệt (integrity.js exit 1)'],
-].filter(([m]) => !/^A3/.test(m) || fs.existsSync(path.join(__dirname, '..', '..', 'ac-eval', 'SKILL.md'))));   // ac-eval (gói Pro) vắng → luật A3 không áp, không khai
+].filter(([m]) => !/^A3/.test(m) || fs.existsSync(path.join(__dirname, '..', '..', 'ac-eval', 'SKILL.md'))));   // ac-eval (gói Advance) vắng → luật A3 không áp, không khai
 const opt = (k, d = null) => (argv.includes(k) ? argv[argv.indexOf(k) + 1] : d);
 const pos = argv.filter((a, i) => !a.startsWith('--') && !(i > 0 && argv[i - 1].startsWith('--') && /^--(root|eval-min)$/.test(argv[i - 1])));
 const DOCS = path.resolve(pos[0] || 'docs'); const SCREEN = pos[1];
@@ -228,7 +228,7 @@ const mớiNhất = (dir, prefix) => {
 // 3. eval mới nhất (tùy chọn)
 {
   const f = fs.existsSync(path.join(SK, 'ac-eval', 'SKILL.md')) ? mớiNhất(path.join(hoso, 'eval'), SCREEN) : 'vắng';
-  if (f === 'vắng') đẩy('eval', true, 'không áp — ac-eval không có trong bản cài này (gói Pro)', '');
+  if (f === 'vắng') đẩy('eval', true, 'không áp — ac-eval không có trong bản cài này (gói Advance)', '');
   else if (!f) đẩy('eval', true, 'chưa có bản chấm ac-eval — không phạt', 'muốn số so sánh được → ac-eval ' + SCREEN);
   else {
     const txt = fs.readFileSync(String(f), 'utf8'); const m = txt.match(/\*\*Điểm cuối:\*\*\s*\d+\/\d+\s*=\s*([\d.,]+)\s*%/);

@@ -37,6 +37,9 @@ model: opus
    ```
    Exit ≠ 0 → sửa **bản audit** (không sửa HTML) tới khi exit 0. Cổng là regex; không cãi với regex.
 
+## Tầng `ảnh` — một ảnh chụp, không có file/URL
+Không chạy máy (ảnh không có DOM). Viết theo `ac-audit-web/assets/audit-anh-template.md`, theo thứ tự: (1) header `việc chính:` — tự nói ai vào đây làm gì, kết bằng "Sai thì nói", **không hỏi lại**; ảnh trưng bày (khung máy, logo, chú thích) → chỉ chấm giao diện bên trong và nói ra. (2) **Ảnh có chấm được không — trước khi tìm lỗi:** chép một chữ nhỏ đúng từng ký tự; chép không chắc, ảnh mờ/cắt/nghiêng, hoặc ≥ 3 tiêu chí không có gì để chấm → `CHƯA ĐỦ ẢNH`, xin ảnh rõ cả cửa sổ, dừng. (3) Tìm lỗi theo 6 tiêu chí, đúng thứ tự phiếu; mỗi phát hiện một tiêu chí, cột **Cố ý nếu** bác bằng thứ THẤY ("→ không, vì …" / "dù cố ý, …"); không bác được mà không thấy hại → không phải phát hiện, đưa vào "Cần thêm ảnh / cần hỏi". (4) Chỉ nói điều ảnh cho thấy: không số px (ảnh dán mất tỉ lệ — so tương đối), không kết luận vùng bấm, cuộn, bấm vào ra gì, trạng thái không hiện; chữ nhỏ/IN HOA hay rơi dấu khi đọc ảnh — không gọi là sai chính tả. 🔴/🟠 chỉ khi hại cho việc chính; nhiều lỗi nhỏ cộng lại rõ ràng cản việc chính → một phát hiện riêng. Không chữ chung chung (cải thiện, tối ưu, trực quan, hiện đại, chuyên nghiệp, thoáng hơn, đẹp hơn) — nói phần tử nào đổi thành gì. Không cho điểm số (8/10).
+
 ## Mức
 | Mức | Nghĩa | Verdict |
 |---|---|---|

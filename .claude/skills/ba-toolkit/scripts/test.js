@@ -13,7 +13,7 @@
  * Dùng:  node .claude/skills/ba-toolkit/scripts/test.js [--verbose] [--public]
  * Exit code = số ca hỏng (0 = sạch).
  *
- * Gói phát hành (08/10/2026, docs/decisions/32): repo công khai KHÔNG có skill gói Pro/devOnly (`skills.pro`/`skills.devonly`),
+ * Gói phát hành (08/10/2026, docs/decisions/32): repo công khai KHÔNG có skill gói Advance/devOnly (`skills.pro`/`skills.devonly`),
  * `fixtures/`, `CLAUDE.md`, `docs/decisions`, `realrun.json`. Ca phụ thuộc chúng mở đầu bằng `if (!cần('<mã>', …)) return;`:
  *   · `--public` (CI repo công khai): thiếu → bỏ qua có lý do; tập ca bỏ qua phải ĐÚNG BẰNG `BỎ_QUA_CÔNG_KHAI` — ca bỏ qua ngoài
  *     danh sách (bỏ qua lặng lẽ) hay danh sách khai mà ca không bỏ qua (danh sách cũ) đều là ca hỏng.
@@ -43,9 +43,11 @@ const BỎ_QUA_CÔNG_KHAI = [
   '3p', '3q', '3r', '3v', '3w', '3x', '3z', '3aa', '3fs', '3uv', '3cv', '3af', '3ag', '3ai', '3ar', '3ce', '3hr', '3dc', '3av', '3vr',
   // M6 đợt 2: 9 skill cắt khỏi bản công khai (Pro: integration/threat-model/migration/dashboard/onepager/changelog · giữ riêng: new-skill/launcher/ac-agent)
   '3onep', '3i#2', '3y', '3ac', '3ad', '3ae', '3ck',
+  // giáo trình mentor (mentor/**) là devOnly
+  '3mtr',
 ];
 const bỏQua = [];
-// Skill gói Pro/devonly theo registry — vắng ở bản công khai là hợp lệ (dùng khi lọc dữ liệu thật trỏ tới chúng, vd golden).
+// Skill gói Advance/devonly theo registry — vắng ở bản công khai là hợp lệ (dùng khi lọc dữ liệu thật trỏ tới chúng, vd golden).
 const NGOÀI_GÓI = (() => { try { const t = fs.readFileSync(path.join(ROOT, '.claude', 'skills', 'ba-toolkit', 'references', 'conv-registry.md'), 'utf8'); return new Set(['skills.pro', 'skills.devonly'].flatMap((k) => ((t.match(new RegExp(`^${k.replace('.', '\\.')}\\s*=\\s*(.+)$`, 'm')) || [])[1] || '').trim().split(/\s+/).filter(Boolean))); } catch { return new Set(); } })();
 const vắngGói = (sk) => NGOÀI_GÓI.has(sk) && !fs.existsSync(path.join(ROOT, '.claude', 'skills', sk, 'SKILL.md'));
 function cần(mã, ...đk) {
@@ -189,6 +191,273 @@ try {
     bad('check-wireframe bắt phương án hỏng (đủ 7 mã WF-VAR-*)', [S('ba-html-design', 'check-wireframe.js'), path.join(TMP, 'wfv-bad', 'docs')],
       { msg: /^(?=[\s\S]*WF-VAR-REC)(?=[\s\S]*WF-VAR-REASON)(?=[\s\S]*WF-VAR-CLICHE)(?=[\s\S]*WF-VAR-COVER)(?=[\s\S]*WF-VAR-ELSET)(?=[\s\S]*WF-VAR-CHOSEN)(?=[\s\S]*WF-VAR-LETTER)/ });
   });
+
+  // 3cnv. canvas.js (decision 35): trang canvas để xem và chốt thiết kế. (1) `wireframe` chèn khối runtime giữa hai mốc
+  // ba-canvas — chạy hai lần ra CÙNG byte, phần ngoài khối giữ nguyên, check-wireframe ra đúng lỗi/cảnh báo như trước khi
+  // chèn (khối runtime chỉ thang xám, không bóng/dải màu/emoji — chèn vào mà làm bẩn wireframe là hỏng cả bậc lo-fi);
+  // (2) `apply` đánh đúng MỘT data-chosen, gỡ cái cũ cùng màn; chữ/màn không có → exit ≠ 0 và file KHÔNG đổi một byte
+  // (ĐỐI KHÁNG — apply ghi nửa chừng thì hàng "Bản chốt" nói dối); (3) `gallery` trên bản sao example: số khung = số
+  // html-design, trang không kéo tài nguyên ngoài.
+  {
+    const CV = S('ba-html-design', 'canvas.js'), CW = S('ba-html-design', 'check-wireframe.js');
+    const D = path.join(TMP, 'cnv', 'docs'); fs.cpSync(path.join(EX, 'Screen-spec'), path.join(D, 'Screen-spec'), { recursive: true });
+    const els = (ns) => ns.map((n) => `<div class="wf" data-el="${n}">Khối ${n}</div>`).join('');
+    const RA = 'data-reason="Sửa họ tên ở cột trái ngay đầu màn · khác B: một cột thay vì hai cột · đánh đổi: khối nhận diện bị đẩy xuống"';
+    const RB = 'data-reason="Khối nhận diện ở trên, form sửa bên dưới · khác A: hai cột song song · đánh đổi: màn hẹp phải cuộn"';
+    const s1 = `<section class="wf-screen" data-screen="S01" data-width="390"><h2>S01 — Đăng nhập</h2>${els([1, 2, 3, 4, 5, 6, 7, 8, 9])}<table class="wf-legend"><tr><td>1</td><td>Logo</td></tr></table></section>`;
+    const s4 = `<section class="wf-screen" data-screen="S04"><h2>S04 — Hồ sơ</h2><p><a href="?S04=A">A</a> · <a href="?S04=B">B</a></p><div class="wf-variant" data-variant="A" ${RA} data-recommended data-chosen>${els([1, 2, 3, 4, 5, 6, 7])}</div><div class="wf-variant" data-variant="B" ${RB}>${els([1, 2, 3, 4, 5, 6, 7])}</div></section>`;
+    const gốc = `<!doctype html><html><head><style>.wf{border:1px solid #777}</style></head><body>${s1}\n${s4}\n<script>/* chọn ?S04= */</script>\n</body></html>\n`;
+    const WF = w('cnv/docs/Ho-so/wireframe.html', gốc);
+    const cw = () => { const r = run([CW, D, '--json']); try { const j = JSON.parse(r.stdout); return JSON.stringify([j.lỗi, j.cảnhBáo]); } catch { return 'hỏng:' + r.status; } };
+    ca('3cnv-wireframe', () => {
+      const lỗi = []; const trước = cw();
+      const r1 = run([CV, 'wireframe', D]); const b1 = fs.readFileSync(WF, 'utf8');
+      const r2 = run([CV, 'wireframe', D]); const b2 = fs.readFileSync(WF, 'utf8');
+      if (r1.status !== 0 || r2.status !== 0) lỗi.push(`exit ${r1.status}/${r2.status}: ${(r1.stderr || r2.stderr || '').slice(0, 160)}`);
+      if (b1 !== b2) lỗi.push('chạy lần hai đổi file — phải ra cùng byte');
+      if (!/<!-- ba-canvas:start -->[\s\S]*<script id="cv-script">[\s\S]*<!-- ba-canvas:end -->\n<\/body>/.test(b1)) lỗi.push('khối runtime không nằm giữa hai mốc ngay trước </body>');
+      if (b1.replace(/<!-- ba-canvas:start -->[\s\S]*?<!-- ba-canvas:end -->\n/, '') !== gốc) lỗi.push('phần ngoài khối canvas bị đổi');
+      if (/<script[^>]+src=|<link[^>]+href=["']https?:/i.test(b1)) lỗi.push('khối runtime tham chiếu tài nguyên ngoài');
+      const sau = cw();
+      if (sau !== trước) lỗi.push(`check-wireframe khác sau khi chèn (khối chú thích + spec phải thang xám, không emoji): trước ${trước} · sau ${sau}`);
+      // khung Spec nhúng sẵn cho màn có trên wireframe (S01, S04); BRule-S01-05 nguồn có ⚠️ — vào wireframe phải mất emoji
+      const sj = (b1.match(/<script type="application\/json" id="cv-spec">([\s\S]*?)<\/script>/) || [])[1];
+      let sp = null; try { sp = JSON.parse(sj); } catch { lỗi.push('không có/không đọc được JSON cv-spec trong khối canvas'); }
+      if (sp && (!sp.S01 || !sp.S04 || sp.S01.phanTu.length !== 9)) lỗi.push(`cv-spec phải có S01 (9 phần tử) và S04, được ${sp && Object.keys(sp).join(',')}`);
+      if (sj && /[\u{2600}-\u{27BF}\u{1F300}-\u{1FAFF}]/u.test(JSON.stringify(sp))) lỗi.push('cv-spec trong wireframe còn ký tự emoji của nguồn');
+      if (!/Chú thích/.test(b1) || !/cv-dot/.test(b1)) lỗi.push('runtime thiếu nút "Chú thích"/chấm số');
+      if (!lỗi.length) { pass++; console.log('  ✅ 3cnv canvas wireframe: chèn giữa hai mốc, chạy lại cùng byte, ngoài khối giữ nguyên, kèm Spec + Chú thích mà check-wireframe không thêm lỗi/cảnh báo'); }
+      else { fail++; for (const l of lỗi) console.log('  ❌ 3cnv-wireframe ' + l); }
+    });
+    ca('3cnv-apply', () => {
+      const lỗi = []; const tag = (b, c) => [...b.matchAll(/<div class="wf-variant"[^>]*>/g)].filter((m) => m[0].includes(`data-variant="${c}"`)).map((m) => m[0])[0] || '';
+      const r = run([CV, 'apply', D, 'S04: B']); const b = fs.readFileSync(WF, 'utf8');
+      if (r.status !== 0) lỗi.push(`apply S04: B exit ${r.status}: ${r.stdout.slice(0, 160)}`);
+      if ([...b.matchAll(/<div class="wf-variant"[^>]*>/g)].filter((m) => /data-chosen/.test(m[0])).length !== 1 || !/data-chosen/.test(tag(b, 'B')) || /data-chosen/.test(tag(b, 'A'))) lỗi.push('apply S04: B phải để đúng một data-chosen, trên B, gỡ khỏi A');
+      if (!/data-recommended/.test(tag(b, 'A')) || !/data-reason=/.test(tag(b, 'A'))) lỗi.push('apply làm mất thuộc tính khác của phương án A (lịch sử)');
+      if (!/check-wireframe\.js/.test(r.stdout)) lỗi.push('apply không nhắc chạy check-wireframe.js');
+      for (const [câu, mong] of [['S04: Z', /không có phương án Z/], ['S99: A', /S99: không có màn này/], ['S04 B · S02 lung tung', /không hiểu/]]) {
+        const rr = run([CV, 'apply', D, câu]);
+        if (rr.status === 0 || !mong.test(rr.stdout + rr.stderr)) lỗi.push(`apply "${câu}" phải báo (${mong}) và exit ≠ 0, được exit ${rr.status}: ${(rr.stdout + rr.stderr).trim().split('\n').slice(-1)[0]}`);
+        if (fs.readFileSync(WF, 'utf8') !== b) lỗi.push(`apply "${câu}" hỏng mà vẫn ghi file`);
+      }
+      const ok = run([CV, 'apply', D, 'ok']); const b2 = fs.readFileSync(WF, 'utf8');
+      if (ok.status !== 0 || !/data-chosen/.test(tag(b2, 'A')) || /data-chosen/.test(tag(b2, 'B'))) lỗi.push('"ok" phải chốt phương án khuyên dùng (A) và gỡ B');
+      if (run([CW, D]).status !== 0) lỗi.push('check-wireframe đỏ sau apply');
+      if (!lỗi.length) { pass++; console.log('  ✅ 3cnv canvas apply: một data-chosen đúng chỗ, gỡ cái cũ, giữ lịch sử; chữ/màn lạ/câu sai → exit ≠ 0 và file không đổi; "ok" = khuyên dùng'); }
+      else { fail++; for (const l of lỗi) console.log('  ❌ 3cnv-apply ' + l); }
+    });
+    ca('3cnv-gallery', () => {
+      const lỗi = []; const G = path.join(TMP, 'cnv-g', 'docs'); fs.cpSync(EX, G, { recursive: true });
+      const nHtml = []; (function đi(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) đi(p); else if (e.name === 'html-design.html') nHtml.push(p); } })(G);
+      const r = run([CV, 'gallery', G]); const F = path.join(G, 'Ho-so', 'design-canvas.html');
+      if (r.status !== 0 || !fs.existsSync(F)) lỗi.push(`gallery exit ${r.status}: ${(r.stderr || r.stdout).slice(0, 160)}`);
+      else {
+        const t = fs.readFileSync(F, 'utf8'); const m = t.match(/<script type="application\/json" id="cv-data">([\s\S]*?)<\/script>/);
+        let data = null; try { data = JSON.parse(m[1]); } catch { lỗi.push('không đọc được JSON cv-data'); }
+        const khung = data ? data.rows.reduce((s, x) => s + x.screens.length, 0) : -1;
+        if (nHtml.length < 2 || khung !== nHtml.length) lỗi.push(`số khung ${khung} ≠ số html-design ${nHtml.length}`);
+        if (data && !data.rows.every((x) => x.screens.every((s) => /<base href="\.\.\/Screen-spec\//.test(s.html)))) lỗi.push('khung thiếu <base> trỏ folder màn');
+        const ngoài = t.replace(m ? m[0] : '', '');
+        if (/<script[^>]+src=|<link[^>]+href=|https?:\/\//i.test(ngoài)) lỗi.push('trang gallery tham chiếu tài nguyên ngoài');
+        if (data && !data.rows.some((x) => x.title === 'Authentication') ) lỗi.push('hàng theo nhóm Screen-spec/<Nhóm>/ thiếu "Authentication"');
+        const t2 = (run([CV, 'gallery', G]), fs.readFileSync(F, 'utf8')); if (t2 !== t) lỗi.push('gallery chạy lại đổi file');
+        // thanh trạng thái demo ẩn TRONG khung (CSS dùng đúng dấu nhận statebar của shell.md/check-el), chuyển sang thẻ
+        // "Trạng thái giao diện" của khung Spec: số nút = số nút `statebar__btn` của S01; file html-design không bị sửa
+        if (!t.includes('.statebar, #statebar, .demo-nav, [data-demo] { display: none !important; }') || !/Trạng thái giao diện/.test(t)) lỗi.push('thiếu khối CSS/JS ẩn statebar hoặc thẻ "Trạng thái giao diện" trong runtime');
+        const s01 = data && data.rows.flatMap((x) => x.screens).find((x) => x.code === 'S01');
+        const h01 = fs.readFileSync(path.join(G, 'Screen-spec', 'Authentication', 'S01 - Login', 'html-design.html'), 'utf8');
+        const nNút = (h01.match(/<button\b[^>]*\bstatebar__btn\b[^>]*>/g) || []).length;
+        const nThẻ = s01 && s01.spec && s01.spec.trangThai ? s01.spec.trangThai.reduce((a, g) => a + g.nut.length, 0) : -1;
+        if (nNút < 2 || nThẻ !== nNút) lỗi.push(`S01: thẻ Trạng thái giao diện có ${nThẻ} nút, statebar có ${nNút}`);
+        const khoá = s01 && s01.spec.trangThai.flatMap((g) => g.nut).find((b) => b.ten === 'Khoá tạm');
+        if (!khoá || !/^E-S01-06:/.test(khoá.moTa || '')) lỗi.push('nút "Khoá tạm" phải có mô tả E-S01-06 lấy từ Ma trận lỗi theo data-trace');
+        if (h01 !== fs.readFileSync(path.join(EX, 'Screen-spec', 'Authentication', 'S01 - Login', 'html-design.html'), 'utf8')) lỗi.push('gallery sửa html-design.html');
+      }
+      if (!lỗi.length) { pass++; console.log(`  ✅ 3cnv canvas gallery: ${nHtml.length} html-design → ${nHtml.length} khung có <base>, hàng theo nhóm, không tài nguyên ngoài, chạy lại cùng byte; statebar ẩn trong khung, thẻ Trạng thái giao diện S01 đủ nút + mô tả E-S..`); }
+      else { fail++; for (const l of lỗi) console.log('  ❌ 3cnv-gallery ' + l); }
+    });
+    // 3cnv-spec. Khung Spec do MÁY lấy theo truy vết (screen-spec.js), không AI viết lại: S01 example → đúng 9 thẻ phần tử
+    // (+ thẻ Mục đích), thẻ #2 mang MỌI TC có cột Nguồn trỏ R-S01-02 (đếm độc lập từ test.md). ĐỐI KHÁNG: phần tử có Trace
+    // không ai trỏ / không có Trace / thiếu userstory.md → dòng "chưa có …" nói rõ, không bao giờ danh sách rỗng im lặng.
+    ca('3cnv-spec', () => {
+      const lỗi = []; const SS = require(S('ba-toolkit', 'screen-spec.js')), SE = require(S('ba-toolkit', 'srs-elements.js'));
+      const S01 = path.join(EX, 'Screen-spec', 'Authentication', 'S01 - Login');
+      const sp = SS.forScreen(S01), bảng = SE.parse(fs.readFileSync(path.join(S01, 'srs.md'), 'utf8'));
+      if (!sp || sp.phanTu.length !== bảng.length || bảng.length !== 9) lỗi.push(`S01: ${sp && sp.phanTu.length} thẻ phần tử, bảng có ${bảng.length} dòng`);
+      if (sp && !(sp.mucDich.hanhVi[0] || '').startsWith('Màn này lo') || sp && !sp.mucDich.userStory.some((x) => x.startsWith('US-S01-01')) || sp && !/^GWT-1:/.test(sp.mucDich.tieuChi[0])) lỗi.push('thẻ Mục đích màn không lấy đúng Phạm vi màn / US / GWT');
+      const mong = fs.readFileSync(path.join(S01, 'test.md'), 'utf8').split('\n').filter((l) => /^\|\s*TC-S01-\d+\s*\|/.test(l)).map((l) => l.split('|').map((c) => c.trim()))
+        .filter((c) => /(^|[^\w-])R-S01-02(?![\w-]*\d)/.test(c[4])).map((c) => c[1]);
+      const có = sp ? sp.phanTu[1].tieuChi.join(' ') : '';
+      if (!mong.length || mong.some((m) => !có.includes(m + ' →'))) lỗi.push(`thẻ #2 phải có ${mong.join(', ')} (Nguồn trỏ R-S01-02), được: ${có.slice(0, 160)}`);
+      if (sp && !sp.phanTu[1].quyTac.some((x) => x.startsWith('E-S01-01:'))) lỗi.push('thẻ #2 thiếu E-S01-01 (Ma trận lỗi, Trace R-S01-02)');
+      // đối kháng
+      const F = path.join(TMP, 'cnv-spec', 'S01 - Login'); fs.cpSync(S01, F, { recursive: true });
+      const srs = fs.readFileSync(path.join(F, 'srs.md'), 'utf8').replace('| Phiên bản ứng dụng và bản quyền | R-S01-01 |', '| Phiên bản ứng dụng và bản quyền | R-S01-99 |')
+        .replace('| Nhận diện thương hiệu TeamTasks | R-S01-01 |', '| Nhận diện thương hiệu TeamTasks | — |');
+      fs.writeFileSync(path.join(F, 'srs.md'), srs); fs.rmSync(path.join(F, 'userstory.md'));
+      const g = SS.forScreen(F); const p9 = g.phanTu[8], p1 = g.phanTu[0];
+      if (!/^chưa có TC nào trong test\.md trỏ R-S01-99/.test(p9.tieuChi[0]) || !/^chưa có quy tắc\/lỗi nào trong srs trỏ R-S01-99/.test(p9.quyTac[0])) lỗi.push(`#9 Trace R-S01-99 không ai trỏ phải ghi "chưa có …", được ${JSON.stringify([p9.quyTac, p9.tieuChi])}`);
+      if (!/chưa có mã Trace/.test(p1.quyTac[0]) || !/chưa có mã Trace/.test(p1.tieuChi[0])) lỗi.push('#1 không có Trace phải ghi "chưa có mã Trace"');
+      if (g.mucDich.userStory[0] !== 'chưa có userstory.md' || g.mucDich.tieuChi[0] !== 'chưa có userstory.md') lỗi.push('thiếu userstory.md phải ghi "chưa có userstory.md"');
+      const rỗng = [g.mucDich.hanhVi, g.mucDich.userStory, g.mucDich.tieuChi, ...g.phanTu.flatMap((x) => [x.hanhVi, x.quyTac, x.tieuChi])].filter((a) => !a.length || a.some((x) => !String(x).trim()));
+      if (rỗng.length) lỗi.push(`${rỗng.length} danh sách rỗng/dòng trống — thiếu nguồn phải nói ra`);
+      if (!lỗi.length) { pass++; console.log(`  ✅ 3cnv-spec: S01 9 thẻ + Mục đích lấy từ srs/userstory, thẻ #2 đủ ${mong.length} TC trỏ R-S01-02 + E-S01-01 · Trace không ai trỏ / không Trace / thiếu userstory → "chưa có …", không rỗng im`); }
+      else { fail++; for (const l of lỗi) console.log('  ❌ 3cnv-spec ' + l); }
+    });
+    // 3cnv-uisrc. ui-source.js chỉ LIỆT KÊ nguồn giao diện của app thật: URL dev trong dev-notes, file shell/layout, token CSS;
+    // URL không với tới (cổng đóng) → không chụp, nói lý do, exit 0. Repo không có app → "chưa thấy", không bịa.
+    ca('3cnv-uisrc', () => {
+      const lỗi = []; const UI = S('ba-html-design', 'ui-source.js');
+      w('uis/docs/Ho-so/dev-notes.md', '# Dev notes\n\nURL dev: http://127.0.0.1:9/app (cổng đóng trong ca test)\n');
+      w('uis/src/components/AppLayout.tsx', 'export const AppLayout = () => null;\n');
+      w('uis/src/components/Button.tsx', 'export const Button = () => null;\n');
+      w('uis/src/styles/tokens.css', ':root { --brand: #4F46E5; --radius-md: 8px; --font-sans: Inter, sans-serif; }\n');
+      w('uis/node_modules/x/layout.tsx', '');
+      // đối kháng (dự án e-learning 13/10/2026): server Express, file test, bản mockup, thư mục build không phải shell của app
+      w('uis/backend/src/app.ts', ''); w('uis/src/config/navigation.test.ts', ''); w('uis/web-mockup/src/App.tsx', ''); w('uis/output/js/app.js', '');
+      const r = run([UI, path.join(TMP, 'uis', 'docs'), '--json']); let j = null; try { j = JSON.parse(r.stdout); } catch { lỗi.push('không ra JSON: ' + (r.stderr || r.stdout).slice(0, 120)); }
+      if (j) {
+        if (r.status !== 0) lỗi.push('exit ' + r.status);
+        if (j.urls[0] !== 'http://127.0.0.1:9/app') lỗi.push('URL dev: ' + JSON.stringify(j.urls));
+        if (j.shell.join() !== 'src/components/AppLayout.tsx') lỗi.push('shell/layout (bỏ node_modules/backend/output/*mockup*/*.test, không nhận Button): ' + JSON.stringify(j.shell));
+        if (!j.tokenFiles[0] || j.tokenFiles[0].n !== 3 || !j.tokenMau.includes('--brand: #4F46E5')) lỗi.push('token CSS: ' + JSON.stringify(j.tokenFiles));
+        if (j.anh.length || !j.khongChup) lỗi.push('URL không với tới mà vẫn chụp / không nói lý do');
+      }
+      const r2 = run([UI, path.join(EX), '--no-shot']);
+      if (r2.status !== 0 || !/không thấy app — dùng docs\/07-design-system\.md/.test(r2.stdout)) lỗi.push('example (không có app) phải nói "không thấy app — dùng 07", exit 0');
+      // Đăng nhập + danh sách màn (không cần Chrome): mục "Màn cần chụp" ghép đường dẫn với URL dev đầu, bỏ URL ngoài máy,
+      // dừng ở heading kế; login URL ngoài máy → exit 2; hồ sơ có thì báo, logout xoá; ảnh chụp tay được liệt kê.
+      w('uil/docs/Ho-so/dev-notes.md', '# Dev\n\nURL dev: http://localhost:4789/\n\n## Màn cần chụp\n\n- `/dashboard` — S02\n- /tasks/1\n- https://prod.example.com/x\n- http://app.test/s05\n\n## Khác\n- /bo-qua\n');
+      w('uil/docs/Ho-so/ui-source/tay-S03.png', 'x');
+      w('uil/.claude/ui-source-profile/Default/Cookies', 'x');
+      const uil = path.join(TMP, 'uil', 'docs'); let jl = null;
+      try { jl = JSON.parse(run([UI, uil, '--json', '--no-shot']).stdout); } catch { lỗi.push('uil không ra JSON'); }
+      if (jl) {
+        if (jl.chup.join() !== 'http://localhost:4789/dashboard,http://localhost:4789/tasks/1,http://app.test/s05') lỗi.push('Màn cần chụp: ' + JSON.stringify(jl.chup));
+        if (jl.profile !== '.claude/ui-source-profile') lỗi.push('có hồ sơ mà không báo: ' + jl.profile);
+        if (!(jl.anhTay.length === 1 && /tay-S03\.png$/.test(jl.anhTay[0]))) lỗi.push('ảnh chụp tay: ' + JSON.stringify(jl.anhTay));
+      }
+      if (run([UI, 'login', uil, '--url', 'https://prod.example.com']).status !== 2) lỗi.push('login URL ngoài máy phải exit 2');
+      const lo = run([UI, 'logout', uil]);
+      if (lo.status !== 0 || fs.existsSync(path.join(TMP, 'uil', '.claude', 'ui-source-profile'))) lỗi.push('logout không xoá hồ sơ');
+      if (!lỗi.length) { pass++; console.log('  ✅ 3cnv-uisrc: ui-source liệt kê URL dev, shell/layout, token CSS; URL đóng → không chụp, nói lý do; không có app → trỏ 07 · "Màn cần chụp" ghép đường dẫn, bỏ URL ngoài máy · login ngoài máy exit 2 · hồ sơ báo/logout xoá · ảnh tay liệt kê'); }
+      else { fail++; for (const l of lỗi) console.log('  ❌ 3cnv-uisrc ' + l); }
+    });
+  }
+
+  // 3proto. Nguồn Figma + prototype (decision 36). (1) prototype.js trên bản sao example: một tệp tự chứa, đủ màn, có liên kết
+  // máy lập từ cột Mô tả srs, chạy lại cùng byte, không sửa html-design; (2) ĐỐI KHÁNG — prototype-nav.json trỏ data-el không có /
+  // đích sai dạng → exit 1 và KHÔNG ghi tệp (bảng điều hướng sai mà vẫn ghi = khách bấm vào vùng chết); null gỡ liên kết máy lập;
+  // (3) figma-fonts embed: thiếu tệp → exit ≠ 0, không ghi nửa vời; có tệp → @font-face base64 + unicode-range, chạy lại thay khối;
+  // (4) embed-assets: không có figma-assets → exit 2; img → data URI, icon SVG → aria-hidden, list báo tệp ngoài manifest.
+  {
+    const PR = S('ba-html-design', 'prototype.js'), FF = S('ba-html-design', 'figma-fonts.js'), EA = S('ba-html-design', 'embed-assets.js');
+    const D = path.join(TMP, 'proto-hifi', 'docs'); fs.cpSync(EX, D, { recursive: true });
+    const OUT = path.join(D, 'Ho-so', 'prototype-hifi.html');
+    const meta = (t) => JSON.parse((t.match(/<script type="application\/json" id="pMeta">([\s\S]*?)<\/script>/) || [])[1] || 'null');
+    ca('3proto-build', () => {
+      const lỗi = [], nHtml = [];
+      (function đi(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) đi(p); else if (e.name === 'html-design.html') nHtml.push(p); } })(D);
+      const trước = nHtml.map((f) => fs.readFileSync(f, 'utf8'));
+      const r = run([PR, D]);
+      if (r.status !== 0 || !fs.existsSync(OUT)) lỗi.push(`exit ${r.status}: ${(r.stdout + r.stderr).trim().split('\n').slice(-2).join(' | ')}`);
+      else {
+        const t = fs.readFileSync(OUT, 'utf8'), m = meta(t);
+        if (!m || Object.keys(m.screens).length !== nHtml.length) lỗi.push(`số màn ${m && Object.keys(m.screens).length} ≠ số html-design ${nHtml.length}`);
+        const nLink = m ? Object.values(m.nav).reduce((a, x) => a + Object.keys(x).length, 0) : 0;
+        if (nLink < 1) lỗi.push('không lập được liên kết nào từ cột Mô tả srs');
+        if (!m || !Object.keys(m.tab).length) lỗi.push('không nhận được menu chính (.app-nav__link aria-current)');
+        const khung = t.replace(/<script type="application\/json"[\s\S]*?<\/script>/g, '');
+        if (/<script[^>]+src=|<link[^>]+href=|https?:\/\//i.test(khung)) lỗi.push('khung prototype tham chiếu tài nguyên ngoài');
+        run([PR, D]); if (fs.readFileSync(OUT, 'utf8') !== t) lỗi.push('chạy lại đổi tệp');
+        if (nHtml.some((f, i) => fs.readFileSync(f, 'utf8') !== trước[i])) lỗi.push('prototype sửa html-design.html');
+        // null gỡ liên kết máy lập
+        const [c0, n0] = (() => { for (const [c, x] of Object.entries(m.nav)) for (const n of Object.keys(x)) return [c, n]; return [null, null]; })();
+        fs.writeFileSync(path.join(D, 'Ho-so', 'prototype-nav.json'), JSON.stringify({ [c0]: { [n0]: null } }));
+        const r2 = run([PR, D]), m2 = r2.status === 0 ? meta(fs.readFileSync(OUT, 'utf8')) : null;
+        if (!m2 || (m2.nav[c0] || {})[n0]) lỗi.push(`prototype-nav.json null không gỡ được liên kết ${c0} #${n0}`);
+        fs.rmSync(path.join(D, 'Ho-so', 'prototype-nav.json'));
+      }
+      if (!lỗi.length) { pass++; console.log(`  ✅ 3proto-build: ${nHtml.length} html-design → 1 prototype tự chứa, liên kết lập từ srs + menu chính, chạy lại cùng byte, không sửa nguồn, null gỡ liên kết`); }
+      else { fail++; for (const l of lỗi) console.log('  ❌ 3proto-build ' + l); }
+    });
+    ca('3proto-adv', () => {
+      const lỗi = [];
+      for (const [cfg, mong] of [[{ S02: { 999: 'S03' } }, /#999/], [{ S02: { 1: 'đi-đâu' } }, /không hợp lệ/], [{ S99: { 1: 'S02' } }, /S99/]]) {
+        fs.writeFileSync(path.join(D, 'Ho-so', 'prototype-nav.json'), JSON.stringify(cfg));
+        if (fs.existsSync(OUT)) fs.rmSync(OUT);
+        const r = run([PR, D]);
+        if (r.status !== 1 || !mong.test(r.stdout + r.stderr)) lỗi.push(`${JSON.stringify(cfg)} phải báo ${mong} và exit 1, được exit ${r.status}`);
+        if (fs.existsSync(OUT)) lỗi.push(`${JSON.stringify(cfg)}: bảng điều hướng sai mà vẫn ghi tệp`);
+      }
+      fs.writeFileSync(path.join(D, 'Ho-so', 'prototype-nav.json'), '{ hỏng');
+      if (run([PR, D]).status !== 2) lỗi.push('prototype-nav.json hỏng JSON phải exit 2');
+      fs.rmSync(path.join(D, 'Ho-so', 'prototype-nav.json'));
+      const E = path.join(TMP, 'proto-empty'); fs.mkdirSync(E, { recursive: true });
+      if (run([PR, E]).status !== 2) lỗi.push('docs không có html-design phải exit 2');
+      if (!lỗi.length) { pass++; console.log('  ✅ 3proto-adv: data-el không có / đích sai dạng / màn không có → exit 1, không ghi tệp · JSON hỏng / không html-design → exit 2'); }
+      else { fail++; for (const l of lỗi) console.log('  ❌ 3proto-adv ' + l); }
+    });
+    // Câu chữ srs hình thật (fixtures/real có "Trở về danh sách công việc"): \b của JS chỉ hiểu ASCII nên "Trở về" từng không
+    // thành back (nút chết); "tới/về" trần từng biến câu tả ("thông tin về S05") thành liên kết.
+    ca('3proto-link', () => {
+      const lỗi = [], L = path.join(TMP, 'proto-link', 'docs');
+      const hàng = [['Trở về danh sách công việc', 'Button', 'Bấm để rời màn'], ['Nút mở', 'Button', 'Bấm để mở S02'],
+        ['Nhãn tổng', 'Text', 'Hiển thị thông tin về S02 trong bảng'], ['Ghi chú', 'Text', 'Thông báo gửi tới S02 khi duyệt'],
+        ['Liên kết', 'Link', 'Chọn một dòng để đi đến S02'], ['Quay lại', 'Button', 'Về màn trước'], ['Trở về', 'Icon', '']];
+      for (const [c, ten] of [['S01', 'Danh sach'], ['S02', 'Chi tiet']]) {
+        const d = path.join(L, `${c} - ${ten.replace(' ', '')}`); fs.mkdirSync(d, { recursive: true });
+        fs.writeFileSync(path.join(d, 'srs.md'), `# ${c} — ${ten}\n\n## Bảng mô tả chi tiết phần tử màn hình\n\n| # | Tên | Control type | Mô tả |\n|---|---|---|---|\n` +
+          hàng.map((h, i) => `| ${i + 1} | ${h.join(' | ')} |`).join('\n') + '\n');
+        fs.writeFileSync(path.join(d, 'html-design.html'), `<!doctype html><html><head><title>${c}</title></head><body>` +
+          hàng.map((_, i) => `<button data-el="${i + 1}">x</button>`).join('') + '</body></html>');
+      }
+      const out = path.join(TMP, 'proto-link', 'p.html'), r = run([PR, L, '--out', out]);
+      const m = r.status === 0 ? meta(fs.readFileSync(out, 'utf8')) : null;
+      if (!m) lỗi.push(`exit ${r.status}: ${(r.stdout + r.stderr).trim().split('\n').slice(-2).join(' | ')}`);
+      else {
+        const mong = { 1: 'back', 2: 'S02', 5: 'S02', 6: 'back', 7: 'back' }, có = m.nav.S01 || {};
+        for (const [n, t] of Object.entries(mong)) if (có[n] !== t) lỗi.push(`#${n} "${hàng[n - 1][0]}" phải → ${t}, được ${có[n] || 'không liên kết'}`);
+        for (const n of ['3', '4']) if (có[n]) lỗi.push(`#${n} câu tả "${hàng[n - 1][2]}" không được thành liên kết (→ ${có[n]})`);
+      }
+      if (!lỗi.length) { pass++; console.log('  ✅ 3proto-link: "Trở về …"/"Quay lại" → back · "mở S02"/"đi đến S02" → liên kết · "thông tin về S02"/"gửi tới S02" (câu tả) → không'); }
+      else { fail++; for (const l of lỗi) console.log('  ❌ 3proto-link ' + l); }
+    });
+    ca('3figma-fonts', () => {
+      const lỗi = [], F = path.join(TMP, 'ff', 'fonts'), SRC = path.join(F, 'src'); fs.mkdirSync(SRC, { recursive: true });
+      const css = path.join(F, 'fonts-embed.css');
+      if (run([FF, 'embed', SRC, '--family', 'Cal Sans']).status === 0 || fs.existsSync(css)) lỗi.push('thiếu tệp woff2 phải exit ≠ 0 và không ghi css');
+      const u = run([FF, 'urls', 'Cal Sans', '--weights', '400']);
+      if (u.status !== 0 || !/cal-sans-vietnamese-400-normal\.woff2/.test(u.stdout)) lỗi.push('urls phải liệt kê subset vietnamese theo mẫu tên Fontsource');
+      for (const sub of ['latin', 'vietnamese']) fs.writeFileSync(path.join(SRC, `cal-sans-${sub}-400-normal.woff2`), Buffer.from('wOF2' + sub));
+      fs.writeFileSync(path.join(SRC, 'cal-sans-400.css'), "@font-face{src:url(./files/cal-sans-latin-400-normal.woff2);unicode-range:U+0000-00FF;}\n@font-face{src:url(./files/cal-sans-vietnamese-400-normal.woff2);unicode-range:U+0102-0103;}");
+      const e1 = run([FF, 'embed', SRC, '--family', 'Cal Sans']), t1 = fs.existsSync(css) ? fs.readFileSync(css, 'utf8') : '';
+      if (e1.status !== 0 || (t1.match(/@font-face/g) || []).length !== 2 || !/unicode-range:U\+0102-0103/.test(t1) || !/base64,/.test(t1)) lỗi.push('embed phải sinh 2 @font-face base64 kèm unicode-range');
+      run([FF, 'embed', SRC, '--family', 'Cal Sans', '--alias', 'Du An Display']); run([FF, 'embed', SRC, '--family', 'Cal Sans']);
+      const t2 = fs.readFileSync(css, 'utf8');
+      if ((t2.match(/@font-face/g) || []).length !== 4 || !/font-family:'Du An Display'/.test(t2) || !/TẠM Cal Sans/.test(t2)) lỗi.push('bí danh phải thành khối riêng ghi chú TẠM; chạy lại cùng họ phải thay khối, không nhân đôi');
+      if (run([FF, 'local', path.join(SRC, 'khong-co.woff2'), '--family', 'X', '--out', css]).status === 0) lỗi.push('local thiếu tệp phải exit ≠ 0');
+      if (!lỗi.length) { pass++; console.log('  ✅ 3figma-fonts: thiếu tệp → exit ≠ 0 không ghi · urls có subset vietnamese · embed base64 + unicode-range · bí danh khối riêng, chạy lại thay khối'); }
+      else { fail++; for (const l of lỗi) console.log('  ❌ 3figma-fonts ' + l); }
+    });
+    ca('3embed-assets', () => {
+      const lỗi = [], G = path.join(TMP, 'ea', 'docs');
+      fs.mkdirSync(path.join(G, 'Ho-so'), { recursive: true });
+      if (run([EA, 'list', G]).status !== 2) lỗi.push('không có figma-assets phải exit 2');
+      const A = path.join(G, 'Ho-so', 'figma-assets'); fs.mkdirSync(path.join(A, 'img'), { recursive: true }); fs.mkdirSync(path.join(A, 'icons'), { recursive: true });
+      fs.writeFileSync(path.join(A, 'img', 'binh.png'), Buffer.from([137, 80, 78, 71])); fs.writeFileSync(path.join(A, 'img', 'la.png'), 'x');
+      fs.writeFileSync(path.join(A, 'icons', 'tick.svg'), '<svg viewBox="0 0 24 24"><path stroke="currentColor" d="M4 12l5 5L20 6"/></svg>');
+      fs.writeFileSync(path.join(A, 'manifest.json'), JSON.stringify([{ file: 'img/binh.png' }, { file: 'icons/tick.svg' }]));
+      const i = run([EA, 'img', 'binh.png', G]), c = run([EA, 'icon', 'tick.svg', G]), l = run([EA, 'list', G]), x = run([EA, 'img', 'khong.png', G]);
+      if (i.status !== 0 || !/^data:image\/png;base64,iVBORw==$/.test(i.stdout)) lỗi.push('img phải in data URI png');
+      if (c.status !== 0 || !/^<svg aria-hidden="true"/.test(c.stdout)) lỗi.push('icon SVG phải thêm aria-hidden');
+      if (l.status !== 0 || !/2 ảnh · 1 icon/.test(l.stdout) || !/la\.png/.test(l.stdout)) lỗi.push(`list phải đếm 2 ảnh 1 icon và báo la.png ngoài manifest: ${l.stdout.trim()}`);
+      if (x.status !== 2) lỗi.push('img tệp không có phải exit 2');
+      if (!lỗi.length) { pass++; console.log('  ✅ 3embed-assets: không có figma-assets → exit 2 · img data URI · icon aria-hidden · list báo tệp ngoài manifest'); }
+      else { fail++; for (const l2 of lỗi) console.log('  ❌ 3embed-assets ' + l2); }
+    });
+  }
 
   // 3d-cost. W4 báo giá: cost.js estimate từ bảng mặc định (đúng định dạng dòng) → từ lịch sử khi ≥3 lần (trung vị +
   // p20–p80, nói "lịch sử N lần") · skill lạ nói thật "không ước được", skill có `ganNhat` nói rõ là mượn · record ghi JSONL hợp lệ.
@@ -652,6 +921,195 @@ try {
     if (!j2 || !j2.canhBaoBang.length) lỗi.push('bảng cắt đôi mà KHÔNG cảnh báo — sẽ báo nhầm là xoá');
     if (!lỗi.length) { pass++; console.log('  ✅ semdiff thấy đúng TRƯỜNG bị đổi và cảnh báo bảng cắt đôi'); }
     else { fail++; console.log(`  ❌ semdiff — LỌT: ${lỗi.join(' · ')}`); }
+  });
+
+  // 3imp. impact.js (ba-change-request bước 1, decision 37) — danh sách tài liệu phải sửa. ĐỐI KHÁNG: (a) lan phải
+  // BẮC CẦU (BRule → E → CL → TC → plan/e2e) — lan một bậc thì bảng trông đủ mà sót đúng tệp code dựa vào; (b) KHÔNG
+  // lan ngược (TC không kéo R lên); (c) dải `BRule-S01-01..06` phải bung; (d) sổ CR/WI không phải "tài liệu phải sửa";
+  // (e) ID không có → exit 1, mã lạ → exit 2; (f) --base lấy ID gốc từ semdiff; (g) --term "5 lần" kéo vào tệp chỉ chép
+  // con số bằng lời (01-requirements NFR-03, S04 "cùng ngưỡng") và KHÔNG khớp "15 lần" — chạy thử 15/10 lộ 12 → 24 tệp.
+  ca('3imp', () => {
+    const IM = S('ba-change-request', 'impact.js'), lỗi = [];
+    const j = (args) => { const r = run([IM, ...args, '--json']); try { return { s: r.status, k: JSON.parse(r.stdout) }; } catch { return { s: r.status, k: null }; } };
+    const a = j([EX, 'BRule-S01-01']), tệpA = a.k ? a.k.phảiSửa.map((x) => x.tệp) : [];
+    if (a.s !== 0 || !a.k) lỗi.push(`BRule-S01-01 exit ${a.s}`);
+    else {
+      for (const t of ['srs.md', 'test.md', 'plan.md', 'html-design.html']) if (!tệpA.some((x) => x.endsWith('S01 - Login/' + t))) lỗi.push(`thiếu S01 ${t}`);
+      if (!tệpA.some((x) => /^e2e\/tests\/S01-/.test(x))) lỗi.push('thiếu spec e2e S01');
+      const c = a.k.chạm.find((x) => x.id === 'TC-S01-20');
+      if (!c || c.sâu < 3) lỗi.push(`không bắc cầu tới TC-S01-20 (qua CL-S01-18): ${JSON.stringify(c)}`);
+      if (tệpA.some((x) => /00-(cr|backlog)\.md$/.test(x))) lỗi.push('sổ CR/WI lọt vào danh sách phải sửa');
+      if (!a.k.soátBằngMắt.some((x) => /S01 - Login\/design-spec\.md$/.test(x))) lỗi.push('design-spec S01 không nằm ở soát bằng mắt');
+    }
+    const b = j([EX, 'TC-S01-01']);
+    if (!b.k || b.k.chạm.length !== 1 || !b.k.cấpTrên.includes('R-S01-03')) lỗi.push(`TC-S01-01 lan ngược/thiếu cấp trên: chạm ${b.k && b.k.chạm.map((x) => x.id)}`);
+    const c = j([EX, 'BRule-S01-04']);
+    if (!c.k || !c.k.phảiSửa.some((x) => x.tệp === '10-architecture.md')) lỗi.push('dải BRule-S01-01..06 không bung (10-architecture.md)');
+    if (run([IM, EX, 'BRule-S09-99']).status !== 1) lỗi.push('ID không có phải exit 1');
+    if (run([IM, EX, 'khoá-tài-khoản']).status !== 2) lỗi.push('mã lạ phải exit 2');
+    const R = path.join(TMP, 'impact-base'); fs.cpSync(EX, path.join(R, 'docs'), { recursive: true });
+    const g = (x) => spawnSync('git', x, { cwd: R, encoding: 'utf8' });
+    g(['init', '-q']); g(['config', 'user.email', 't@t']); g(['config', 'user.name', 't']); g(['add', '-A']); g(['commit', '-qm', 'nen']);
+    const srs = path.join(R, 'docs', 'Screen-spec', 'Authentication', 'S01 - Login', 'srs.md');
+    fs.writeFileSync(srs, fs.readFileSync(srs, 'utf8').replace('| BRule-S01-01 | Khoá tài khoản tạm thời sau **5 lần', '| BRule-S01-01 | Khoá tài khoản tạm thời sau **7 lần'));
+    const d = j([path.join(R, 'docs'), '--base', 'HEAD']);
+    if (!d.k || JSON.stringify(d.k.gốc) !== '["BRule-S01-01"]') lỗi.push(`--base không lấy đúng ID gốc từ semdiff: ${d.k && JSON.stringify(d.k.gốc)}`);
+    const t = j([EX, 'BRule-S01-01', '--term', '5 lần']), tt = t.k ? t.k.phảiSửa : [];
+    const chỉChữ = (re) => tt.find((x) => re.test(x.tệp) && x.chỉChữ);
+    if (!chỉChữ(/^01-requirements\.md$/) || !chỉChữ(/S04 - UserProfile\/srs\.md$/)) lỗi.push(`--term "5 lần" không kéo 01-requirements/S04 srs vào: ${tt.filter((x) => x.chỉChữ).map((x) => x.tệp)}`);
+    const tc = tt.find((x) => /tra-cuu-quy-tac\.md$/.test(x.tệp)), dòng = tc && tc.chữ[0] ? tc.chữ[0].dòng : [];
+    if (!tc || dòng.length !== 1) lỗi.push(`"5 lần" khớp nhầm "15 lần" (tra-cuu-quy-tac dòng ${dòng})`);
+    if (run([IM, EX, '--term', 'zzz-không-có']).status !== 1) lỗi.push('cụm chữ không có phải exit 1');
+    if (run([IM, EX, 'BRule-S01-01', '--term']).status !== 2) lỗi.push('--term thiếu chữ phải exit 2');
+    if (!lỗi.length) { pass++; console.log(`  ✅ 3imp impact.js: BRule-S01-01 → ${tệpA.length} tài liệu (+--term "5 lần" → ${tt.length}), bắc cầu tới TC-S01-20/plan/e2e · TC không lan ngược · dải ..06 bung · sổ CR/WI ngoài danh sách · ID không có exit 1 · mã lạ exit 2 · --base lấy ID từ semdiff · --term không khớp "15 lần"`); }
+    else { fail++; for (const l of lỗi) console.log('  ❌ 3imp ' + l); }
+  });
+
+  // 3flw. ba-toolkit/check-flow.js (decision 38) — lỗi CẤU TRÚC sơ đồ luồng mà render-check không thấy (render được ≠ đúng).
+  // ĐỐI KHÁNG: một sơ đồ gãy đủ 5 luật phải bắn đủ 5 mã; ĐỐI CHỨNG: nhãn `-- x -->`/`-.x.->`/`-->|x|`, nhóm `A & B`,
+  // `class X startend`, sơ đồ kiến trúc (không quyết định) không bị xét cụt/mồ côi, sơ đồ bọc trong fence 4 dấu là ví dụ.
+  ca('3flw', () => {
+    const CF = S('ba-toolkit', 'check-flow.js'), lỗi = [];
+    const gãy = w('flw/gay.md', ['# Gãy', '```mermaid', 'swimlane-beta TD', '  subgraph A[Khách]', '    S([Bắt đầu]):::startend --> B{"Hợp lệ?"}:::decision', '  end',
+      '  subgraph R[Kho]', '  end', '  subgraph H[Hệ thống]', '    C[Lưu đơn]:::task', '    D{"Còn hàng?"}:::decision', '    X[Treo lơ lửng]:::task', '    E([Xong]):::startend', '  end',
+      '  B -->|Có| C --> D', '  B --> E', '  D -->|Có| E', '  X --> E', '```', ''].join('\n'));
+    const r = run([CF, gãy, '--json']); let k = null; try { k = JSON.parse(r.stdout); } catch { /* */ }
+    const mã = k ? k.phátHiện.map((x) => `${x.mã}:${x.node}`).sort() : [];
+    const mong = ['FL-COI:X', 'FL-LAN:R', 'FL-QD1:D', 'FL-QDN:B'];
+    if (JSON.stringify(mã) !== JSON.stringify(mong)) lỗi.push(`mong ${mong} — được ${mã}`);
+    if (r.status !== 4) lỗi.push(`exit phải = số phát hiện 4, được ${r.status}`);
+    const cụt = w('flw/cut.md', ['```mermaid', 'flowchart TD', '  A([Mở]) --> B{Đủ?}', '  B -- Có --> C[Treo]', '  B -. Không .-> E([Hết])', '```', ''].join('\n'));
+    const rc = run([CF, cụt, '--plain']);
+    if (rc.status !== 1 || !/FL-CUT .*· C /.test(rc.stdout)) lỗi.push(`node cụt C không bị bắt: exit ${rc.status} ${rc.stdout.split('\n')[0]}`);
+    const sạch = w('flw/sach.md', ['```mermaid', 'flowchart TD', '  A([Mở]) & K([Mở lại]) --> B{"Đủ?"}', '  B -- Có --> C[Lưu] --> E', '  B -.thiếu dữ liệu.-> F[Báo lỗi]', '  F --> E[Hết]', '  class E startend', '```',
+      '', '```mermaid', 'flowchart TB', '  subgraph web["Web"]', '    ui["UI"]', '  end', '  api["API"] --> db[("DB")]', '```',
+      '', '````markdown', '```mermaid', 'flowchart TD', '  Q{"Một nhánh?"} --> R', '```', '````', ''].join('\n'));
+    const rs = run([CF, sạch, '--plain']);
+    if (rs.status !== 0) lỗi.push(`đối chứng sạch bị báo: ${rs.stdout.trim().split('\n').slice(0, 3).join(' | ')}`);
+    if (!/Máy KHÔNG kiểm/.test(rs.stdout)) lỗi.push('thiếu dòng "Máy KHÔNG kiểm"');
+    const ex = run([CF, EX, '--plain']);
+    if (ex.status !== 0) lỗi.push(`example/docs phải im: ${ex.stdout.trim().split('\n')[0]}`);
+    if (run([CF, path.join(TMP, 'flw', 'khong-co.md')]).status !== 2) lỗi.push('nguồn không có phải exit 2');
+    if (!lỗi.length) { pass++; console.log('  ✅ 3flw check-flow: sơ đồ gãy bắn đủ FL-QD1/QDN/COI/LAN, FL-CUT riêng · nhãn 3 kiểu, nhóm &, class startend, sơ đồ kiến trúc, fence 4 dấu không oan · example im · nguồn thiếu exit 2'); }
+    else { fail++; for (const l of lỗi) console.log('  ❌ 3flw ' + l); }
+  });
+
+  // 3stt. ba-toolkit/check-state.js (decision 40) — sơ đồ State ↔ bảng chuyển ↔ enum 05-data-model (lifecycle drift).
+  // ĐỐI KHÁNG: một bộ gãy đủ 8 luật phải bắn đúng từng mã; ĐỐI CHỨNG HÌNH THẬT: sơ đồ State của một srs dự án thật
+  // (`state "…" as X`, nhãn có <br/>, note, class) + bảng chuyển dựng từ chính các mũi tên của nó → im; bỏ một dòng → đúng 1
+  // ST-THIEU (không phải luôn im). Sơ đồ chưa có bảng → "không xét", không báo. example: S01 được xét thật và im.
+  ca('3stt', () => {
+    const CS = S('ba-toolkit', 'check-state.js'), lỗi = [];
+    w('stt/docs/05-data-model.md', ['# Mô hình', '### Thực thể: Don (Order)', '| Thuộc tính | Kiểu | Ràng buộc | Mô tả |', '|---|---|---|---|',
+      '| id | chuỗi | PK | — |', '| trang_thai | enum | NEW, PAID, DONE, CANCELLED | Trạng thái |', ''].join('\n'));
+    const gãy = w('stt/docs/Screen-spec/S09 - Don/srs.md', ['# S09', '### Vòng đời', '```mermaid', 'stateDiagram-v2', '  [*] --> A: tạo', '  A --> B: trả tiền',
+      '  B --> C: giao xong', '  C --> [*]', '```', '', '> Dữ liệu: `Don.trang_thai` (`05-data-model.md`)', '',
+      '| Trạng thái | Tên | Mã dữ liệu | Loại |', '|---|---|---|---|', '| A | Mới | NEW | đầu |', '| B | Đã trả | PAID | giữa |', '| C | Xong | DONEE | giữa |', '| X | Thừa | — | giữa |', '',
+      '| Từ | Sự kiện | Điều kiện | Sang | Ai thực hiện | Trace |', '|---|---|---|---|---|---|', '| A | Trả tiền | — | B |  | — |', '| B | Hoàn | — | D | Kế toán | — |', '',
+      '### Sau', '```mermaid', 'stateDiagram-v2', '  P --> Q', '```', '', '> Dữ liệu: `Don.khong_co` (`05-data-model.md`)', '',
+      '| Trạng thái | Mã dữ liệu | Loại |', '|---|---|---|', '| P | NEW | đầu |', '| Q | PAID | cuối |', '', '| Từ | Sang | Ai thực hiện |', '|---|---|---|', '| P | Q | Hệ thống |', ''].join('\n'));
+    const r = run([CS, gãy, '--json']); let k = null; try { k = JSON.parse(r.stdout); } catch { /* */ }
+    const mã = k ? k.phátHiện.map((x) => `${x.mã}:${x.đốiTượng}`).sort() : [];
+    const mong = ['ST-AI:A → B', 'ST-ENUM:C = DONEE', 'ST-LOAI:C', 'ST-NODE:X', 'ST-REF:Don.khong_co', 'ST-SOT:CANCELLED', 'ST-SOT:DONE', 'ST-THIEU:B → C', 'ST-THUA:B → D'];
+    if (JSON.stringify(mã) !== JSON.stringify(mong)) lỗi.push(`mong ${mong.join(' | ')} — được ${mã.join(' | ')}`);
+    if (r.status !== mong.length) lỗi.push(`exit phải = ${mong.length}, được ${r.status}`);
+    // Hình thật: sơ đồ State đầu tiên có `state "…" as` trong fixtures/real (bản công khai không có kho này → bỏ riêng phần này)
+    const gốcThật = path.join(ROOT, 'fixtures', 'real');
+    const thậtTệp = !fs.existsSync(gốcThật) ? null : (function tìm(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) { const x = tìm(p); if (x) return x; } else if (e.name === 'srs.md' && /stateDiagram[\s\S]*?state "[^"]*" as /.test(fs.readFileSync(p, 'utf8'))) return p; } return null; })(gốcThật);
+    if (!thậtTệp && !(PUBLIC && !fs.existsSync(gốcThật))) lỗi.push('không tìm thấy srs thật có `state "…" as` trong fixtures/real');
+    else if (thậtTệp) {
+      const t = fs.readFileSync(thậtTệp, 'utf8'), m = /```mermaid\n(stateDiagram[\s\S]*?)\n```/.exec(t);
+      const mũi = [], nút = new Set();
+      for (const l of m[1].split('\n')) {
+        const a = /^\s*(\[\*\]|\w+)\s*-->\s*(\[\*\]|\w+)/.exec(l); const s = /^\s*state\s+"[^"]*"\s+as\s+(\w+)/.exec(l);
+        if (s) nút.add(s[1]);
+        if (a) { for (const x of [a[1], a[2]]) if (x !== '[*]') nút.add(x); if (a[1] !== '[*]' && a[2] !== '[*]' && !mũi.some((y) => y[0] === a[1] && y[1] === a[2])) mũi.push([a[1], a[2]]); }
+      }
+      const dựng = (bỏ) => ['# Thật', '```mermaid', m[1], '```', '', '| Trạng thái | Mã dữ liệu | Loại |', '|---|---|---|', ...[...nút].map((x) => `| ${x} | — | đầu · giữa · cuối |`), '',
+        '| Từ | Sự kiện | Điều kiện | Sang | Ai thực hiện | Trace |', '|---|---|---|---|---|---|', ...mũi.slice(bỏ).map(([a, b]) => `| ${a} | x | — | ${b} | Hệ thống | — |`), '',
+        '````markdown', '```mermaid', 'stateDiagram-v2', '  Z --> Y', '```', '````', ''].join('\n');
+      const rs = run([CS, w('stt/that/srs.md', dựng(0)), '--plain']);
+      if (rs.status !== 0) lỗi.push(`hình thật (${path.relative(ROOT, thậtTệp)}, ${mũi.length} mũi tên) bị báo: ${rs.stdout.trim().split('\n').slice(0, 3).join(' | ')}`);
+      const rb = run([CS, w('stt/that2/srs.md', dựng(1)), '--json']); let kb = null; try { kb = JSON.parse(rb.stdout); } catch { /* */ }
+      if (!kb || kb.phátHiện.length !== 1 || kb.phátHiện[0].mã !== 'ST-THIEU') lỗi.push(`hình thật bỏ 1 dòng phải ra đúng 1 ST-THIEU, được ${kb ? kb.phátHiện.map((x) => x.mã) : rb.stdout.slice(0, 80)}`);
+    }
+    const kx = run([CS, w('stt/khong/srs.md', ['```mermaid', 'stateDiagram-v2', '  A --> B', '```', ''].join('\n')), '--json']); let kk = null; try { kk = JSON.parse(kx.stdout); } catch { /* */ }
+    if (kx.status !== 0 || !kk || kk.khôngXét.length !== 1) lỗi.push('sơ đồ chưa có bảng phải "không xét", exit 0');
+    // ST-TOI chỉ cần sơ đồ: C không đi tới được từ [*] → báo dù chưa có bảng; con của `state K { … }` không xét
+    const tt = run([CS, w('stt/toi/srs.md', ['```mermaid', 'stateDiagram-v2', '  [*] --> A', '  A --> B', '  C --> B', '  B --> K', '  state K {', '    Con1 --> Con2', '  }', '  B --> [*]', '```', ''].join('\n')), '--json']); let kt = null; try { kt = JSON.parse(tt.stdout); } catch { /* */ }
+    if (tt.status !== 1 || !kt || kt.phátHiện.map((x) => `${x.mã}:${x.đốiTượng}`).join() !== 'ST-TOI:C') lỗi.push(`ST-TOI phải đúng 1 (C), con trạng thái lồng im — được exit ${tt.status} ${kt ? kt.phátHiện.map((x) => x.mã + ':' + x.đốiTượng) : tt.stdout.slice(0, 80)}`);
+    const ex = run([CS, EX, '--json']); let ke = null; try { ke = JSON.parse(ex.stdout); } catch { /* */ }
+    if (ex.status !== 0) lỗi.push(`example/docs phải im: ${ex.stdout.slice(0, 160)}`);
+    else if (!ke || ke.sốSơĐồ - ke.khôngXét.length < 1) lỗi.push('example phải có ≥1 sơ đồ State được xét thật (S01)');
+    if (run([CS, path.join(TMP, 'stt', 'khong-co.md')]).status !== 2) lỗi.push('nguồn không có phải exit 2');
+    if (!lỗi.length) { pass++; console.log('  ✅ 3stt check-state: bộ gãy bắn đủ ST-THIEU/THUA/AI/NODE/LOAI/REF/ENUM/SOT · ST-TOI không cần bảng, con lồng im · hình thật dựng bảng → im, bỏ 1 dòng → 1 ST-THIEU · chưa có bảng → không xét · fence 4 dấu bỏ qua · example S01 xét thật và im · nguồn thiếu exit 2'); }
+    else { fail++; for (const l of lỗi) console.log('  ❌ 3stt ' + l); }
+  });
+
+  // 3gnt. ba-toolkit/gantt.js (decision 39) — gantt thành bảng kế hoạch (Công việc · Người làm · Bắt đầu · Số ngày + thanh).
+  // ĐỐI KHÁNG: số ngày phải là ngày LÀM (excludes cuối tuần + lễ kéo thanh dài ra — API 4 ngày 27/10 → hết 02/11); nhóm
+  // tính từ việc sớm nhất tới muộn nhất; `after a b` chờ cả hai; người làm tách sau " · ", vắng thì cột ẩn; trục tuần
+  // tương đối KHÔNG in ngày cụ thể; cú pháp chưa đọc (`until`, id lạ) → ok:false để portal rơi về Mermaid, không vẽ sai.
+  ca('3gnt', () => {
+    const GT = S('ba-toolkit', 'gantt.js'), lỗi = [];
+    const nguồn = ['```mermaid', 'gantt', '  title Kế hoạch', '  dateFormat YYYY-MM-DD', '  excludes weekends, 2026-10-28', '  section Phân tích',
+      '    Phỏng vấn · Lan :done, a1, 2026-10-19, 3d', '    User story · Lan :active, a2, after a1, 3d', '  section Xây dựng', '    API · Nam :crit, b1, after a2, 4d',
+      '    Màn hình · Mai :b2, after a2, 3d', '  section Ra mắt', '    Ra mắt :milestone, m1, after b1 b2, 0d', '```', ''].join('\n');
+    const f = w('gnt/plan.md', '# Kế hoạch\n\n' + nguồn);
+    const r = run([GT, f, '--json', '--svg', path.join(TMP, 'gnt', 'plan.svg')]); let k = null; try { k = JSON.parse(r.stdout); } catch { /* */ }
+    if (!k) lỗi.push(`--json không đọc được: exit ${r.status} ${(r.stdout || r.stderr).slice(0, 120)}`);
+    else {
+      const nh = Object.fromEntries(k.nhóm.map((x) => [x.tên, `${x.bắtĐầu}/${x.ngàyLàm}`]));
+      if (nh['Phân tích'] !== '2026-10-19/6' || nh['Xây dựng'] !== '2026-10-27/4' || nh['Ra mắt'] !== '2026-11-03/1') lỗi.push(`nhóm sai: ${JSON.stringify(nh)}`);
+      const v = Object.fromEntries(k.việc.map((x) => [x.tên, x]));
+      if (!v.API || v.API.kết !== '2026-11-02' || v.API.ngàyLàm !== 4) lỗi.push(`API phải 27/10 → 02/11, 4 ngày làm: ${JSON.stringify(v.API)}`);
+      if (!v['Ra mắt'] || v['Ra mắt'].bắtĐầu !== '2026-11-03' || v['Ra mắt'].sau.join() !== 'b1,b2') lỗi.push(`mốc after b1 b2 sai: ${JSON.stringify(v['Ra mắt'])}`);
+      if (!v['Phỏng vấn'] || v['Phỏng vấn'].ngườiLàm !== 'Lan' || v['Ra mắt'].ngườiLàm !== null) lỗi.push('người làm không tách đúng " · "');
+    }
+    const svg = fs.existsSync(path.join(TMP, 'gnt', 'plan.svg')) ? fs.readFileSync(path.join(TMP, 'gnt', 'plan.svg'), 'utf8') : '';
+    if (!/Người làm/.test(svg) || !/Lễ: 28\/10/.test(svg) || (svg.match(/stroke-width="2"\/><rect/g) || []).length !== 3) lỗi.push('SVG thiếu cột Người làm / chú giải lễ / 3 thanh nhóm');
+    const GM = require(GT);
+    const không = GM.đọcGantt('gantt\n  dateFormat YYYY-MM-DD\n  section A\n    X :x1, 2026-01-05, 2d\n');
+    if (!không.ok || /Người làm/.test(GM.vẽGantt(không))) lỗi.push('không ai có người làm mà cột vẫn hiện');
+    const tđ = GM.đọcGantt('gantt\n  dateFormat YYYY-MM-DD\n  axisFormat Tuan %W\n  section A\n    X :x1, 2026-01-05, 1w\n    Y :y1, after x1, 1w\n');
+    const sTđ = tđ.ok ? GM.vẽGantt(tđ) : '';
+    if (!/>Tuần 2</.test(sTđ) || />\d\d\/\d\d</.test(sTđ)) lỗi.push('trục tuần tương đối phải in "Tuần N", không in ngày');
+    for (const [nhãn, src, mong] of [['until', 'gantt\n  dateFormat YYYY-MM-DD\n    X :x1, 2026-01-05, until y\n', /until/], ['id lạ', 'gantt\n  dateFormat YYYY-MM-DD\n    X :x1, after zz, 2d\n', /chưa có việc id zz/], ['dateFormat', 'gantt\n  dateFormat DD-MM-YYYY\n    X :x1, 05-01-2026, 2d\n', /dateFormat/]]) {
+      const x = GM.đọcGantt(src); if (x.ok || !mong.test(x.lýDo || '')) lỗi.push(`${nhãn} phải ok:false có lý do: ${JSON.stringify(x).slice(0, 100)}`);
+    }
+    // Đường nối không được cắt ngang thanh của hàng khác (bug 20/10: việc nối sát xs = xe vẽ vòng ngược qua F03 và thanh
+    // tổng Phase 2 của roadmap example). Đo hình học: mỗi đoạn dọc/ngang của <path> nối × mọi thanh (rect rx / thanh tổng).
+    const rm = GM.đọcGantt((fs.readFileSync(path.join(EX, 'Ho-so', '08-roadmap.md'), 'utf8').match(/```mermaid\n(gantt[\s\S]*?)```/) || [])[1] || '');
+    if (!rm.ok) lỗi.push('roadmap example không đọc được');
+    else {
+      const sv = GM.vẽGantt(rm);
+      const thanh = [...sv.matchAll(/<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"(?: rx="4")? fill="#(?:4f6ef7|1a9e86|a7adb7|e0384b|1f2430)"/g)].map((m) => ({ x: +m[1], y: +m[2], w: +m[3], h: +m[4] }));
+      let cắt = 0;
+      for (const [, d] of sv.matchAll(/<path d="(M[^"]+)" fill="none" stroke="#9aa1ab"/g)) {
+        const tk = d.match(/[MHV]|-?[\d.]+/g); let x = 0, y = 0, i = 0;
+        while (i < tk.length) {
+          const c = tk[i++];
+          if (c === 'M') { x = +tk[i++]; y = +tk[i++]; continue; }
+          const nx = c === 'H' ? +tk[i++] : x, ny = c === 'V' ? +tk[i++] : y;
+          for (const r of thanh) {
+            const trong = (a, b, lo, hi) => Math.max(Math.min(a, b), lo + 1) < Math.min(Math.max(a, b), hi - 1);
+            if (c === 'V' && x > r.x + 1 && x < r.x + r.w - 1 && trong(y, ny, r.y, r.y + r.h)) cắt++;
+            if (c === 'H' && y > r.y + 1 && y < r.y + r.h - 1 && trong(x, nx, r.x, r.x + r.w)) cắt++;
+          }
+          x = nx; y = ny;
+        }
+      }
+      if (cắt) lỗi.push(`roadmap example: đường nối cắt ngang thanh ${cắt} lần`);
+    }
+    if (run([GT, w('gnt/hong.md', '```mermaid\ngantt\n  dateFormat YYYY-MM-DD\n    X :x1, after zz, 2d\n```\n')]).status !== 1) lỗi.push('khối không đọc được phải exit 1');
+    w('gnt/docs/00-tracking.md', '# Tracking\n'); fs.copyFileSync(f, path.join(TMP, 'gnt', 'docs', '08-roadmap.md'));
+    fs.appendFileSync(path.join(TMP, 'gnt', 'docs', '08-roadmap.md'), '\n## Cũ\n\n```mermaid\ngantt\n  dateFormat YYYY-MM-DD\n    X :x1, 2026-01-05, until y\n```\n');
+    const out = path.join(TMP, 'gnt', 'portal.html');
+    run([S('ba-portal', 'build.js'), path.join(TMP, 'gnt', 'docs'), out, '--all']);
+    const ph = fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : '';
+    if ((ph.match(/class="gantt-fig"/g) || []).length !== 1 || !/<pre class="mermaid">gantt[\s\S]*?until y/.test(ph)) lỗi.push(`portal: gantt đọc được phải dựng sẵn (1 gantt-fig), khối until rơi về pre.mermaid — gantt-fig ${(ph.match(/class="gantt-fig"/g) || []).length}`);
+    if (!lỗi.length) { pass++; console.log('  ✅ 3gnt gantt.js: nhóm 19/10·6 · 27/10·4 · 03/11·1, API qua lễ+cuối tuần hết 02/11, after b1 b2, người làm " · " (vắng → cột ẩn), trục tuần in "Tuần N" · đường nối roadmap không cắt thanh nào · until/id lạ/dateFormat → ok:false · portal dựng sẵn gantt đọc được, khối còn lại vẫn Mermaid'); }
+    else { fail++; for (const l of lỗi) console.log('  ❌ 3gnt ' + l); }
   });
 
   // 3h. Hook change-watch phải ghi ID BỊ CHẠM, không chỉ ±dòng. Đây là ca TÍCH HỢP: semdiff
@@ -1719,7 +2177,7 @@ try {
     if (spawnSync(process.execPath, [AG, 'check', 'ba-zz-test', gf], { encoding: 'utf8' }).status !== 0) lỗi.push('golden so chính nó mà báo trôi');
     if (spawnSync(process.execPath, [AG, 'check', 'ba-zz-test', mấtĐỏ], { encoding: 'utf8' }).status === 0) lỗi.push('LỌT: agent mất hết 🔴 mà golden bảo ổn định');
     try { fs.rmSync(path.join(ROOT, '.claude', 'skills', 'ba-toolkit', 'references', 'agent-golden', 'ba-zz-test.json')); } catch {}
-    for (const a of ['ba-consistency-reviewer', 'ba-srs-quality-reviewer', 'ba-diagram-reviewer']) {
+    for (const a of ['ba-consistency-reviewer', 'ba-srs-quality-reviewer', 'ba-diagram-reviewer', 'ac-auditor']) {
       if (!fs.existsSync(path.join(ROOT, '.claude', 'skills', 'ba-toolkit', 'references', 'agent-golden', a + '.json'))) lỗi.push('thiếu golden ' + a);
     }
     // (d) status.js — hợp nhất từ dự án desktop: cột "Trạng thái" là SỔ GHI CHÚ (không có chữ "Hoàn thành")
@@ -2990,7 +3448,29 @@ try {
       const c = run([CA, f, '--plain']);
       if (c.status === 0) lỗi.push(`check-audit LỌT ca "${tên}"`); else if (!re.test(c.stdout || '')) lỗi.push(`check-audit ca "${tên}" đỏ nhưng sai lý do: ${(c.stdout || '').slice(0, 160)}`);
     }
-    if (!lỗi.length) { pass++; console.log('  ✅ ac-audit-web: scan-html im trên 6 html-design mẫu, bắt alt/label/heading đúng dòng + bỏ qua shell · lighthouse "không đo được" exit 0 + --from đọc đúng · check-audit bắt thiếu-tiêu-chí/ĐẠT-dù-🔴/không-file:line/CWV-không-nguồn/phán-CWV-chưa-đo'); }
+    // ac-auditor tính tương phản bằng require(scan-html).contrast — nạp như thư viện không được exit 2 vì thiếu tham số CLI
+    const rq = spawnSync(process.execPath, ['-e', `const {contrast,parseColor}=require(${JSON.stringify(SH)});console.log(contrast(parseColor('#9ca3af'),parseColor('#f0f2f5')).toFixed(2))`], { encoding: 'utf8' });
+    if (rq.status !== 0 || rq.stdout.trim() !== '2.26') lỗi.push(`require(scan-html.js) phải dùng được contrast() như thư viện: exit ${rq.status} ${(rq.stdout + rq.stderr).trim().slice(0, 80)}`);
+    // Tầng ảnh (decision 41): mẫu trong assets phải xanh — mẫu là thứ agent chép; mỗi biến thể hỏng đỏ đúng lý do
+    const ảnh = fs.readFileSync(path.join(ROOT, '.claude', 'skills', 'ac-audit-web', 'assets', 'audit-anh-template.md'), 'utf8');
+    const fa = path.join(AU, 'S01-anh.md'); fs.writeFileSync(fa, ảnh);
+    const a0 = run([CA, fa, '--plain']); if (a0.status !== 0) lỗi.push('check-audit đỏ với audit-anh-template.md: ' + (a0.stdout || '').slice(0, 200));
+    const casesẢnh = [
+      ['ảnh phán WCAG', ảnh.replace('| AU-01 | UX | 🟡 |', '| AU-01 | WCAG | 🟡 |'), /AU-01: tầng ảnh chỉ phán được trục UX/],
+      ['số px', ảnh.replace('cỡ bằng chữ nhãn |', 'cỡ 14px |'), /AU-01: có số px/],
+      ['chữ chung chung có dấu đầu từ', ảnh.replace('tiêu đề đổi thành "Đăng nhập"', 'làm tiêu đề đẹp hơn'), /AU-02: chữ chung chung "đẹp hơn"/],
+      ['Cố ý nếu không bác', ảnh.replace('tên sản phẩm tiếng Anh → không, vì nhãn ô và nút cùng màn đều tiếng Việt', 'có thể là tên sản phẩm'), /AU-02: cột Cố ý nếu phải bác/],
+      ['vị trí không vùng', ảnh.replace('`s01-login.png` (tiêu đề khung)', 'ở trên cùng'), /AU-02: vị trí "ở trên cùng" phải là tên ảnh/],
+      ['phiếu Tốt dù có phát hiện', ảnh.replace('| Dễ đọc | Tạm | (AU-01) |', '| Dễ đọc | Tốt | rõ |'), /phiếu: "Dễ đọc" ghi Tốt nhưng phát hiện dưới nó → phải là Tạm/],
+      ['≥3 "—" mà vẫn chấm', ảnh.replace('| Thứ bậc | Tốt |', '| Thứ bậc | — |').replace('| Trạng thái, phản hồi | Tốt |', '| Trạng thái, phản hồi | — |'), /phiếu có 3 tiêu chí — → Verdict phải là CHƯA ĐỦ ẢNH/],
+      ['thiếu việc chính', ảnh.replace(/^> việc chính:.*$/m, ''), /header thiếu `việc chính:`/],
+    ];
+    for (const [tên, body, re] of casesẢnh) {
+      fs.writeFileSync(fa, body);
+      const c = run([CA, fa, '--plain']);
+      if (c.status === 0) lỗi.push(`check-audit tầng ảnh LỌT ca "${tên}"`); else if (!re.test(c.stdout || '')) lỗi.push(`check-audit tầng ảnh ca "${tên}" đỏ nhưng sai lý do: ${(c.stdout || '').slice(0, 160)}`);
+    }
+    if (!lỗi.length) { pass++; console.log('  ✅ ac-audit-web: scan-html im trên 6 html-design mẫu, bắt alt/label/heading đúng dòng + bỏ qua shell · lighthouse "không đo được" exit 0 + --from đọc đúng · check-audit bắt thiếu-tiêu-chí/ĐẠT-dù-🔴/không-file:line/CWV-không-nguồn/phán-CWV-chưa-đo · tầng ảnh: mẫu xanh, bắt WCAG-từ-ảnh/px/chữ-chung-chung/Cố-ý-không-bác/không-vùng/phiếu-lệch/≥3-—/thiếu-việc-chính'); }
     else { fail++; console.log('  ❌ ac-audit-web — ' + lỗi.join(' · ')); }
   });
 
@@ -3281,7 +3761,7 @@ try {
     fs.writeFileSync(path.join(R, 'paths.txt'), 'web/src/screens/Table.tsx\ntests/a.spec.ts\n');
     const j3 = JSON.parse(run([DG, '--range', 'HEAD~1..HEAD', '--root', R, '--paths', path.join(R, 'paths.txt'), '--json']).stdout || '{}');
     if ((j3.rows || []).length !== 2 || (j3.rows || []).some((r) => /guard/.test(r.file))) lỗi.push('--paths phải lọc còn 2 file, không có guard: ' + JSON.stringify((j3.rows || []).map((r) => r.file)));
-    // mission cost — ac-po (gói Pro); vắng ở bản công khai thì chỉ soát diff-digest
+    // mission cost — ac-po (gói Advance); vắng ở bản công khai thì chỉ soát diff-digest
     if (fs.existsSync(MS)) {
     const D = path.join(TMP, 'po', 'docs'); // đã có mission từ 3ai
     const c1 = run([MS, D, 'cost', '--agent', 'ac-builder', '--role', 'S03 lô 1', '--tokens', '527339', '--tools', '120']);
@@ -3324,12 +3804,12 @@ try {
     j = vd(); if (j.chỉCònTcSai || (j.phânLoại || {}).lỗiCode.length !== 1) lỗi.push('còn lỗi-code thì chỉCònTcSai phải false');
     const a4 = run([AC, D, 'S09', '--root', path.join(TMP, 'ac'), '--json']); let j4 = {}; try { j4 = JSON.parse(a4.stdout); } catch { /* */ }
     if (j4.trảLoại !== 'code' || !/TC-S09-01 @ src\/a\.ts:7/.test(run([AC, D, 'S09', '--root', path.join(TMP, 'ac'), '--plain']).stdout || '')) lỗi.push('accept.js còn lỗi-code phải trảLoại code và in TC @ file:line cho builder');
-    // (5) mission done --loai tai-lieu không tính vòng — ac-po (gói Pro)
+    // (5) mission done --loai tai-lieu không tính vòng — ac-po (gói Advance)
     if (fs.existsSync(MS)) { const R3 = path.join(TMP, 'po3'); fs.rmSync(R3, { recursive: true, force: true }); fs.cpSync(path.join(TMP, 'po'), R3, { recursive: true }); const D3 = path.join(R3, 'docs');
       run([MS, D3, 'init', '--from', path.join(R3, 'pick.json'), '--max', '2']); const st3 = () => JSON.parse(fs.readFileSync(path.join(R3, '.claude', 'ac-mission.json'), 'utf8')); const k = st3().queue[0].id;
       run([MS, D3, 'next']); const t = run([MS, D3, 'done', k, '--verdict', 'TRẢ', '--loai', 'tai-lieu', '--evidence', 'accept trảLoại tài-liệu']);
       if (st3().queue[0].vòngTrả !== 0 || !/TRẢ TÀI LIỆU/.test(t.stdout || '') || st3().queue[0].lịchSử.at(-1).sk !== 'TRẢ-tài-liệu') lỗi.push('done --loai tai-lieu phải ghi TRẢ-tài-liệu và không tăng vòngTrả'); }
-    if (fs.existsSync(S('ac-eval', 'SKILL.md'))) {   // (6)(7) cần cổng eval — ac-eval (gói Pro) vắng thì cổng 'không áp'
+    if (fs.existsSync(S('ac-eval', 'SKILL.md'))) {   // (6)(7) cần cổng eval — ac-eval (gói Advance) vắng thì cổng 'không áp'
     // (6)(7) eval dưới ngưỡng CHỈ vì TC sai tiền đề (evaluator chấm 0 đúng TC đó) vẫn là 'tài-liệu'; bỏ TC đó mà vẫn dưới ngưỡng → 'code'
     ghi('- `TC-S09-02 · LOẠI: tc-sai-tiền-đề · src/b.ts:40` — test.md đòi toast nhưng `srs.md:88` (E-S09-03) nói inline\n', '- Task 2 · TC-S09-02 test.md sai tiền đề · `tests/b.test.ts:40`\n');
     fs.mkdirSync(path.join(D, 'Ho-so', 'eval'), { recursive: true });
@@ -3449,7 +3929,7 @@ try {
   // dòng diff ("+ `sha`") = đã đọc; commit chỉ NHẮC màn trong thân message (feat(S04): … S03) không tính; docs-only không tính.
   ca('3as', () => {
     const lỗi = []; const AC = S('ac-verify', 'accept.js');
-    const R = path.join(TMP, 'po7'); fs.rmSync(R, { recursive: true, force: true }); if (fs.existsSync(path.join(TMP, 'po'))) fs.cpSync(path.join(TMP, 'po'), R, { recursive: true }); else cpDir(EX, path.join(R, 'docs'));   // 'po' do 3ai (ac-po, gói Pro) dựng — vắng thì chép example
+    const R = path.join(TMP, 'po7'); fs.rmSync(R, { recursive: true, force: true }); if (fs.existsSync(path.join(TMP, 'po'))) fs.cpSync(path.join(TMP, 'po'), R, { recursive: true }); else cpDir(EX, path.join(R, 'docs'));   // 'po' do 3ai (ac-po, gói Advance) dựng — vắng thì chép example
     const D = path.join(R, 'docs');
     const g = (...a) => spawnSync('git', ['-C', R, ...a], { encoding: 'utf8' });
     g('init', '-q'); g('config', 'user.email', 't@t'); g('config', 'user.name', 't'); fs.mkdirSync(path.join(R, 'src'), { recursive: true }); fs.writeFileSync(path.join(R, 'src', 'a.ts'), 'a\n'); g('add', '-A'); g('commit', '-qm', 'base');
@@ -3883,7 +4363,7 @@ console.log(JSON.stringify({ is_error: false, result, total_cost_usd: 0.42, mode
       th('T4', false, false, 'src/c.ts', 40, null, 'đặt tên biến rõ hơn'),
     ] } } } } }));
     const TF = path.join(G, 'threads.json');
-    if (fs.existsSync(IC)) {   // inspect-comments thuộc ac-ci (gói Pro)
+    if (fs.existsSync(IC)) {   // inspect-comments thuộc ac-ci (gói Advance)
     const c1 = run([IC, '--from', TF, '--json']); let jc = {}; try { jc = JSON.parse(c1.stdout); } catch { /* */ }
     if (c1.status !== 1) lỗi.push('inspect-comments còn thread mở phải exit 1, được ' + c1.status);
     if ((jc.threads || []).length !== 2 || jc.summary.open !== 2 || jc.summary.resolved !== 1 || jc.summary.outdated !== 1) lỗi.push('mặc định phải hiện đúng 2 thread mở, đếm 1 resolved + 1 outdated: ' + JSON.stringify(jc.summary));
@@ -3930,7 +4410,7 @@ console.log(JSON.stringify({ is_error: false, result, total_cost_usd: 0.42, mode
     // PD Treo KHÔNG gắn [go-live] → không được thành go-live
     fs.writeFileSync(path.join(D, '00-decisions.md'), '| ID | Quyết định | Màn/Luồng | Ai chốt | Ngày | Trạng thái | Trace |\n|---|---|---|---|---|---|---|\n| PD-04 | Thanh toán qua VNPay hay Momo? | S09 | PO | 2026-09-24 | Treo | TC-S09-02 |\n');
     a = acc(); if (a.trảLoại === 'go-live') lỗi.push('PD Treo thường (không nhãn [go-live]) không được route go-live');
-    if (fs.existsSync(MS)) {   // (c)(d) mission/pick thuộc ac-po (gói Pro)
+    if (fs.existsSync(MS)) {   // (c)(d) mission/pick thuộc ac-po (gói Advance)
     // (c) mission --loai go-live
     fs.mkdirSync(path.join(G, '.claude'), { recursive: true });
     fs.writeFileSync(path.join(G, 'pick.json'), JSON.stringify({ max: 2, phase: { tên: 'P1', nguồn: 'roadmap' }, queue: [{ id: 'S09', loại: 'screen-dev', màn: ['S09'], việc: 'S09', auto: true }, { id: 'S10', loại: 'screen-dev', màn: ['S10'], việc: 'S10', auto: true }], hỏi: [] }));
@@ -4168,7 +4648,7 @@ console.log(JSON.stringify({ is_error: false, result, total_cost_usd: 0.42, mode
         if (d.status !== 1 || d.trạngThái !== 'không-thấy') lỗi.push(`cổng đóng phải \`không-thấy\` exit 1, được ${d.trạngThái} exit ${d.status}`);
       }
     } finally { sv.kill(); }
-    if (fs.existsSync(CE)) {   // (b) check-eval thuộc ac-eval (gói Pro)
+    if (fs.existsSync(CE)) {   // (b) check-eval thuộc ac-eval (gói Advance)
     // (b) check-eval luật 4b ------------------------------------------------------------------------------------
     const F = path.join(TMP, 'eval4b'); fs.rmSync(F, { recursive: true, force: true });
     const MD = path.join(F, 'docs', 'Screen-spec', 'S09 - BaoCao'), EV = path.join(F, 'docs', 'Ho-so', 'eval'), EVD = path.join(EV, 'evidence', 'S09');
@@ -4622,7 +5102,7 @@ console.log(JSON.stringify({ is_error: false, result, total_cost_usd: 0.42, mode
     const ev = (diff) => fs.writeFileSync(EVF, `# Chấm điểm đặc tả — Tra cứu (Mã màn: S09)\n\n> model: claude-opus-5\n> diff: ${diff}\n> ngày: 2026-09-24 · màn: S09 · hồ sơ: mini · gốc code: app\n\n**Điểm cuối:** 8/8 = 100% — 4 case áp dụng · 0 case \`—\`\n\n## Từng case\n| Case | Loại | Ưu tiên | Cách chạy | Điểm | Bằng chứng | Ghi chú |\n|---|---|---|---|---|---|---|\n| TC-S09-01 | TC | Must | Auto | 2 | \`tests/bang.test.ts:2\` assert 10 dòng | |\n| TC-S09-02 | TC | Must | Auto | 2 | \`tests/loc.test.ts:2\` assert lỗi inline | |\n| GWT-1 | AC | Must | Auto | 2 | phủ bởi TC-S09-01 · \`tests/bang.test.ts:2\` | |\n| GWT-2 | AC | Must | Auto | 2 | phủ bởi TC-S09-02 · \`tests/loc.test.ts:2\` | |\n`);
     ev(`${c0}..${c0}`); commit('docs(eval): S09 100%');
     const cổngEval = (j) => (j.cổng || []).find((c) => c.cổng === 'eval') || {};
-    if (!fs.existsSync(S('ac-eval', 'SKILL.md'))) {   // bản công khai: ac-eval (gói Pro) vắng → cổng eval "không áp" dù có bản chấm, không đỏ
+    if (!fs.existsSync(S('ac-eval', 'SKILL.md'))) {   // bản công khai: ac-eval (gói Advance) vắng → cổng eval "không áp" dù có bản chấm, không đỏ
       a = acc(); const e0 = cổngEval(a); if (!e0.đạt || !/không áp/.test(e0.bằngChứng || '')) lỗi.push('(5) ac-eval vắng: cổng eval phải "không áp" (đạt): ' + JSON.stringify(e0));
     } else {
     a = acc(); let e = cổngEval(a); if (!e.đạt) lỗi.push('(5) đối chứng: eval hợp lệ, mới hơn code/test.md phải đạt: ' + JSON.stringify(e));
@@ -4784,7 +5264,7 @@ console.log(JSON.stringify({ is_error: false, result, total_cost_usd: 0.42, mode
     const DS = S('ba-toolkit', 'devserver.js'), CE = S('ac-eval', 'check-eval.js');
     const ngủ = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
     // (a) check-eval — hàm + một bản chấm hình thật
-    if (fs.existsSync(CE)) {   // (a) cần ac-eval (gói Pro) — vắng ở bản công khai thì chỉ chạy (b)
+    if (fs.existsSync(CE)) {   // (a) cần ac-eval (gói Advance) — vắng ở bản công khai thì chỉ chạy (b)
     const { cóLệnhExit0 = () => null } = require(CE);   // chưa export = checker cũ → mọi ca lệch
     const ca = [
       ['tests/reporting/s12-ui-ket-qua.test.tsx:143-164 trích ≤ 120; `tests/modules/reporting/s12-dong-ket-qua.spec.ts:131-155` cắt ở máy chủ · PUI exit 0 · P11 exit 0', false],
@@ -5167,7 +5647,7 @@ ca('3hr', () => {
       ['V8g', ok.replace('| bắt |', '| ổn |')], ['V8h', ok.replace('| `src/a.ts:7` |', '| `src/a.ts` |')],
     ]) { x = vd(body, màn); if (x.status === 0 || !bắn(x, mã)) lỗi.push(`validate-done đột biến ${mã} không bắn ${mã}: ` + JSON.stringify(x.luật) + ' ' + JSON.stringify(x.lỗi).slice(0, 160)); }
     // (b) check-eval ----------------------------------------------------------------------------------------------------
-    if (fs.existsSync(CE)) {   // ac-eval (gói Pro) vắng ở bản công khai → phần check-eval không áp
+    if (fs.existsSync(CE)) {   // ac-eval (gói Advance) vắng ở bản công khai → phần check-eval không áp
     const E = path.join(TMP, 'rc-eval'), ED = path.join(E, 'docs', 'Screen-spec', 'S09 - BaoCao'), EV = path.join(E, 'docs', 'Ho-so', 'eval');
     fs.mkdirSync(ED, { recursive: true }); fs.mkdirSync(path.join(EV, 'evidence'), { recursive: true });
     fs.writeFileSync(path.join(E, 'docs', '00-tracking.md'), '# Tracking\n\n> Hồ sơ dự án: `mini` · chốt 2026-09-15\n');
@@ -5472,7 +5952,7 @@ ca('3hr', () => {
     const regTxt = fs.readFileSync(path.join(ROOT, '.claude', 'skills', 'ba-toolkit', 'references', 'conv-registry.md'), 'utf8');
     const khối = (regTxt.match(/```registry\n([\s\S]*?)```/) || ['', ''])[1];
     const khoá = (k) => ((khối.match(new RegExp('^' + k.replace(/\./g, '\\.') + ' = (.+)$', 'm')) || [])[1] || '').trim().split(/\s+/).filter(Boolean);
-    // skill thử nghiệm thuộc gói Pro (ac-jury, ba-atlassian) vắng ở bản công khai → không có gì để cài, không tính
+    // skill thử nghiệm thuộc gói Advance (ac-jury, ba-atlassian) vắng ở bản công khai → không có gì để cài, không tính
     const EXP = khoá('skills.experimental').filter((s) => !vắngGói(s));
     const EXPA = khoá('agents.experimental').filter((p) => !vắngGói(p.split(':')[1])).map((p) => p.split(':')[0]);
     if (!khoá('skills.experimental').length) lỗi.push('registry thiếu khoá skills.experimental — install sẽ cài hết như cũ');
@@ -5775,7 +6255,7 @@ console.log(JSON.stringify({ is_error: false, result: 'Đây:\\n\`\`\`json\\n' +
     if (r5.status !== 2) lỗi.push(`claude is_error phải exit 2 (hạ tầng), nhận ${r5.status}`);
     const BL = S('ba-toolkit', 'references', 'trigger-golden.baseline.json');
     const r6 = run([TE, '--from', BL, '--json']); let j6 = {}; try { j6 = JSON.parse(r6.stdout); } catch { /* dưới báo */ }
-    const mồCôi = (j6.cauSai || []).filter((s) => /không còn|mô tả rỗng/.test(s.lyDo || '') && !vắngGói(s.dung));   // câu của skill gói Pro vắng ở bản công khai: hợp lệ
+    const mồCôi = (j6.cauSai || []).filter((s) => /không còn|mô tả rỗng/.test(s.lyDo || '') && !vắngGói(s.dung));   // câu của skill gói Advance vắng ở bản công khai: hợp lệ
     if (!j6.tong || mồCôi.length) lỗi.push('golden thật có câu trỏ skill không còn/mô tả rỗng — sửa trigger-golden.jsonl: ' + (mồCôi.map((s) => s.dung).join(', ') || (r6.stderr || '').slice(0, 160)));
     if (!lỗi.length) { pass++; console.log(`  ✅ 3cq: trigger-eval đếm đúng/sai, đa số 2/3, ma trận nhầm, lọc description rỗng như harness, báo skill không còn; --from chấm lại không mạng, hỏng → 2; claude lỗi → 2 · toolkit baseline ${j6.tong.dung}/${j6.tong.tong}`); }
     else { fail++; for (const x of lỗi) console.log('  ❌ 3cq ' + x); }
@@ -6375,6 +6855,9 @@ console.log(JSON.stringify({ is_error: false, result: 'Đây:\\n\`\`\`json\\n' +
   const dựngHk = (tên, cóGit = true) => {
     const R = path.join(TMP, tên); fs.rmSync(R, { recursive: true, force: true });
     cpDir(EX, path.join(R, 'docs')); fs.mkdirSync(path.join(R, '.claude', 'skills'), { recursive: true });
+    // S1 so ngày tracking với ngày sửa: ghim S03 về mốc cũ để ca không phụ thuộc ngày example vừa được cập nhật
+    const TK = path.join(R, 'docs', '00-tracking.md');
+    fs.writeFileSync(TK, fs.readFileSync(TK, 'utf8').split('\n').map((l) => (/S03 - TaskDetail\//.test(l) ? l.replace(/\d{4}-\d{2}-\d{2} \|\s*$/, '2026-10-05 |') : l)).join('\n'));
     for (const sk of ['ba-toolkit', 'ba-trace', 'ba-conformance']) { try { fs.symlinkSync(path.join(ROOT, '.claude', 'skills', sk), path.join(R, '.claude', 'skills', sk), 'dir'); } catch { cpDir(path.join(ROOT, '.claude', 'skills', sk), path.join(R, '.claude', 'skills', sk)); } }
     const git = (...a) => spawnSync('git', a, { cwd: R, encoding: 'utf8' });
     if (cóGit) { git('init', '-q', '.'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't'); git('add', '-A'); git('commit', '-qm', 'base'); }
@@ -6467,7 +6950,7 @@ console.log(JSON.stringify({ is_error: false, result: 'Đây:\\n\`\`\`json\\n' +
     const st = run([S('ba-next', 'status.js'), path.join(a.R, 'docs')]);
     if (!/🟠 Sửa bản đã chốt chưa có CR: \d+/.test(st.stdout || '')) lỗi.push('status.js không hiện nợ hook 🟠');
     if (fs.existsSync(S('ac-po', 'pick.js'))) { const pk = run([S('ac-po', 'pick.js'), path.join(a.R, 'docs'), '--json']); let q = []; try { q = JSON.parse(pk.stdout).queue; } catch { /* dưới */ }
-    if (!q.some((x) => x.loại === 'hook-debt' && x.hạng === 1)) lỗi.push('pick.js không xếp nợ hook ở hạng 1'); }   // pick.js thuộc ac-po (gói Pro)
+    if (!q.some((x) => x.loại === 'hook-debt' && x.hạng === 1)) lỗi.push('pick.js không xếp nợ hook ở hạng 1'); }   // pick.js thuộc ac-po (gói Advance)
     a.thêmCR('| CR-08 | 2026-10-07 | SH-06 | Đổi BRule-S03-02 | Must | F05 · S03 | Đề xuất | 2026-10-07 |'); a.stop();
     if (nợ().mo.length || !nợ().dong.some((d) => d.cach === 'CR-08')) lỗi.push('CR khớp mở sau → nợ phải đóng với cach CR-08: ' + JSON.stringify(nợ()).slice(0, 140));
     const b = dựngHk('3hd-ok'); b.stop(); b.thêmCR('| CR-07 | 2026-10-07 | SH-06 | Đổi điều kiện | Must | F05 · S03 | Đã duyệt | 2026-10-07 |'); b.sửa(); b.lint();
@@ -6922,6 +7405,39 @@ ca('3hi', () => {
     if (!linkOk) { skip++; console.log('  ⏭️  3plg — BỎ QUA: không tạo được symlink'); }
     else if (!lỗi.length) { pass++; console.log(`  ✅ 3plg plugin cửa cài: manifest hợp lệ (${pj.name}@${mj.name} ${ver}), skill gọi install.js qua \${CLAUDE_PLUGIN_ROOT} --from, install.js không chép plugin vào đích, lint 40 bắt version lệch`); }
     else { fail++; for (const x of lỗi) console.log('  ❌ 3plg ' + x); }
+  });
+  // 3mtr. Giáo trình mentor: phat-de.js phát đúng đầu vào, KHÔNG BAO GIỜ lộ cham.md, --check bắt nguồn gãy
+  // (sửa example/ làm mất file đáp án mà giáo trình trỏ tới → bộ kiểm báo, không đợi tới buổi phát đề).
+  ca('3mtr', () => {
+    if (!cần('3mtr', 'mentor/scripts/phat-de.js')) return;
+    const P = path.join(ROOT, 'mentor', 'scripts', 'phat-de.js'), lỗi = [];
+    const c = run([P, '--check']); if (c.status !== 0) lỗi.push(`--check exit ${c.status}: ${c.stdout.slice(0, 200)}`);
+    const D = path.join(TMP, 'mtr-t6'); const r = run([P, '--tuan', '6', '--to', D]);
+    if (r.status !== 0) lỗi.push(`--tuan 6 exit ${r.status}: ${(r.stdout + r.stderr).slice(-160)}`);
+    const tất = []; (function đi(d) { if (!fs.existsSync(d)) return; for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) đi(p); else tất.push(path.relative(D, p)); } })(D);
+    if (tất.some((f) => /cham\.md$/.test(f))) lỗi.push('phát đề lộ cham.md');
+    if (!tất.includes('DE-BAI.md')) lỗi.push('thiếu DE-BAI.md ở đích');
+    if (!tất.includes(path.join('docs', '00-cr.md')) || tất.includes(path.join('docs', '00-tracking.md'))) lỗi.push('tuần 6 phải phát sổ CR trống, không phát tracking (đã chứa đáp án CR-02)');
+    const D5 = path.join(TMP, 'mtr-t5'); run([P, '--tuan', '5', '--to', D5]);
+    const tr = fs.existsSync(path.join(D5, 'docs', '00-tracking.md')) ? fs.readFileSync(path.join(D5, 'docs', '00-tracking.md'), 'utf8') : '';
+    if (/^\|\s*F\d.*⚠️/m.test(tr) || !/^\|\s*F01(?:[^|]*\|){5} ✅ \|[^|]*\| ✅ \| ✅ \|/m.test(tr) || !/^\|\s*F11.*Chưa bắt đầu/m.test(tr)) lỗi.push('tuần 5: tracking không đặt lại đúng (⬜, trừ ascii/srs/usecase S01 đã phát → ✅)');
+    if (run([P, '--tuan', '6', '--to', D]).status !== 2) lỗi.push('phát đè vào thư mục đã có bài không bị chặn');
+    const R = path.join(TMP, 'mtr-repo'); cpDir(path.join(ROOT, 'mentor'), path.join(R, 'mentor'));
+    cpDir(path.join(ROOT, 'example', 'docs'), path.join(R, 'example', 'docs')); fs.rmSync(path.join(R, 'example', 'docs', '02-functions.md'));
+    const h = run([path.join(R, 'mentor', 'scripts', 'phat-de.js'), '--check']);
+    if (h.status !== 1 || !/02-functions\.md/.test(h.stdout)) lỗi.push(`--check im khi đáp án mất 02-functions.md (exit ${h.status})`);
+    // Bộ đề đầu vào: bản thật sạch; bản hỏng (mất một đáp án + đề phát lộ nhãn "Lỗi C") phải bị bắt.
+    const CD = path.join(ROOT, 'mentor', 'scripts', 'check-dau-vao.js');
+    if (fs.existsSync(CD)) {
+      const t0 = run([CD]); if (t0.status !== 0) lỗi.push(`check-dau-vao trên bộ đề thật exit ${t0.status}: ${t0.stdout.split('\n').slice(0, 3).join(' | ')}`);
+      const DA = path.join(R, 'mentor', 'dau-vao'), đáps = fs.readdirSync(path.join(DA, 'dap-an')), đề0 = fs.readdirSync(path.join(DA, 'de-tinh-huong'))[1];
+      fs.rmSync(path.join(DA, 'dap-an', đáps[0]));
+      fs.appendFileSync(path.join(DA, 'de-tinh-huong', đề0), '\n**Lỗi C:** F1, F2\n');
+      const t1 = run([path.join(R, 'mentor', 'scripts', 'check-dau-vao.js')]);
+      if (t1.status === 0 || !t1.stdout.includes(`thiếu dap-an/${đáps[0]}`) || !/đề PHÁT có dấu đáp án/.test(t1.stdout)) lỗi.push(`check-dau-vao im trước đáp án mất / đề lộ đáp án (exit ${t1.status})`);
+    }
+    if (!lỗi.length) { pass++; console.log(`  ✅ 3mtr giáo trình mentor: --check đủ nguồn, tuần 6 phát ${tất.length} file không có cham.md, tracking đặt lại, chặn phát đè, nguồn gãy bị bắt, bộ đề đầu vào sạch + bản hỏng bị bắt`); }
+    else { fail++; for (const x of lỗi) console.log('  ❌ 3mtr ' + x); }
   });
   // 3ax. Số ca tự khai trong CLAUDE.md (steal B44). Chỉ test.js biết tổng của chính nó, nên phép
   // soát nằm ở đây chứ không ở lint (lint soát số skill/script/check của nó — check 40).

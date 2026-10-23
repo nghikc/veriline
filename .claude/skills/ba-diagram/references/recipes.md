@@ -17,6 +17,15 @@
 ## 1. Swimlane — `swimlane-beta` ⭐ (luồng ≥2 vai trò)
 **Khi nào:** quy trình nghiệp vụ có **≥2 vai trò/tác nhân** làm bước khác nhau, có bàn giao. **KHÔNG dùng flowchart cho loại này** (giấu vai trò).
 **Cách vẽ:** mỗi vai trò một `subgraph` = lane; node đặt trong lane người thực hiện; mũi tên chéo lane = bàn giao; nhãn cạnh `-->|nhãn|`. Cần Mermaid ≥ 11.16.
+**Nhãn bàn giao — nói THỨ được giao:** người đọc sơ đồ cần biết vai sau nhận *cái gì* từ vai trước. Hoặc nhãn cạnh chéo lane gọi tên thứ đó, hoặc node nhận đã nói rõ (`[Duyệt đơn nghỉ phép]` thì cạnh vào khỏi cần nhãn). Nhãn chung chung còn tệ hơn không nhãn — nó che chỗ thiếu.
+
+| ❌ Chung chung | ✅ Nói thứ được giao |
+|---|---|
+| `-->|Tiếp theo|` | `-->|Đơn nghỉ phép đã điền|` |
+| `-->|Chuyển|` · `-->|Gửi|` | `-->|Phiếu yêu cầu + ảnh chứng từ|` |
+| `-->|Xử lý|` | `-->|Yêu cầu hoàn tiền chờ duyệt|` |
+| `-->|OK|` · `-->|Xong|` | `-->|Kết quả duyệt + lý do|` |
+| `[Xử lý]` (node nhận, cạnh vào không nhãn) | `[Kiểm hồ sơ vay]` hoặc nhãn cạnh `-->|Hồ sơ vay|` |
 **Hướng — đếm node TRƯỚC khi chọn:** ≤ 8 node → `swimlane-beta LR` (lane là hàng ngang, đọc trái→phải). **> 8 node hoặc ≥ 4 lane → `swimlane-beta TD`** (lane là cột, sơ đồ dài xuống — trang cuộn dọc tự nhiên; LR với 13–25 node bị bóp bề rộng, chữ cắt, portal cuộn ngang — đo trên dự án helpdesk/dự án desktop 16/09/2026). Lint của `ba-portal` cảnh báo LR quá 8 node.
 ```mermaid
 swimlane-beta LR
@@ -174,23 +183,30 @@ journey
 
 ## 9. Gantt — `gantt`
 **Khi nào:** **tiến độ/timeline** (giai đoạn, mốc, chạy song song). Mô tả logic quy trình → activity.
-**Cách vẽ:** `dateFormat` + `axisFormat`; mỗi `section` = 1 phase; task `Tên :tag, id, start|after, dur`.
-**Song song:** task độc lập trong cùng phase cho **cùng mốc `after <cái nền>`** (KHÔNG nối chuỗi) → thanh chồng thời gian = song song. Chỉ `after` cho phụ thuộc thật. Chốt phase bằng `:milestone`; đường-găng/Must gắn `:crit`.
-**Trục tương đối** (không cam kết ngày): `axisFormat Tuan %W` (nhãn tuần) + title ghi "chờ chốt ngày". **`gantt` KHÔNG nhận `classDef`** — chỉ house theme + tag `:crit/:active/:done`; tránh dấu `:` trong tên task (Mermaid cắt tại `:`).
+**Hình ra:** `ba-portal` và `ba-diagram export` vẽ gantt bằng bộ vẽ riêng (`ba-toolkit/scripts/gantt.js`) thành **bảng kế hoạch**: cột *Công việc · Người làm · Bắt đầu · Số ngày* bên trái, thanh thời gian bên phải; mỗi `section` là một **nhóm** có thanh tổng + số ngày tổng; đường phụ thuộc cho `after`; mốc hình thoi; ngày nghỉ/lễ tô nền. Cú pháp bộ vẽ chưa đọc (`until`, giờ, `dateFormat` khác…) → tự rơi về Mermaid vẽ như cũ. Xem trước bảng: `node .claude/skills/ba-toolkit/scripts/gantt.js <file.md> [--index N]`.
+**Cách viết:**
+- `dateFormat YYYY-MM-DD`; mỗi `section` = 1 nhóm việc (phase); task `Tên · Người làm :tag, id, bắt đầu, dài`.
+- **Người làm không bắt buộc** — phần sau ` · ` cuối tên task (`API · Nam`). Không có ai thì bỏ, cột "Người làm" tự ẩn khi cả sơ đồ không có.
+- **Dài:** `3d` = 3 ngày **làm**; `excludes weekends, 2026-10-28` → ngày nghỉ/lễ không tính, thanh tự kéo qua (đúng cách Mermaid tính). "Số ngày" trong bảng là số ngày làm.
+- **Song song:** task độc lập cùng nhóm cho **cùng mốc `after <cái nền>`** (KHÔNG nối chuỗi). Chỉ `after` cho phụ thuộc thật; `after a b` = chờ cả hai.
+- Chốt nhóm bằng `:milestone, … 0d`; đường-găng/Must gắn `:crit`; đang làm `:active`; xong `:done`.
+- **Trục tương đối** (chưa cam kết ngày): `axisFormat Tuan %W` + title ghi "chờ chốt ngày" → bảng in **"Tuần N"** thay vì ngày cụ thể.
+- `gantt` KHÔNG nhận `classDef` — màu theo tag. Tránh `:` và `,` trong tên task (Mermaid cắt tại `:`).
 ```mermaid
 gantt
-  title Lo trinh phat hanh — truc tuong doi, cho PO chot ngay
+  title Kế hoạch ra mắt
   dateFormat YYYY-MM-DD
-  axisFormat Tuan %W
-  section Phase 1 - MVP
-    F01 Dang nhap    :crit, f01, 2026-01-05, 1w
-    F02 Cong viec    :crit, f02, after f01, 2w
-    Milestone MVP    :milestone, m1, after f02, 0d
-  section Phase 2
-    F03 Cong tac     :f03, after f02, 2w
-    F04 Bao cao      :f04, after f02, 1w
+  excludes weekends, 2026-10-28
+  section Phân tích
+    Phỏng vấn · Lan    :done, a1, 2026-10-19, 3d
+    User story · Lan   :active, a2, after a1, 3d
+  section Xây dựng
+    API · Nam          :crit, b1, after a2, 4d
+    Màn hình · Mai     :b2, after a2, 3d
+  section Ra mắt
+    Ra mắt             :milestone, m1, after b1 b2, 0d
 ```
-> `F03` và `F04` cùng `after f02` → chạy **song song** (không phụ thuộc nhau).
+> Bảng ra: *Phân tích* 19/10 · 6 ngày · *Xây dựng* 27/10 · 4 ngày (API 4 ngày làm, nhảy qua lễ 28/10 và cuối tuần) · *Ra mắt* 03/11. `API` và `Màn hình` cùng `after a2` → chạy **song song**.
 
 ## 10. Loại cần ENGINE NGOÀI — dùng bản Mermaid thay thế
 Vài loại sơ đồ phổ biến **không có trong Mermaid** (cần PlantUML/BPMN-engine/D2/DBML — toolkit này cố ý KHÔNG dùng để giữ zero-dependency). Khi người dùng yêu cầu chúng, **giải thích + vẽ bản Mermaid tương đương** (hoặc báo rõ nếu bắt buộc chuẩn gốc thì phải dùng công cụ ngoài):

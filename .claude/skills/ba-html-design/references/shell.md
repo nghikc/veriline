@@ -2,6 +2,8 @@
 
 > **Vì sao có file này.** `ba-html-design` chạy **một màn mỗi lần**, mỗi lần một phiên độc lập. Không có hợp đồng chung thì mỗi màn tự chế khung — và đó là chuyện đã xảy ra thật trong `example/`: màn thì có `app-header`, màn thì không; cùng một avatar mà ba tên class (`avatar` · `avatar xs` · `av xs`); **không màn nào có menu điều hướng**; hàng nút trạng thái chỗ 4 nút chỗ 14 nút trộn cả vai trò lẫn trạng thái nghiệp vụ. Người xem lướt qua 6 màn thấy 6 sản phẩm khác nhau.
 >
+> **Dự án đã có app chạy thật** (`ui-source.js` thấy URL dev, file shell/layout hay token CSS — `SKILL.md` bước 0b): **shell của app là khung chung**, file này chỉ lấp chỗ app chưa có (thanh trạng thái `statebar`, bộ tên class khi app không đặt). Thứ tự nguồn: app thật > `07-design-system.md` > file này.
+>
 > Hai khối dưới đây là **canon**. `check-shell.js` soát; lệch là gap của `ba-review <màn>`.
 
 ---
@@ -131,17 +133,16 @@ Khối cho **người đọc tài liệu** bấm xem từng trạng thái. Khôn
 1. **Chia NHÓM có nhãn**, không đổ một hàng nút. Đúng bốn nhóm, theo thứ tự: `ui` → `error` → `role` → `biz`. Nhóm nào màn không có thì bỏ hẳn, **không** đổi tên nhóm.
 2. **Nhóm `ui` chỉ dùng nhãn trong tập cố định:** `Mặc định` · `Đang tải` · `Rỗng` · `Lỗi`. **Bắt buộc có `Mặc định`**; ba nhãn kia chỉ đưa vào khi màn **thật sự có** trạng thái đó (form đăng nhập không có trạng thái "Rỗng" — thêm nút rỗng cho đủ bộ là bịa một trạng thái không tồn tại). Cấm biến thể tên: `Idle`/`Default` → `Mặc định`, `Empty`/`Lọc rỗng` → `Rỗng`. Ca cụ thể (`Sai mật khẩu`, `Khoá tạm`, `Chưa có ảnh đại diện`) **không thuộc nhóm `ui`** — chúng là ca lỗi/ca nghiệp vụ, giữ nguyên nhãn mô tả và để ở nhóm `error`/`biz`.
 3. **Ca lỗi phải có `data-trace`** trỏ mã `E-S..` trong ma trận lỗi của `srs.md`. Không có mã tương ứng → không được bịa nút.
-4. **Thu gọn được.** Màn nhiều trạng thái (đã gặp: 14 nút) mà đổ hết ra thì đẩy nội dung thật xuống dưới màn hình đầu — người xem tưởng đó là giao diện.
-5. **Vị trí quyết định `position` — đừng để hai thanh sticky đánh nhau.** Đặt thanh **SAU** `app-header` → `position:sticky;top:<chiều cao header>`. Đặt **TRƯỚC** header (hoặc màn `auth-shell` không có header) → **`position:static`**, cho nó cuộn đi. Hai phần tử cùng `sticky;top:0` trong một khối cuộn sẽ **chồng lên nhau** khi cuộn xuống — lỗi này chỉ lộ ra lúc kéo trang, không thấy khi mở lần đầu.
+4. **Nút nổi ở GÓC, mặc định THU GỌN (từ 12/10/2026).** Thanh không còn nằm đầu màn: một `<button class="statebar__toggle">` dạng **công tắc gạt nhỏ 34×20, không chữ** (`aria-label`+`title` "Trạng thái giao diện"; mờ `.55` khi nghỉ, rõ khi rê/focus, bật thì gạt phải và đổi màu brand; thay nút chữ "Trạng thái" vì chữ vẫn hút mắt người duyệt) nổi `position:fixed` ở **góc dưới phải**, có `aria-expanded`; bấm thì panel `.statebar__body` bung **ngay trên nút**, bấm lại hoặc **Esc** thì thu. Mở file là màn trông như production — thanh đầu màn (kể cả chỉ một dòng tiêu đề) đẩy nội dung thật xuống và người xem tưởng nó là giao diện (đã gặp: 14 nút chiếm nửa màn đầu). Panel `fixed` nên **không đẩy layout** của màn; đặt khối ở đâu trong `<body>` cũng được, không còn chuyện `sticky` đánh nhau với `app-header`.
+5. **Dấu nhận không đổi:** `.statebar#statebar` · `.statebar__body` · `.statebar__group[data-group]` · `.statebar__label` · `.statebar__btn` (+ `data-trace`) · cặp mốc `▼/▲ UI-STATE-BAR`. `check-shell`, `check-el`, `check-design`, `shot.js` (bấm nút bằng `click()`, không cần mở panel) và canvas (`canvas.js gallery` ẩn hẳn thanh, chuyển trạng thái sang khung Spec) đọc đúng các dấu này. **File kiểu cũ** (thanh đầu màn, `data-open="true"`, toggle chữ "◆ Trạng thái giao diện") **vẫn hợp lệ** với mọi checker — chuyển dần khi dựng lại màn (đổi CSS `.statebar`/`.statebar__toggle`/`.statebar__body` theo §2.3, chuyển nút toggle xuống cuối khối, `data-open="false"`, thêm Esc).
 6. **Không tự đặt `position:relative` cho `.app-header`.** Header đã `position:sticky`, mà mọi phần tử `position` khác `static` đều là containing block cho con `absolute` — ghi đè thành `relative` là **giết luôn sticky**, cũng chỉ lộ ra khi cuộn.
 
 ### 2.2 Markup canon
 ```html
 <!-- ▼ UI-STATE-BAR — chỉ có trong html-design, KHÔNG có trong production -->
-<div class="statebar" id="statebar" data-open="true">
-  <button class="statebar__toggle" aria-expanded="true" aria-controls="statebarBody"
-          onclick="statebarToggle(this)">◆ Trạng thái giao diện <span aria-hidden="true">▾</span></button>
-  <div class="statebar__body" id="statebarBody">
+<div class="statebar" id="statebar" data-open="false">
+  <div class="statebar__body" id="statebarBody" role="region" aria-label="Trạng thái giao diện">
+    <p class="statebar__note">Trạng thái giao diện — bản đặc tả BA, không có trong production</p>
 
     <div class="statebar__group" data-group="ui">
       <span class="statebar__label">Trạng thái UI</span>
@@ -159,18 +160,29 @@ Khối cho **người đọc tài liệu** bấm xem từng trạng thái. Khôn
 
     <!-- data-group="role" khi màn đổi theo vai trò · data-group="biz" cho trạng thái nghiệp vụ -->
   </div>
+  <!-- nút SAU panel: cột flex dồn đáy → panel bung ngay TRÊN nút -->
+  <button class="statebar__toggle" aria-expanded="false" aria-controls="statebarBody"
+          aria-label="Trạng thái giao diện" title="Trạng thái giao diện (bản đặc tả BA)"
+          onclick="statebarToggle(this)"></button>
 </div>
 <!-- ▲ UI-STATE-BAR -->
 ```
 
 ### 2.3 CSS + JS canon
 ```css
-.statebar{position:sticky;top:56px;z-index:40;background:var(--surface-app,#f9fafb);
-  border-bottom:1px dashed var(--border,#e5e7eb);font-size:12px}
-.statebar__toggle{display:block;width:100%;text-align:left;padding:6px 16px;background:none;
-  border:0;color:var(--text-placeholder,#9ca3af);cursor:pointer;font-size:11px;
-  letter-spacing:.02em}
-.statebar__body{display:none;padding:0 16px 8px;flex-direction:column;gap:6px}
+.statebar{position:fixed;right:16px;bottom:16px;z-index:1000;display:flex;flex-direction:column;
+  align-items:flex-end;gap:8px;font-size:12px}
+.statebar__toggle{position:relative;width:34px;height:20px;padding:0;border:0;border-radius:999px;
+  background:var(--border,#d1d5db);cursor:pointer;opacity:.55;transition:opacity .15s,background .15s}
+.statebar__toggle::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;
+  background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+.statebar__toggle:hover,.statebar__toggle:focus-visible,.statebar__toggle[aria-expanded="true"]{opacity:1}
+.statebar__toggle[aria-expanded="true"]{background:var(--brand-primary,#4f46e5)}
+.statebar__toggle[aria-expanded="true"]::after{transform:translateX(14px)}
+.statebar__body{display:none;flex-direction:column;gap:6px;width:min(560px,calc(100vw - 32px));
+  max-height:min(70vh,560px);overflow:auto;padding:12px 14px;background:var(--surface-card,#fff);
+  border:1px solid var(--border,#d1d5db);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.16)}
+.statebar__note{margin:0 0 4px;color:var(--text-placeholder,#9ca3af);font-size:11px}
 .statebar[data-open="true"] .statebar__body{display:flex}
 .statebar__group{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .statebar__label{flex:0 0 96px;color:var(--text-placeholder,#9ca3af);font-size:11px}
@@ -182,6 +194,11 @@ Khối cho **người đọc tài liệu** bấm xem từng trạng thái. Khôn
 ```
 ```html
 <script>
+document.addEventListener('keydown', function (e) {   // Esc thu panel
+  if (e.key !== 'Escape') return;
+  var t = document.querySelector('.statebar[data-open="true"] .statebar__toggle');
+  if (t) statebarToggle(t);
+});
 function statebarToggle(btn){
   const box = btn.closest('.statebar');
   const open = box.dataset.open !== 'true';
